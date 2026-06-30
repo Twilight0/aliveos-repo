@@ -3,6 +3,9 @@
 # Exit on errors
 set -e
 
+# Optimize makepkg to compile on all available CPU cores
+export MAKEFLAGS="-j$(nproc)"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
 BUILD_DIR="$REPO_DIR/build"
