@@ -23,7 +23,6 @@ PACKAGES=(
   "xlibre-video-vesa:"
   "xlibre-video-fbdev:"
   "xlibre-video-vmware:"
-  "dory:"
   "dory-audio-tab-git:dory-audio-tab"
   "dory-compare-git:dory-compare"
   "dory-dropbox-git:dory-dropbox"
@@ -53,7 +52,36 @@ mkdir -p "$OUTPUT_DIR"
 # Clean previous builds in build directory
 rm -rf "$BUILD_DIR"/*
 
-# 1. Build AUR Packages
+# 1. Build Local Packages
+echo ""
+echo "=== Building Local Packages ==="
+if [ -d "$REPO_DIR/packages" ]; then
+  for pkg_dir in "$REPO_DIR"/packages/*; do
+    if [ -d "$pkg_dir" ]; then
+      pkg_name=$(basename "$pkg_dir")
+      echo ""
+      echo "----------------------------------------"
+      echo "Building local package: $pkg_name"
+      echo "----------------------------------------"
+      
+      cd "$pkg_dir"
+      
+      # Run makepkg
+      makepkg --syncdeps --noconfirm --nocheck --clean
+      
+      echo "Copying built packages to $OUTPUT_DIR..."
+      cp *.pkg.tar.zst "$OUTPUT_DIR/"
+      
+      # Install compiled package locally to satisfy dependencies for subsequent builds
+      echo "Installing compiled package locally..."
+      sudo pacman -U --noconfirm *.pkg.tar.zst || pacman -U --noconfirm *.pkg.tar.zst
+      
+      cd "$REPO_DIR"
+    fi
+  done
+fi
+
+# 2. Build AUR Packages
 for item in "${PACKAGES[@]}"; do
   IFS=':' read -r aur_name target_name <<< "$item"
   if [ -z "$target_name" ]; then
@@ -89,35 +117,6 @@ for item in "${PACKAGES[@]}"; do
   
   cd "$REPO_DIR"
 done
-
-# 2. Build Local Packages
-echo ""
-echo "=== Building Local Packages ==="
-if [ -d "$REPO_DIR/packages" ]; then
-  for pkg_dir in "$REPO_DIR"/packages/*; do
-    if [ -d "$pkg_dir" ]; then
-      pkg_name=$(basename "$pkg_dir")
-      echo ""
-      echo "----------------------------------------"
-      echo "Building local package: $pkg_name"
-      echo "----------------------------------------"
-      
-      cd "$pkg_dir"
-      
-      # Run makepkg
-      makepkg --syncdeps --noconfirm --nocheck --clean
-      
-      echo "Copying built packages to $OUTPUT_DIR..."
-      cp *.pkg.tar.zst "$OUTPUT_DIR/"
-      
-      # Install compiled package locally to satisfy dependencies for subsequent builds
-      echo "Installing compiled package locally..."
-      sudo pacman -U --noconfirm *.pkg.tar.zst || pacman -U --noconfirm *.pkg.tar.zst
-      
-      cd "$REPO_DIR"
-    fi
-  done
-fi
 
 echo ""
 echo "=== Generating Pacman Repository Database ==="
