@@ -1,0 +1,18 @@
+# Maintainer: Twilight <twilight@aliveos.org>
+pkgname=aliveos-icon-theme
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Custom neon dark square icon theme for AliveOS"
+arch=('any')
+url="https://github.com/twilight/aliveos-repo"
+license=('GPL3')
+depends=('hicolor-icon-theme')
+source=()
+
+package() {
+  # Create targets
+  install -d "${pkgdir}/usr/share/icons/aliveos"
+  
+  # Copy theme assets recursively (including symlinks and index.theme)
+  cp -a "${startdir}/aliveos/." "${pkgdir}/usr/share/icons/aliveos/"
+}

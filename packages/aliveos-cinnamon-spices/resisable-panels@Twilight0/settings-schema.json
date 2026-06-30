@@ -1,0 +1,58 @@
+{
+    "section-resisable": {
+        "type": "section",
+        "description": "Resizable Panel Settings"
+    },
+    "custom-size-enabled": {
+        "type": "switch",
+        "default": true,
+        "description": "Enable Custom Size",
+        "tooltip": "Allows resizing the panel length instead of spanning the entire screen edge."
+    },
+    "next-panel-button": {
+        "type": "button",
+        "description": "Configure Next Panel",
+        "tooltip": "Cycles to configure the next active panel and highlights it.",
+        "callback": "on_next_panel_pressed"
+    },
+    "prev-panel-button": {
+        "type": "button",
+        "description": "Configure Previous Panel",
+        "tooltip": "Cycles to configure the previous active panel and highlights it.",
+        "callback": "on_prev_panel_pressed"
+    },
+    "selected-panel-size": {
+        "type": "spinbutton",
+        "default": 80,
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "units": "%",
+        "description": "Selected Panel Size",
+        "tooltip": "Adjusts the size (width for horizontal, height for vertical) of the currently highlighted panel."
+    },
+    "selected-panel-floating": {
+        "type": "switch",
+        "default": false,
+        "description": "Enable Floating Panel",
+        "tooltip": "Detaches the currently highlighted panel from the screen edge."
+    },
+    "selected-panel-floating-offset": {
+        "type": "spinbutton",
+        "default": 10,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "units": "px",
+        "description": "Floating Offset",
+        "tooltip": "Distance in pixels between the currently highlighted panel and the screen edge."
+    },
+    "panel-configs-dict": {
+        "type": "generic",
+        "default": {}
+    },
+    "panel-sizes-dict": {
+        "type": "generic",
+        "default": {}
+    }
+}

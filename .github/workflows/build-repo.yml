@@ -1,0 +1,61 @@
+name: Build AliveOS Pacman Repository
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Run weekly on Sundays
+  workflow_dispatch:
+
+jobs:
+  build-repo:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+
+    steps:
+      - name: Install Base Build Tools
+        run: |
+          pacman -Sy --noconfirm git base-devel sudo binutils libarchive grep
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Builder User
+        run: |
+          # Create non-root user for makepkg
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder
+          chmod 440 /etc/sudoers.d/builder
+          
+          # Initialize pacman keyring
+          pacman-key --init
+          pacman-key --populate archlinux
+
+      - name: Configure Pacman with Chaotic-AUR
+        run: |
+          # Import Chaotic-AUR keys & repository to resolve AUR dependencies quickly
+          pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+          pacman-key --lsign-key 3056513887B78AEB
+          pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+          
+          cat <<EOF >> /etc/pacman.conf
+
+          [chaotic-aur]
+          Include = /etc/pacman.d/chaotic-mirrorlist
+          EOF
+          pacman -Sy
+
+      - name: Set permissions for builder
+        run: |
+          chown -R builder:builder /github/workspace
+
+      - name: Build Packages & Generate Repository Database
+        run: |
+          sudo -u builder bash scripts/build-packages.sh
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: x86_64
+          branch: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
