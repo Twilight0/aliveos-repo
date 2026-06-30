@@ -23,7 +23,7 @@ PACKAGES=(
   "aur:xlibre-video-vesa:"
   "aur:xlibre-video-fbdev:"
   "aur:xlibre-video-vmware:"
-  "local:dory"
+  "aur:dory-git:dory"
   "aur:dory-audio-tab-git:dory-audio-tab"
   "aur:dory-compare-git:dory-compare"
   "aur:dory-dropbox-git:dory-dropbox"
