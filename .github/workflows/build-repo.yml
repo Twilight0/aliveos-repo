@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Install Base Build Tools
         run: |
-          pacman -Sy --noconfirm git base-devel sudo binutils libarchive grep intltool
+          pacman -Sy --noconfirm git base-devel sudo binutils libarchive grep intltool glib2-devel
 
       - name: Checkout Code
         uses: actions/checkout@v4
