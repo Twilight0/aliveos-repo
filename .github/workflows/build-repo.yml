@@ -50,7 +50,7 @@ jobs:
 
       - name: Set permissions for builder
         run: |
-          chown -R builder:builder /github/workspace
+          chown -R builder:builder "$GITHUB_WORKSPACE"
 
       - name: Build Packages & Generate Repository Database
         run: |
