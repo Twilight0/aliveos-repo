@@ -1,6 +1,9 @@
 name: Build AliveOS Pacman Repository
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     - cron: '0 0 * * 0' # Run weekly on Sundays
   workflow_dispatch:
