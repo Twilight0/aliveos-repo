@@ -11,6 +11,15 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Define packages to build (Format: "AUR_NAME:TARGET_NAME")
 # If target name is empty, it will not be renamed.
 PACKAGES=(
+  "xlibre-xserver:"
+  "xlibre-input-libinput:"
+  "xlibre-video-amdgpu:"
+  "xlibre-video-ati:"
+  "xlibre-video-intel:"
+  "xlibre-video-nouveau:"
+  "xlibre-video-vesa:"
+  "xlibre-video-fbdev:"
+  "xlibre-video-vmware:"
   "dory:"
   "dory-audio-tab-git:dory-audio-tab"
   "dory-compare-git:dory-compare"
