@@ -49,7 +49,6 @@ PACKAGES=(
   "local:aliveos-cinnamon-spices"
   "aur:grub-silent-ldfix:"
   "aur:viewmd:"
-  "aur:httptoolkit-bin:"
 )
 
 echo "=== AliveOS Package Repository Builder ==="
