@@ -1,0 +1,24 @@
+# Maintainer: Twilight <twilight@aliveos.org>
+pkgname=aliveos-cinnamon-spices
+pkgver=1.0.0
+pkgrel=2
+pkgdesc="Custom Cinnamon applets and extensions for AliveOS"
+arch=('any')
+url="https://github.com/twilight/aliveos-repo"
+license=('GPL3')
+depends=('cinnamon' 'nerd-dictation' 'pacman-contrib')
+source=()
+
+package() {
+  # Install applets
+  install -d "${pkgdir}/usr/share/cinnamon/applets"
+  cp -r "${startdir}/spicy-clipboard-applet@Twilight0" "${pkgdir}/usr/share/cinnamon/applets/"
+  cp -r "${startdir}/nerd-dict-applet@Twilight0" "${pkgdir}/usr/share/cinnamon/applets/"
+  cp -r "${startdir}/pacman-updates@Twilight0" "${pkgdir}/usr/share/cinnamon/applets/"
+  cp -r "${startdir}/SpicesUpdate@claudiux" "${pkgdir}/usr/share/cinnamon/applets/"
+  cp -r "${startdir}/placesCenter@scollins" "${pkgdir}/usr/share/cinnamon/applets/"
+
+  # Install extensions
+  install -d "${pkgdir}/usr/share/cinnamon/extensions"
+  cp -r "${startdir}/resisable-panels@Twilight0" "${pkgdir}/usr/share/cinnamon/extensions/"
+}
