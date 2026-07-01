@@ -35,9 +35,10 @@ def clean_pkgbuild(filepath, original_name, target_name):
     else:
         content += f"\n{conflicts_expr}\n"
 
-    # 3. Replace cross-dependencies for renamed packages
     dependency_renames = {
+        "nemo": "dory",
         "dory-git": "dory",
+        "dory-python-git": "dory-python",
         "nerd-dictation-git": "nerd-dictation",
         "xdg-desktop-portal-xapp-filepicker-git": "xdg-desktop-portal-xapp-filepicker"
     }
