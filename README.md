@@ -31,6 +31,11 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 9.  **`httptoolkit-bin`** - Binary release of HTTP Toolkit debugging client.
 10. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
 11. **`xlibre-xserver`** & **Drivers** - XLibre replacement for X11 display server along with modern input and display drivers.
+12. **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview`:
+    *   `cogl` - Object oriented GL/GLES abstraction utility layer.
+    *   `clutter` - Toolkit for creating dynamic user interfaces.
+    *   `clutter-gtk` - Clutter integration with GTK+.
+    *   `clutter-gst` - GStreamer bindings for Clutter.
 
 ---
 
