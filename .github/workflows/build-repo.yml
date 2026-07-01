@@ -51,6 +51,10 @@ jobs:
       - name: Set permissions for builder
         run: |
           chown -R builder:builder "$GITHUB_WORKSPACE"
+          # Configure Git settings for the builder user to handle slow AUR connections gracefully
+          sudo -u builder git config --global http.postBuffer 524288000
+          sudo -u builder git config --global http.lowSpeedLimit 0
+          sudo -u builder git config --global http.lowSpeedTime 999999
 
       - name: Build Packages & Generate Repository Database
         run: |
