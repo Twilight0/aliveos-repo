@@ -45,8 +45,6 @@ PACKAGES=(
   "aur:xdg-desktop-portal-xapp-filepicker-git:xdg-desktop-portal-xapp-filepicker"
   "aur:cinnamon-no-nemo:"
   "aur:nerd-dictation-git:nerd-dictation"
-  "local:aliveos-icon-theme"
-  "local:aliveos-cinnamon-spices"
   "aur:grub-silent-ldfix:"
   "aur:viewmd:"
 )
