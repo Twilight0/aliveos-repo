@@ -60,9 +60,14 @@ jobs:
         run: |
           sudo -u builder bash scripts/build-packages.sh
 
+      - name: Prepare Pages Subdirectory Structure
+        run: |
+          mkdir -p deploy-dist
+          mv x86_64 deploy-dist/x86_64
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: x86_64
+          folder: deploy-dist
           branch: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
