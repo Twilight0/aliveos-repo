@@ -15,7 +15,6 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Format: "local:NAME" or "aur:AUR_NAME:TARGET_NAME"
 PACKAGES=(
   "aur:xlibre-xserver:"
-  "aur:xlibre-xserver-common:"
   "aur:xlibre-input-libinput:"
   "aur:xlibre-video-amdgpu:"
   "aur:xlibre-video-ati:"
