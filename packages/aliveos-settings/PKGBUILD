@@ -1,0 +1,82 @@
+# Maintainer: Twilight <twilight@aliveos.org>
+# Note: Sources are pulled from the standalone aliveos-settings GitHub repo
+# so this package stays in sync with the canonical project.
+
+pkgname=aliveos-settings
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Distro-level configuration and customization bundle for AliveOS (schemas, applets, extensions, actions)"
+arch=('any')
+url="https://github.com/Twilight0/aliveos-settings"
+license=('GPL3')
+depends=(
+  'cinnamon-no-nemo'
+  'dory'
+  'xdotool'
+  'xclip'
+  'yad'
+  'zbar'
+  'blueman'
+  'nerd-dictation'
+)
+optdepends=(
+  'dotool: optional Wayland auto-paste for nerd-dict-applet'
+  'code: for ide-launcher-advanced action'
+  'code-insiders: for ide-launcher-advanced action'
+  'codium: for ide-launcher-advanced action'
+  'sublime-text: for ide-launcher-advanced action'
+)
+install=aliveos-settings.install
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
+sha256sums=('SKIP')
+backup=('usr/share/glib-2.0/schemas/99_aliveos.gschema.override')
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  # --- Applets ---
+  install -d "${pkgdir}/usr/share/cinnamon/applets"
+  for applet in applets/*/; do
+    cp -r "$applet" "${pkgdir}/usr/share/cinnamon/applets/"
+  done
+
+  # --- Extensions ---
+  install -d "${pkgdir}/usr/share/cinnamon/extensions"
+  for ext in extensions/*/; do
+    cp -r "$ext" "${pkgdir}/usr/share/cinnamon/extensions/"
+  done
+
+  # --- Dory/Nemo actions ---
+  install -d "${pkgdir}/usr/share/dory/actions"
+  for action in actions/*.nemo_action actions/*.dory_action; do
+    [ -f "$action" ] && cp "$action" "${pkgdir}/usr/share/dory/actions/"
+  done
+  for dir in actions/*/; do
+    [ -d "$dir" ] && cp -r "$dir" "${pkgdir}/usr/share/dory/actions/"
+  done
+
+  # --- GSettings overrides ---
+  if [ -d schemas/compiled ] && ls schemas/compiled/*.gschema.override >/dev/null 2>&1; then
+    install -d "${pkgdir}/usr/share/glib-2.0/schemas"
+    cp schemas/compiled/*.gschema.override "${pkgdir}/usr/share/glib-2.0/schemas/"
+  fi
+
+  # --- Distro assets ---
+  if [ -d assets ]; then
+    install -d "${pkgdir}/usr/share/aliveos"
+    cp -r assets/* "${pkgdir}/usr/share/aliveos/"
+  fi
+
+  # --- pacman hooks ---
+  if [ -d hooks ]; then
+    install -d "${pkgdir}/usr/share/libalpm/hooks"
+    cp hooks/*.hook "${pkgdir}/usr/share/libalpm/hooks/" 2>/dev/null || true
+  fi
+
+  # --- Helper scripts ---
+  if [ -d scripts ]; then
+    install -d "${pkgdir}/usr/lib/aliveos"
+    cp scripts/*.sh "${pkgdir}/usr/lib/aliveos/" 2>/dev/null || true
+    chmod +x "${pkgdir}/usr/lib/aliveos"/*.sh 2>/dev/null || true
+  fi
+}
