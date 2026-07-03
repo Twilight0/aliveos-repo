@@ -49,6 +49,7 @@ PACKAGES=(
   "local:aliveos-assets"
   "aur:grub-silent-ldfix:"
   "aur:viewmd:"
+  "aur:valuate-git:valuate"
 )
 
 echo "=== AliveOS Package Repository Builder ==="
