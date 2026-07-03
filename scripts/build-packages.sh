@@ -14,7 +14,7 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Define packages to build in precise dependency order
 # Format: "local:NAME" or "aur:AUR_NAME:TARGET_NAME"
 PACKAGES=(
-  "aur:xlibre-xserver:"
+  "local:xlibre-xserver-legacyabi"
   "aur:xlibre-input-libinput:"
   "aur:xlibre-video-amdgpu:"
   "aur:xlibre-video-ati:"
@@ -75,11 +75,11 @@ for item in "${PACKAGES[@]}"; do
     makepkg --syncdeps --noconfirm --nocheck --clean
     
     echo "Copying built packages to $OUTPUT_DIR..."
-    cp "${pkg_name}"-*.pkg.tar.zst "$OUTPUT_DIR/"
+    cp *.pkg.tar.zst "$OUTPUT_DIR/"
     
     # Install compiled package locally to satisfy dependencies for subsequent builds
     echo "Installing compiled package locally..."
-    sudo pacman -U --noconfirm "${pkg_name}"-*.pkg.tar.zst || pacman -U --noconfirm "${pkg_name}"-*.pkg.tar.zst
+    sudo pacman -U --noconfirm *.pkg.tar.zst || pacman -U --noconfirm *.pkg.tar.zst
     
     cd "$REPO_DIR"
   else
