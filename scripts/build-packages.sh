@@ -46,6 +46,7 @@ PACKAGES=(
   "aur:cinnamon-no-nemo:"
   "aur:nerd-dictation-git:nerd-dictation"
   "local:aliveos-settings"
+  "local:aliveos-assets"
   "aur:grub-silent-ldfix:"
   "aur:viewmd:"
 )
