@@ -90,9 +90,24 @@ for item in "${PACKAGES[@]}"; do
     echo "----------------------------------------"
 
     cd "$BUILD_DIR"
-    
-    # Clone AUR package
-    git clone --depth=1 "https://aur.archlinux.org/${pkg_name}.git" "$pkg_name"
+
+    # Clone AUR package with retry loop (handles transient AUR SSL/network drops)
+    max_attempts=5
+    attempt=1
+    while [ "$attempt" -le "$max_attempts" ]; do
+      rm -rf "$pkg_name"
+      echo "Cloning AUR package (attempt $attempt/$max_attempts)..."
+      if git clone --depth=1 "https://aur.archlinux.org/${pkg_name}.git" "$pkg_name"; then
+        break
+      fi
+      if [ "$attempt" -eq "$max_attempts" ]; then
+        echo "ERROR: Failed to clone $pkg_name from AUR after $max_attempts attempts" >&2
+        exit 1
+      fi
+      echo "Clone failed, retrying in $((attempt * 10)) seconds..."
+      sleep $((attempt * 10))
+      attempt=$((attempt + 1))
+    done
     cd "$pkg_name"
 
     # Rename package if needed
