@@ -2,7 +2,7 @@
 # Sources from the standalone aliveos-assets GitHub repo (tag 1.0.0).
 
 pkgname=aliveos-assets
-pkgver=1.0.0
+pkgver=1.1.0
 pkgrel=1
 pkgdesc="Distro identity assets for AliveOS: neon dark square icon theme, wallpapers, and system logo"
 arch=('any')
