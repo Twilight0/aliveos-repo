@@ -6,35 +6,13 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 
 ## Packages Included
 
-1.  **`aliveos-icon-theme`** - Custom neon dark square icon theme for AliveOS.
-2.  **`aliveos-cinnamon-spices`** - Custom Cinnamon applets and extensions (resizable panels, clipboard, updates, places).
-3.  **`cinnamon-no-nemo`** - Cinnamon desktop environment repackaged without Nemo dependency (utilizes Dory).
-4.  **`dory`** - Nemo-based standalone file chooser portal helper.
-5.  **`dory-extensions`** - Standard set of file manager extensions for Dory:
-    *   `dory-audio-tab`
-    *   `dory-compare`
-    *   `dory-dropbox`
-    *   `dory-emblems`
-    *   `dory-fileroller`
-    *   `dory-image-converter`
-    *   `dory-media-columns`
-    *   `dory-pastebin`
-    *   `dory-preview`
-    *   `dory-python`
-    *   `dory-repairer`
-    *   `dory-seahorse`
-    *   `dory-share`
-    *   `dory-terminal`
-6.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
-7.  **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
-8.  **`viewmd`** - Lightweight GTK-based markdown viewer.
-9.  **`nerd-dictation`** - Voice typing/dictation system using Vosk.
-10. **`xlibre-xserver`** & **Drivers** - XLibre replacement for X11 display server along with modern input and display drivers.
-11. **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview`:
-    *   `cogl` - Object oriented GL/GLES abstraction utility layer.
-    *   `clutter` - Toolkit for creating dynamic user interfaces.
-    *   `clutter-gtk` - Clutter integration with GTK+.
-    *   `clutter-gst` - GStreamer bindings for Clutter.
+1.  **`aliveos-assets`** - Custom icon themes and graphic assets for AliveOS.
+2.  **`aliveos-settings`** - Core configuration and styling packages for AliveOS.
+3.  **`graphite-gtk-theme-git`** - Graphite GTK theme (includes the black compact variant).
+4.  **`tela-icon-theme`** - Tela flat icon theme.
+5.  **`xlibre-xserver-legacyabi`** - XLibre X11 display server drop-in replacement with legacy ABI support.
+6.  **`nvidia-390xx-utils`** - Patched legacy NVIDIA 390.xx drivers compatible with modern kernels and Xlibre.
+7.  **`nvidia-340xx-utils`** - Patched legacy NVIDIA 340.xx drivers compatible with modern kernels and Xlibre.
 
 ---
 
