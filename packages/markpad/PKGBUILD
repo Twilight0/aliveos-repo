@@ -1,0 +1,24 @@
+# Maintainer: Twilight <twilight@aliveos.org>
+# Sources from the MarkPad GitHub repo (tag 1.0.0).
+
+pkgname=markpad
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Lightweight GTK3 markdown editor/viewer"
+arch=('x86_64')
+url="https://github.com/Twilight0/MarkPad"
+license=('MIT')
+depends=('gtk3')
+makedepends=('gcc' 'make' 'pkgconf')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make install DESTDIR="${pkgdir}" PREFIX=/usr
+}
