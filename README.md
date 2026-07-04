@@ -8,21 +8,20 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 
 1.  **`aliveos-assets`** - Custom icon themes and graphic assets for AliveOS.
 2.  **`aliveos-settings`** - Core configuration and styling packages for AliveOS.
-3.  **`aliveos-cinnamon-spices`** - Custom Cinnamon applets and extensions.
-4.  **`cinnamon-no-nemo`** - Cinnamon desktop environment repackaged without Nemo dependency (utilizes Dory).
-5.  **`dory`** - Nemo-based standalone file chooser portal helper.
-6.  **`dory-extensions`** - Standard set of file manager extensions for Dory:
+3.  **`cinnamon-no-nemo`** - Cinnamon desktop environment repackaged without Nemo dependency (utilizes Dory).
+4.  **`dory`** - Nemo-based standalone file chooser portal helper.
+5.  **`dory-extensions`** - Standard set of file manager extensions for Dory:
     *   `dory-audio-tab`, `dory-compare`, `dory-dropbox`, `dory-emblems`, `dory-fileroller`, `dory-image-converter`, `dory-media-columns`, `dory-pastebin`, `dory-preview`, `dory-python`, `dory-repairer`, `dory-seahorse`, `dory-share`, `dory-terminal`
-7.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
-8.  **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
-9.  **`markpad`** - Lightweight GTK3 markdown editor/viewer.
-10. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
-11. **`xlibre-xserver-legacyabi`** & **Drivers** - XLibre drop-in replacement for X11 display server along with modern input and display drivers.
-12. **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview` (`cogl`, `clutter`, `clutter-gtk`, `clutter-gst`).
-13. **`graphite-gtk-theme-git`** - Graphite GTK theme (includes the black compact variant).
-14. **`tela-icon-theme`** - Tela flat icon theme.
-15. **`nvidia-390xx-utils`** - Patched legacy NVIDIA 390.xx drivers compatible with modern kernels and Xlibre.
-16. **`nvidia-340xx-utils`** - Patched legacy NVIDIA 340.xx drivers compatible with modern kernels and Xlibre.
+6.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
+7.  **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
+8.  **`markpad`** - Lightweight GTK3 markdown editor/viewer.
+9.  **`nerd-dictation`** - Voice typing/dictation system using Vosk.
+10. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
+11. **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview` (`cogl`, `clutter`, `clutter-gtk`, `clutter-gst`).
+12. **`graphite-gtk-theme-git`** - Graphite GTK theme (includes the black compact variant).
+13. **`tela-icon-theme`** - Tela flat icon theme.
+14. **`nvidia-390xx-utils`** - Patched legacy NVIDIA 390.xx drivers compatible with modern kernels and Xlibre.
+15. **`nvidia-340xx-utils`** - Patched legacy NVIDIA 340.xx drivers compatible with modern kernels and Xlibre.
 
 ---
 
