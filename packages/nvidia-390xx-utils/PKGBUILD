@@ -38,7 +38,8 @@ source=('nvidia-drm-outputclass.conf'
         kernel-6.18-nv_workqueue_flush.patch
         kernel-7.0.patch
         kernel-4.16+-memory-encryption.patch
-        'nvidia-drm-outputclass-xlibre.conf')
+        'nvidia-drm-outputclass-xlibre.conf'
+        'xlibre.conf')
 b2sums=('8e24aea70b139185bd682b080d32aeda673e6e92b45a90e6f6e0d736674180400bc8bd1aa5c66b8d033fc9d5e0cfffed456a87298bd93a3afbbc30b8dc48c4e9'
         'c1da4ce5784e43385465913a95053a3e54f800aac6f1b49f33e2a77504d76da5e6db6ec7074fbe7ba5f52dcef9e1ebaa620942c33ff825a56caba5c9c8b0d1be'
         '67e32932eeddda8fef667d25c34faf7b3a02f01cf9c15a97e5613bd44a0e8dcf7396e25399a52701f55dd18054c689720f237bb07d5bd580394d8dc8c9d05534'
@@ -63,7 +64,8 @@ b2sums=('8e24aea70b139185bd682b080d32aeda673e6e92b45a90e6f6e0d736674180400bc8bd1
         '628b626a3e8d22bc4fd6b12ee7c6b18fefd1aa23d40d5e415b065817ec9a1b15e48766e28d28e291ac6212b8d8dcccb5326bb81b9b825b61de0eea2f6cd3a26f'
         '6b07e090110c9d4de654b4cd082ab1fb3b78261630db52c468abdbe402d427b65876e16568aae6cb6504e8b5b6be536e02c35d7c7501bad9ea2c1563f1c43fe6'
         'a8234f542c2324ad698443e3decf7b6eacf3cb420b7aded787f102a8d32b64c2a8d45ea58e37a5e3b6f2f060f0cccd63d3a182065f57c606006d0ff8c7f6bb05'
-        '390c3380acc86cc47b7e23c9342131d925bc08a1a2c53763613a05150b5465aced3dd486ae9f04875239644b3ca64df081f4c82172616fff511c2a4374121a4d')
+        '390c3380acc86cc47b7e23c9342131d925bc08a1a2c53763613a05150b5465aced3dd486ae9f04875239644b3ca64df081f4c82172616fff511c2a4374121a4d'
+        '996a6b1936a45f74f1c61edc8fc5cb85317e298673601714f3119929c56e83edcac042990997dc9d345efbe21ea70e04e927e73a547d3ccd74e5bce24b868e72')
 
 create_links() {
     # create soname links
@@ -294,8 +296,9 @@ package_nvidia-390xx-utils() {
     ln -s nvidia "${pkgdir}/usr/share/doc/nvidia-utils"
 
     # distro specific files must be installed in /usr/share/X11/xorg.conf.d
-    if pacman -Qsq "^xlibre" >/dev/null 2>&1; then
+    if pacman -Qsq "^xlibre.*legacyabi$" >/dev/null 2>&1; then
         install -Dm644 "${srcdir}/nvidia-drm-outputclass-xlibre.conf" "${pkgdir}/usr/share/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf"
+        install -Dm644 "${srcdir}/xlibre.conf" "${pkgdir}/usr/share/X11/xorg.conf.d/xlibre.conf"
     else
         install -Dm644 "${srcdir}/nvidia-drm-outputclass.conf" "${pkgdir}/usr/share/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf"
     fi
