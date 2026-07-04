@@ -15,7 +15,7 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
     *   `dory-audio-tab`, `dory-compare`, `dory-dropbox`, `dory-emblems`, `dory-fileroller`, `dory-image-converter`, `dory-media-columns`, `dory-pastebin`, `dory-preview`, `dory-python`, `dory-repairer`, `dory-seahorse`, `dory-share`, `dory-terminal`
 7.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
 8.  **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
-9.  **`viewmd`** - Lightweight GTK-based markdown viewer.
+9.  **`markpad`** - Lightweight GTK3 markdown editor/viewer.
 10. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
 11. **`xlibre-xserver-legacyabi`** & **Drivers** - XLibre drop-in replacement for X11 display server along with modern input and display drivers.
 12. **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview` (`cogl`, `clutter`, `clutter-gtk`, `clutter-gst`).
