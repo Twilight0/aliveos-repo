@@ -51,6 +51,12 @@ jobs:
           EOF
           pacman -Sy
 
+      - name: Import CachyOS GPG key
+        run: |
+          # Import CachyOS kernel signing key
+          pacman-key --recv-key E8B9AA39F054E30E8290D492C3C4820857F654FE --keyserver keyserver.ubuntu.com
+          pacman-key --lsign-key E8B9AA39F054E30E8290D492C3C4820857F654FE
+
       - name: Set permissions for builder
         run: |
           chown -R builder:builder "$GITHUB_WORKSPACE"
