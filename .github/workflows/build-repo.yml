@@ -61,8 +61,9 @@ jobs:
 
       - name: Import CachyOS GPG key
         run: |
-          # Import CachyOS kernel signing key for builder user
-          sudo -u builder gpg --keyserver keyserver.ubuntu.com --recv-keys E8B9AA39F054E30E8290D492C3C4820857F654FE
+          # Import CachyOS kernel signing key for pacman
+          pacman-key --recv-key E8B9AA39F054E30E8290D492C3C4820857F654FE --keyserver keyserver.ubuntu.com
+          pacman-key --lsign-key E8B9AA39F054E30E8290D492C3C4820857F654FE
 
       - name: Build Packages & Generate Repository Database
         run: |
