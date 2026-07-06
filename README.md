@@ -15,7 +15,7 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 6.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
 7.  **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
 8.  **`markpad`** - Lightweight GTK3 markdown editor/viewer.
-9.  **`respite`** - Lightweight system monitoring tool.
+9.  **`respite`** - A GTK3 media player (fork of Parole, Xfce deps removed).
 10. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
 11. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
 12. **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview` (`cogl`, `clutter`, `clutter-gtk`, `clutter-gst`).

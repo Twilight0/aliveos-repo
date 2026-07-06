@@ -55,7 +55,6 @@ PACKAGES=(
   "local:aliveos-settings"
   "local:aliveos-assets"
   "aur:grub-silent-ldfix:"
-  "aur:viewmd:"
   "aur:valuate:"
   "aur:markpad:"
   "aur:respite:"
