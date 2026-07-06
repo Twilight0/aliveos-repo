@@ -30,7 +30,7 @@ PACKAGES=(
   "aur:lib32-nvidia-340xx-utils:"
   "aur:nvidia-340xx-dkms:"
   "aur:nvidia-340xx-settings:"
-  "aur:dory-git:dory"
+  "aur:dory:"
   "aur:dory-python-git:dory-python"
   "aur:dory-audio-tab-git:dory-audio-tab"
   "aur:dory-compare-git:dory-compare"
@@ -56,7 +56,11 @@ PACKAGES=(
   "local:aliveos-assets"
   "aur:grub-silent-ldfix:"
   "aur:viewmd:"
-  "aur:valuate-git:valuate"
+  "aur:valuate:"
+  "aur:markpad:"
+  "aur:respite:"
+  "aur:graphite-gtk-theme-git:"
+  "aur:tela-icon-theme:"
 )
 
 echo "=== AliveOS Package Repository Builder ==="
