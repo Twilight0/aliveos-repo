@@ -43,6 +43,9 @@ jobs:
           
           cat <<EOF >> /etc/pacman.conf
 
+          [multilib]
+          Include = /etc/pacman.d/mirrorlist
+
           [chaotic-aur]
           Include = /etc/pacman.d/chaotic-mirrorlist
           EOF
