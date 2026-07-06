@@ -26,7 +26,6 @@ PACKAGES=(
   "aur:xlibre-video-vmware:"
   "aur:nvidia-390xx-utils:"
   "aur:lib32-nvidia-390xx-utils:"
-  "aur:gtk2:"
   "aur:nvidia-390xx-settings:"
   "aur:nvidia-340xx-utils:"
   "aur:lib32-nvidia-340xx-utils:"
@@ -128,6 +127,12 @@ for item in "${PACKAGES[@]}"; do
     # Rename package if needed
     if [ "$pkg_name" != "$target_name" ]; then
       python3 "$SCRIPT_DIR/clean_pkgbuild.py" PKGBUILD "$pkg_name" "$target_name"
+    fi
+
+    # Replace gtk2 with gtk2-compat for nvidia-settings packages
+    if [[ "$pkg_name" == nvidia-*-settings ]]; then
+      sed -i 's/gtk2/gtk2-compat/g' PKGBUILD
+      echo "Replaced gtk2 with gtk2-compat in $pkg_name PKGBUILD"
     fi
 
     # Run makepkg
