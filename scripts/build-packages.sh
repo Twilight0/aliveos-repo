@@ -129,10 +129,10 @@ for item in "${PACKAGES[@]}"; do
       python3 "$SCRIPT_DIR/clean_pkgbuild.py" PKGBUILD "$pkg_name" "$target_name"
     fi
 
-    # Replace gtk2 with gtk2-compat for nvidia-settings packages
+    # Replace gtk2 with gtk2-compat in dependency arrays for nvidia-settings packages
     if [[ "$pkg_name" == nvidia-*-settings ]]; then
-      sed -i 's/\bgtk2\b/gtk2-compat/g' PKGBUILD
-      echo "Replaced gtk2 with gtk2-compat in $pkg_name PKGBUILD"
+      sed -i '/^depends=/s/\bgtk2\b/gtk2-compat/g; /^makedepends=/s/\bgtk2\b/gtk2-compat/g; /^optdepends=/s/\bgtk2\b/gtk2-compat/g' PKGBUILD
+      echo "Replaced gtk2 with gtk2-compat in $pkg_name PKGBUILD dependencies"
     fi
 
     # Run makepkg
