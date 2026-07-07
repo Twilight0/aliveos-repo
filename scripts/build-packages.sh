@@ -53,7 +53,6 @@ PACKAGES=(
   "local:aliveos-assets"
   "aur:grub-silent-ldfix:"
   "aur:valuate:"
-  "aur:markpad:"
   "aur:respite:"
   "aur:graphite-gtk-theme-git:"
   "aur:tela-icon-theme:"
