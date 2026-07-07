@@ -8,6 +8,9 @@ on:
     - cron: '0 0 * * 0' # Run weekly on Sundays
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-repo:
     runs-on: ubuntu-latest
