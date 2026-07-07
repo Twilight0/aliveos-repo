@@ -86,6 +86,9 @@ jobs:
             apt-get update -qq && apt-get install -y -qq gh 2>/dev/null
           }
 
+          # Fix git safe directory for gh CLI (runs as root, checkout was by builder)
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
           # Prepare repo database files (copy, not symlink)
           cp x86_64/aliveos-repo.db.tar.gz aliveos-repo.db
           cp x86_64/aliveos-repo.files.tar.gz aliveos-repo.files
