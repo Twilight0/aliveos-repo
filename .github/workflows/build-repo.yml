@@ -71,14 +71,33 @@ jobs:
         run: |
           sudo -u builder bash scripts/build-packages.sh
 
-      - name: Prepare Pages Subdirectory Structure
+      - name: Deploy to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p deploy-dist
-          mv x86_64 deploy-dist/x86_64
+          # Install gh CLI
+          pacman -S --noconfirm github-cli 2>/dev/null || {
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null
+            chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture 2>/dev/null || echo amd64) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list
+            apt-get update -qq && apt-get install -y -qq gh 2>/dev/null
+          }
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: deploy-dist
-          branch: gh-pages
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Prepare repo database files (copy, not symlink)
+          cp x86_64/aliveos-repo.db.tar.gz aliveos-repo.db
+          cp x86_64/aliveos-repo.files.tar.gz aliveos-repo.files
+
+          # Delete existing "latest" release if it exists
+          gh release delete latest --yes --cleanup-tag 2>/dev/null || true
+
+          # Create new release
+          gh release create latest \
+            --title "Latest Build" \
+            --notes "Automated build from $(git rev-parse --short HEAD)" \
+            --target main
+
+          # Upload database files
+          gh release upload latest aliveos-repo.db aliveos-repo.files --clobber
+
+          # Upload all packages
+          gh release upload latest x86_64/*.pkg.tar.zst --clobber
