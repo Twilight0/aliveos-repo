@@ -107,3 +107,32 @@ jobs:
 
           # Upload all packages
           gh release upload latest x86_64/*.pkg.tar.zst --clobber
+
+          # Generate repo storefront page
+          python3 scripts/generate-repo-page.py x86_64 "$(git rev-parse --short HEAD)"
+          gh release upload latest index.html --clobber
+
+      - name: Deploy Storefront to gh-pages
+        run: |
+          # Save the generated page before switching branches
+          cp "$GITHUB_WORKSPACE/index.html" /tmp/index.html
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Checkout or create gh-pages branch
+          if git fetch origin gh-pages --depth=1 2>/dev/null; then
+            git checkout gh-pages
+          else
+            git checkout --orphan gh-pages
+            git rm -rf . 2>/dev/null || true
+          fi
+
+          # Clear old content and deploy new
+          git rm -rf . 2>/dev/null || true
+          cp /tmp/index.html .
+          echo "repo.aliveos.org" > CNAME
+          touch .nojekyll
+          git add index.html CNAME .nojekyll
+          git commit -m "Update storefront $(date -u +%Y-%m-%d)"
+          git push origin gh-pages
