@@ -41,12 +41,12 @@ jobs:
           pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
           cat <<EOF >> /etc/pacman.conf
 
-[multilib]
-Include = /etc/pacman.d/mirrorlist
+          [multilib]
+          Include = /etc/pacman.d/mirrorlist
 
-[chaotic-aur]
-Include = /etc/pacman.d/mirrorlist.chaotic
-EOF
+          [chaotic-aur]
+          Include = /etc/pacman.d/mirrorlist.chaotic
+          EOF
           pacman -Sy
 
       - name: Set permissions for builder
