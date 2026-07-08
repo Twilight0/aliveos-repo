@@ -41,7 +41,6 @@ def generate_html(packages: list[dict], commit_sha: str) -> str:
         desc = escape(pkg.get("DESC", ""))
         filename = escape(pkg.get("FILENAME", ""))
         csize = int(pkg.get("CSIZE", 0))
-        url = pkg.get("URL", "")
 
         download_url = f"https://github.com/Twilight0/aliveos-repo/releases/download/latest/{filename}"
 
@@ -56,290 +55,380 @@ def generate_html(packages: list[dict], commit_sha: str) -> str:
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AliveOS Package Repository</title>
-  <style>
-    :root {{
-      --bg-primary: #0a0a1a;
-      --bg-secondary: #1a1a3e;
-      --bg-card: #1e1e3f;
-      --text-primary: #e8e8ff;
-      --text-secondary: #a0a0cc;
-      --accent: #7c5cbf;
-      --accent-light: #9b7de0;
-      --border: #2a2a5a;
-      --code-bg: #12122a;
-    }}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AliveOS Package Repository</title>
+    <meta name="description" content="AliveOS pacman repository - minimalist packages for a clean, developer-optimized workflow.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://aliveos.org/assets/favicon-32.png">
+    <link rel="icon" type="image/x-icon" href="https://aliveos.org/assets/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://aliveos.org/assets/apple-touch-icon.png">
+    <style>
+        :root {{
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --header-text: #f0f6fc;
+            --accent-blue: #58a6ff;
+            --accent-purple: #8957e5;
+            --secondary-bg: #161b22;
+            --grid-line: #21262d;
+            --footer-text: #8b949e;
+        }}
 
-    * {{
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }}
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
 
-    body {{
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-      color: var(--text-primary);
-      min-height: 100vh;
-      line-height: 1.6;
-    }}
+        body {{
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image: linear-gradient(rgba(13, 17, 23, 0.86), rgba(13, 17, 23, 0.93)), url('https://aliveos.org/assets/background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: var(--text-color);
+            min-height: 100vh;
+            text-align: center;
+            position: relative;
+        }}
 
-    header {{
-      padding: 2rem 1rem;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-    }}
+        body::before {{
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.08;
+            pointer-events: none;
+        }}
 
-    header h1 {{
-      font-size: 2.2rem;
-      font-weight: 300;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.3rem;
-    }}
+        .container {{
+            max-width: 960px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            margin: 0 auto;
+        }}
 
-    header h1 span {{
-      color: var(--accent-light);
-      font-weight: 600;
-    }}
+        .header-section {{
+            margin-bottom: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }}
 
-    header p {{
-      color: var(--text-secondary);
-      font-size: 1rem;
-    }}
+        .header-section .logo-link {{
+            display: inline-block;
+            line-height: 0;
+            text-decoration: none;
+        }}
 
-    nav {{
-      margin-top: 1rem;
-      display: flex;
-      gap: 1.5rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }}
+        .header-section img.logo {{
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px rgba(88, 166, 255, 0.2));
+        }}
 
-    nav a {{
-      color: var(--accent-light);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }}
+        .header-section h1 {{
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }}
 
-    nav a:hover {{
-      color: #fff;
-    }}
+        .header-section .tagline {{
+            font-size: 1.25rem;
+            color: #8b949e;
+            max-width: 600px;
+        }}
 
-    main {{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-    }}
+        .site-nav {{
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.95rem;
+        }}
 
-    .card {{
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem 2rem;
-      margin-bottom: 1.5rem;
-    }}
+        .site-nav a {{
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }}
 
-    .card h2 {{
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: var(--accent-light);
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }}
+        .site-nav a:hover {{
+            color: var(--header-text);
+            background-color: var(--secondary-bg);
+        }}
 
-    .setup-steps {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }}
+        .section-heading {{
+            font-size: 1.6rem;
+            color: var(--header-text);
+            margin-bottom: 2rem;
+            text-align: left;
+            padding-left: 1rem;
+            border-left: 3px solid var(--accent-blue);
+        }}
 
-    @media (max-width: 700px) {{
-      .setup-steps {{ grid-template-columns: 1fr; }}
-    }}
+        .setup-card {{
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--grid-line);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }}
 
-    .setup-steps ol {{
-      padding-left: 1.2rem;
-    }}
+        .setup-card h3 {{
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--header-text);
+            margin-bottom: 1rem;
+        }}
 
-    .setup-steps li {{
-      margin-bottom: 0.5rem;
-    }}
+        .setup-steps {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }}
 
-    pre {{
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem 1.2rem;
-      overflow-x: auto;
-      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-      font-size: 0.85rem;
-      color: var(--text-primary);
-      white-space: pre;
-    }}
+        @media (max-width: 700px) {{
+            .setup-steps {{ grid-template-columns: 1fr; }}
+        }}
 
-    code {{
-      font-family: inherit;
-    }}
+        .setup-steps ol {{
+            padding-left: 1.2rem;
+            color: var(--text-color);
+        }}
 
-    .pkg-table {{
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }}
+        .setup-steps li {{
+            margin-bottom: 0.5rem;
+        }}
 
-    .pkg-table thead {{
-      position: sticky;
-      top: 0;
-    }}
+        pre {{
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--grid-line);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 0 0 1rem;
+        }}
 
-    .pkg-table th {{
-      text-align: left;
-      padding: 0.7rem 1rem;
-      background: var(--bg-primary);
-      color: var(--accent-light);
-      font-weight: 500;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      border-bottom: 2px solid var(--accent);
-    }}
+        pre code {{
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            background: none;
+            border: none;
+            padding: 0;
+        }}
 
-    .pkg-table td {{
-      padding: 0.6rem 1rem;
-      border-bottom: 1px solid var(--border);
-      vertical-align: top;
-    }}
+        code {{
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.88em;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--grid-line);
+            border-radius: 4px;
+            padding: 0.1rem 0.35rem;
+            color: var(--accent-blue);
+        }}
 
-    .pkg-table tr:hover td {{
-      background: rgba(124, 92, 191, 0.08);
-    }}
+        .table-wrapper {{
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--grid-line);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }}
 
-    .pkg-name {{
-      font-weight: 500;
-      white-space: nowrap;
-    }}
+        .table-header {{
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--grid-line);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }}
 
-    .pkg-name a {{
-      color: var(--accent-light);
-      text-decoration: none;
-    }}
+        .table-header h3 {{
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--header-text);
+        }}
 
-    .pkg-name a:hover {{
-      text-decoration: underline;
-      color: #fff;
-    }}
+        .badge {{
+            display: inline-block;
+            background: var(--accent-purple);
+            color: #fff;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }}
 
-    .pkg-size {{
-      text-align: right;
-      white-space: nowrap;
-      color: var(--text-secondary);
-    }}
+        .table-scroll {{
+            max-height: 600px;
+            overflow-y: auto;
+        }}
 
-    .badge {{
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      vertical-align: middle;
-      margin-left: 0.5rem;
-    }}
+        .pkg-table {{
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: left;
+        }}
 
-    .table-scroll {{
-      max-height: 600px;
-      overflow-y: auto;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }}
+        .pkg-table thead {{
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }}
 
-    footer {{
-      text-align: center;
-      padding: 2rem 1rem;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      border-top: 1px solid var(--border);
-      margin-top: 2rem;
-    }}
+        .pkg-table th {{
+            padding: 0.7rem 1rem;
+            background-color: var(--bg-color);
+            color: var(--footer-text);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--grid-line);
+        }}
 
-    footer a {{
-      color: var(--accent-light);
-      text-decoration: none;
-    }}
+        .pkg-table td {{
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--grid-line);
+            vertical-align: top;
+        }}
 
-    footer a:hover {{
-      color: #fff;
-    }}
-  </style>
+        .pkg-table tr:hover td {{
+            background-color: rgba(88, 166, 255, 0.04);
+        }}
+
+        .pkg-name {{
+            font-weight: 600;
+            white-space: nowrap;
+        }}
+
+        .pkg-name a {{
+            color: var(--accent-blue);
+            text-decoration: none;
+        }}
+
+        .pkg-name a:hover {{
+            text-decoration: underline;
+        }}
+
+        .pkg-size {{
+            text-align: right;
+            white-space: nowrap;
+            color: var(--footer-text);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85rem;
+        }}
+
+        footer {{
+            margin-top: 4rem;
+            font-size: 0.85rem;
+            color: var(--footer-text);
+            padding: 2rem 0;
+            border-top: 1px solid var(--grid-line);
+        }}
+
+        footer a {{
+            color: var(--accent-blue);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }}
+
+        footer a:hover {{
+            text-decoration: underline;
+        }}
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header-section">
+            <a href="https://aliveos.org" class="logo-link"><img src="https://aliveos.org/assets/aliveos-logo.png" alt="AliveOS Logo" class="logo"></a>
+            <h1>AliveOS</h1>
+            <p class="tagline">Package Repository &mdash; minimalist packages for a clean, developer-optimized workflow.</p>
+            <nav class="site-nav">
+                <a href="https://aliveos.org">Home</a>
+                <a href="https://aliveos.org/news/">News</a>
+                <a href="https://github.com/Twilight0/aliveos-repo">GitHub</a>
+                <a href="https://github.com/Twilight0/aliveos-repo/releases">Releases</a>
+                <a href="https://github.com/Twilight0/aliveos/discussions">Forum</a>
+            </nav>
+        </div>
 
-<header>
-  <h1><span>AliveOS</span> Package Repository</h1>
-  <p>Minimalist packages for a clean, developer-optimized workflow</p>
-  <nav>
-    <a href="https://aliveos.org">Home</a>
-    <a href="https://github.com/Twilight0/aliveos-repo">GitHub</a>
-    <a href="https://github.com/Twilight0/aliveos-repo/releases">Releases</a>
-    <a href="https://aliveos.org">Forum</a>
-  </nav>
-</header>
-
-<main>
-  <div class="card">
-    <h2>Quick Setup</h2>
-    <div class="setup-steps">
-      <div>
-        <ol>
-          <li>Add the repository to <code>/etc/pacman.conf</code></li>
-          <li>Sync and install packages</li>
-        </ol>
-        <pre><code>[aliveos-repo]
+        <div class="setup-card">
+            <h3>Quick Setup</h3>
+            <div class="setup-steps">
+                <div>
+                    <ol>
+                        <li>Add the repository to <code>/etc/pacman.conf</code></li>
+                        <li>Sync and install packages</li>
+                    </ol>
+                    <pre><code>[aliveos-repo]
 SigLevel = Optional TrustAll
 Server = https://github.com/Twilight0/aliveos-repo/releases/download/latest</code></pre>
-      </div>
-      <div>
-        <p style="color:var(--text-secondary); margin-bottom: 0.5rem;">Then run:</p>
-        <pre><code>sudo pacman -Syu
+                </div>
+                <div>
+                    <p style="color:var(--footer-text); margin-bottom: 0.5rem; font-size: 0.9rem;">Then run:</p>
+                    <pre><code>sudo pacman -Syu
 sudo pacman -S &lt;package-name&gt;</code></pre>
-      </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-header">
+                <h3>Packages</h3>
+                <span class="badge">{len(packages)}</span>
+            </div>
+            <div class="table-scroll">
+                <table class="pkg-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Description</th>
+                            <th style="text-align:right">Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+{rows}                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 AliveOS Project. All rights reserved.</p>
+            <p>
+                <a href="https://aliveos.org">aliveos.org</a> |
+                <a href="https://github.com/Twilight0/aliveos-repo">View on GitHub</a> |
+                <a href="https://github.com/Twilight0/aliveos/discussions">Forum</a>
+            </p>
+            <p style="margin-top: 0.5rem; font-family: 'Roboto Mono', monospace; font-size: 0.8rem;">Build: {commit_sha}</p>
+        </footer>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>Packages <span class="badge">{len(packages)}</span></h2>
-    <div class="table-scroll">
-      <table class="pkg-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Description</th>
-            <th style="text-align:right">Size</th>
-          </tr>
-        </thead>
-        <tbody>
-{rows}        </tbody>
-      </table>
-    </div>
-  </div>
-</main>
-
-<footer>
-  &copy; 2026 AliveOS Project &mdash;
-  <a href="https://aliveos.org">aliveos.org</a> &middot;
-  <a href="https://github.com/Twilight0/aliveos-repo">View on GitHub</a>
-  <br>
-  Build: <code>{commit_sha}</code>
-</footer>
-
 </body>
 </html>"""
 
@@ -354,7 +443,6 @@ def main():
 
     db_path = x86_64_dir / "aliveos-repo.db.tar.gz"
     if not db_path.exists():
-        # Try the raw .db file
         db_path = x86_64_dir / "aliveos-repo.db"
 
     if not db_path.exists():
