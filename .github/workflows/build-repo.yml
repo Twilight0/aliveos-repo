@@ -129,7 +129,6 @@ jobs:
           fi
 
           git rm -rf . 2>/dev/null || true
-          cp index.html .
           echo "repo.aliveos.org" > CNAME
           touch .nojekyll
           git add index.html CNAME .nojekyll
