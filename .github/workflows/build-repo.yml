@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * 0' # Run weekly on Sundays
+    - cron: '0 0 * * 0'
   workflow_dispatch:
 
 permissions:
@@ -21,64 +21,66 @@ jobs:
     steps:
       - name: Install Base Build Tools
         run: |
-          pacman -Sy --noconfirm git base-devel sudo binutils libarchive grep intltool glib2-devel
+          pacman -Sy --noconfirm git base-devel sudo binutils libarchive grep intltool glib2-devel python
 
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Builder User
         run: |
-          # Create non-root user for makepkg
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder
           chmod 440 /etc/sudoers.d/builder
-          
-          # Initialize pacman keyring
           pacman-key --init
           pacman-key --populate archlinux
 
       - name: Configure Pacman with Chaotic-AUR
         run: |
-          # Import Chaotic-AUR keys & repository to resolve AUR dependencies quickly
           pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
           pacman-key --lsign-key 3056513887B78AEB
           pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
-          
           cat <<EOF >> /etc/pacman.conf
 
           [multilib]
           Include = /etc/pacman.d/mirrorlist
 
           [chaotic-aur]
-          Include = /etc/pacman.d/chaotic-mirrorlist
+          Include = /etc/pacman.d/mirrorlist
           EOF
           pacman -Sy
 
       - name: Set permissions for builder
         run: |
           chown -R builder:builder "$GITHUB_WORKSPACE"
-          # Configure Git settings for the builder user to handle slow AUR connections gracefully
           sudo -u builder git config --global http.postBuffer 524288000
           sudo -u builder git config --global http.lowSpeedLimit 0
           sudo -u builder git config --global http.lowSpeedTime 999999
 
       - name: Import CachyOS GPG key
         run: |
-          # Import into pacman keyring (for pacman -U later)
           pacman-key --recv-key E8B9AA39F054E30E8290D492C3C4820857F654FE --keyserver keyserver.ubuntu.com
           pacman-key --lsign-key E8B9AA39F054E30E8290D492C3C4820857F654FE
-          # Import into builder user's GPG keyring (for makepkg source verification)
           sudo -u builder gpg --keyserver keyserver.ubuntu.com --recv-keys E8B9AA39F054E30E8290D492C3C4820857F654FE
 
       - name: Build Packages & Generate Repository Database
         run: |
           sudo -u builder bash scripts/build-packages.sh
 
+      - name: Generate Storefront Page
+        run: |
+          python3 scripts/generate-repo-page.py x86_64 "$(git rev-parse --short HEAD)"
+
+      - name: Upload Storefront Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: storefront
+          path: index.html
+          retention-days: 1
+
       - name: Deploy to GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Install gh CLI
           pacman -S --noconfirm github-cli 2>/dev/null || {
             curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null
             chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -86,41 +88,39 @@ jobs:
             apt-get update -qq && apt-get install -y -qq gh 2>/dev/null
           }
 
-          # Fix git safe directory for gh CLI (runs as root, checkout was by builder)
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-          # Prepare repo database files (copy, not symlink)
           cp x86_64/aliveos-repo.db.tar.gz aliveos-repo.db
           cp x86_64/aliveos-repo.files.tar.gz aliveos-repo.files
 
-          # Delete existing "latest" release if it exists
           gh release delete latest --yes --cleanup-tag 2>/dev/null || true
-
-          # Create new release
           gh release create latest \
             --title "Latest Build" \
             --notes "Automated build from $(git rev-parse --short HEAD)" \
             --target main
 
-          # Upload database files
           gh release upload latest aliveos-repo.db aliveos-repo.files --clobber
-
-          # Upload all packages
           gh release upload latest x86_64/*.pkg.tar.zst --clobber
-
-          # Generate repo storefront page
-          python3 scripts/generate-repo-page.py x86_64 "$(git rev-parse --short HEAD)"
           gh release upload latest index.html --clobber
 
-      - name: Deploy Storefront to gh-pages
-        run: |
-          # Save the generated page before switching branches
-          cp "$GITHUB_WORKSPACE/index.html" /tmp/index.html
+  deploy-pages:
+    needs: build-repo
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Storefront Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: storefront
+
+      - name: Deploy to gh-pages
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Checkout or create gh-pages branch
           if git fetch origin gh-pages --depth=1 2>/dev/null; then
             git checkout gh-pages
           else
@@ -128,9 +128,8 @@ jobs:
             git rm -rf . 2>/dev/null || true
           fi
 
-          # Clear old content and deploy new
           git rm -rf . 2>/dev/null || true
-          cp /tmp/index.html .
+          cp index.html .
           echo "repo.aliveos.org" > CNAME
           touch .nojekyll
           git add index.html CNAME .nojekyll
