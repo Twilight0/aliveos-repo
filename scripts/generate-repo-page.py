@@ -204,22 +204,13 @@ def generate_html(packages: list[dict], commit_sha: str) -> str:
             margin-bottom: 1rem;
         }}
 
-        .setup-steps {{
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }}
-
-        @media (max-width: 700px) {{
-            .setup-steps {{ grid-template-columns: 1fr; }}
-        }}
-
-        .setup-steps ol {{
+        .setup-card ol {{
             padding-left: 1.2rem;
             color: var(--text-color);
+            margin: 0.5rem 0;
         }}
 
-        .setup-steps li {{
+        .setup-card li {{
             margin-bottom: 0.5rem;
         }}
 
@@ -380,22 +371,17 @@ def generate_html(packages: list[dict], commit_sha: str) -> str:
 
         <div class="setup-card">
             <h3>Quick Setup</h3>
-            <div class="setup-steps">
-                <div>
-                    <ol>
-                        <li>Add the repository to <code>/etc/pacman.conf</code></li>
-                        <li>Sync and install packages</li>
-                    </ol>
-                    <pre><code>[aliveos-repo]
+            <ol>
+                <li>Add the repository to <code>/etc/pacman.conf</code></li>
+            </ol>
+            <pre><code>[aliveos-repo]
 SigLevel = Optional TrustAll
 Server = https://github.com/Twilight0/aliveos-repo/releases/download/latest</code></pre>
-                </div>
-                <div>
-                    <p style="color:var(--footer-text); margin-bottom: 0.5rem; font-size: 0.9rem;">Then run:</p>
-                    <pre><code>sudo pacman -Syu
+            <ol start="2">
+                <li>Sync and install packages</li>
+            </ol>
+            <pre><code>sudo pacman -Syu
 sudo pacman -S &lt;package-name&gt;</code></pre>
-                </div>
-            </div>
         </div>
 
         <div class="table-wrapper">
