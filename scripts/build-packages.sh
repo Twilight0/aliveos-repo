@@ -57,6 +57,7 @@ PACKAGES=(
   "aur:respite:"
   "aur:graphite-gtk-theme-git:"
   "aur:tela-icon-theme:"
+  "aur:httptoolkit:"
 )
 
 echo "=== AliveOS Package Repository Builder ==="
