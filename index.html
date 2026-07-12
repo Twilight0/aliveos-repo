@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AliveOS Package Repository</title>
+    <meta name="description" content="AliveOS pacman repository - minimalist packages for a clean, developer-optimized workflow.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://aliveos.org/assets/favicon-32.png">
+    <link rel="icon" type="image/x-icon" href="https://aliveos.org/assets/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://aliveos.org/assets/apple-touch-icon.png">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --header-text: #f0f6fc;
+            --accent-blue: #58a6ff;
+            --accent-purple: #8957e5;
+            --secondary-bg: #161b22;
+            --grid-line: #21262d;
+            --footer-text: #8b949e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image: linear-gradient(rgba(13, 17, 23, 0.86), rgba(13, 17, 23, 0.93)), url('https://aliveos.org/assets/background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: var(--text-color);
+            min-height: 100vh;
+            text-align: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 960px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            margin: 0 auto;
+        }
+
+        .header-section {
+            margin-bottom: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-section .logo-link {
+            display: inline-block;
+            line-height: 0;
+            text-decoration: none;
+        }
+
+        .header-section img.logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px rgba(88, 166, 255, 0.2));
+        }
+
+        .header-section h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .header-section .tagline {
+            font-size: 1.25rem;
+            color: #8b949e;
+            max-width: 600px;
+        }
+
+        .site-nav {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.95rem;
+        }
+
+        .site-nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .site-nav a:hover {
+            color: var(--header-text);
+            background-color: var(--secondary-bg);
+        }
+
+        .section-heading {
+            font-size: 1.6rem;
+            color: var(--header-text);
+            margin-bottom: 2rem;
+            text-align: left;
+            padding-left: 1rem;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .setup-card {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--grid-line);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .setup-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--header-text);
+            margin-bottom: 1rem;
+        }
+
+        .setup-card ol {
+            padding-left: 1.2rem;
+            color: var(--text-color);
+            margin: 0.5rem 0;
+        }
+
+        .setup-card li {
+            margin-bottom: 0.5rem;
+        }
+
+        pre {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--grid-line);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 0 0 1rem;
+        }
+
+        pre code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.88em;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--grid-line);
+            border-radius: 4px;
+            padding: 0.1rem 0.35rem;
+            color: var(--accent-blue);
+        }
+
+        .table-wrapper {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--grid-line);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--grid-line);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .table-header h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--header-text);
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent-purple);
+            color: #fff;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .table-scroll {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .pkg-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .pkg-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .pkg-table th {
+            padding: 0.7rem 1rem;
+            background-color: var(--bg-color);
+            color: var(--footer-text);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--grid-line);
+        }
+
+        .pkg-table td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--grid-line);
+            vertical-align: top;
+        }
+
+        .pkg-table tr:hover td {
+            background-color: rgba(88, 166, 255, 0.04);
+        }
+
+        .pkg-name {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .pkg-name a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .pkg-name a:hover {
+            text-decoration: underline;
+        }
+
+        .pkg-size {
+            text-align: right;
+            white-space: nowrap;
+            color: var(--footer-text);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        footer {
+            margin-top: 4rem;
+            font-size: 0.85rem;
+            color: var(--footer-text);
+            padding: 2rem 0;
+            border-top: 1px solid var(--grid-line);
+        }
+
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <a href="https://aliveos.org" class="logo-link"><img src="https://aliveos.org/assets/aliveos-logo.png" alt="AliveOS Logo" class="logo"></a>
+            <h1>AliveOS</h1>
+            <p class="tagline">Package Repository &mdash; minimalist packages for a clean, developer-optimized workflow.</p>
+            <nav class="site-nav">
+                <a href="https://aliveos.org">Home</a>
+                <a href="https://aliveos.org/news/">News</a>
+                <a href="https://github.com/Twilight0/aliveos-repo">GitHub</a>
+                <a href="https://github.com/Twilight0/aliveos-repo/releases">Releases</a>
+                <a href="https://github.com/Twilight0/aliveos/discussions">Forum</a>
+            </nav>
+        </div>
+
+        <div class="setup-card">
+            <h3>Quick Setup</h3>
+            <ol>
+                <li>Add the repository to <code>/etc/pacman.conf</code></li>
+            </ol>
+            <pre><code>[aliveos-repo]
+SigLevel = Optional TrustAll
+Server = https://github.com/Twilight0/aliveos-repo/releases/download/latest</code></pre>
+            <ol start="2">
+                <li>Sync and install packages</li>
+            </ol>
+            <pre><code>sudo pacman -Syu
+sudo pacman -S &lt;package-name&gt;</code></pre>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-header">
+                <h3>Packages</h3>
+                <span class="badge">78</span>
+            </div>
+            <div class="table-scroll">
+                <table class="pkg-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Description</th>
+                            <th style="text-align:right">Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/aliveos-assets-2.0.0-1-any.pkg.tar.zst" target="_blank">aliveos-assets</a></td>
+          <td>2.0.0-1</td>
+          <td>Distro identity assets for AliveOS: wallpapers and system logo</td>
+          <td class="pkg-size">9.5 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/aliveos-settings-0.1.0-1-any.pkg.tar.zst" target="_blank">aliveos-settings</a></td>
+          <td>0.1.0-1</td>
+          <td>Distro-level configuration and customization bundle for AliveOS (schemas, applets, extensions, actions)</td>
+          <td class="pkg-size">4.2 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/cinnamon-no-nemo-6.6.8-2-x86_64.pkg.tar.zst" target="_blank">cinnamon-no-nemo</a></td>
+          <td>6.6.8-2</td>
+          <td>Cinnamon desktop environment repackaged without Nemo dependency (uses Dory)</td>
+          <td class="pkg-size">2.5 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/clutter-1.26.4-4-x86_64.pkg.tar.zst" target="_blank">clutter</a></td>
+          <td>1.26.4-4</td>
+          <td>A toolkit for creating fast, portable, compelling dynamic UIs</td>
+          <td class="pkg-size">2.6 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/clutter-debug-1.26.4-4-x86_64.pkg.tar.zst" target="_blank">clutter-debug</a></td>
+          <td>1.26.4-4</td>
+          <td>Detached debugging symbols for clutter</td>
+          <td class="pkg-size">3.3 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/clutter-gst-3.0.27-5-x86_64.pkg.tar.zst" target="_blank">clutter-gst</a></td>
+          <td>3.0.27-5</td>
+          <td>GStreamer bindings for clutter</td>
+          <td class="pkg-size">146.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/clutter-gst-debug-3.0.27-5-x86_64.pkg.tar.zst" target="_blank">clutter-gst-debug</a></td>
+          <td>3.0.27-5</td>
+          <td>Detached debugging symbols for clutter-gst</td>
+          <td class="pkg-size">334.0 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/clutter-gtk-1.8.4-5-x86_64.pkg.tar.zst" target="_blank">clutter-gtk</a></td>
+          <td>1.8.4-5</td>
+          <td>Clutter integration with GTK+</td>
+          <td class="pkg-size">58.5 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/clutter-gtk-debug-1.8.4-5-x86_64.pkg.tar.zst" target="_blank">clutter-gtk-debug</a></td>
+          <td>1.8.4-5</td>
+          <td>Detached debugging symbols for clutter-gtk</td>
+          <td class="pkg-size">138.8 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/cogl-1.22.8-5-x86_64.pkg.tar.zst" target="_blank">cogl</a></td>
+          <td>1.22.8-5</td>
+          <td>An object oriented GL/GLES Abstraction/Utility Layer</td>
+          <td class="pkg-size">1.0 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/cogl-debug-1.22.8-5-x86_64.pkg.tar.zst" target="_blank">cogl-debug</a></td>
+          <td>1.22.8-5</td>
+          <td>Detached debugging symbols for cogl</td>
+          <td class="pkg-size">2.9 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-6.7.4-1-x86_64.pkg.tar.zst" target="_blank">dory</a></td>
+          <td>6.7.4-1</td>
+          <td>A standalone Nemo fork named Dory for file picking and portal integration</td>
+          <td class="pkg-size">1.5 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-audio-tab-6.7.0.r724.a253cc8-1-any.pkg.tar.zst" target="_blank">dory-audio-tab</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Audio metadata tab extension for Dory file manager (git)</td>
+          <td class="pkg-size">9.2 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-compare-6.7.0.r724.a253cc8-1-any.pkg.tar.zst" target="_blank">dory-compare</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>File comparison extension for Dory file manager (git)</td>
+          <td class="pkg-size">11.4 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-debug-6.7.4-1-x86_64.pkg.tar.zst" target="_blank">dory-debug</a></td>
+          <td>6.7.4-1</td>
+          <td>Detached debugging symbols for dory</td>
+          <td class="pkg-size">9.0 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-dropbox-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-dropbox</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Dropbox extension for Dory file manager (git)</td>
+          <td class="pkg-size">54.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-dropbox-debug-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-dropbox-debug</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Detached debugging symbols for dory-dropbox</td>
+          <td class="pkg-size">90.4 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-emblems-6.7.0.r724.a253cc8-1-any.pkg.tar.zst" target="_blank">dory-emblems</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Emblems extension for Dory file manager (git)</td>
+          <td class="pkg-size">8.6 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-fileroller-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-fileroller</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>File Roller extension for Dory file manager (git)</td>
+          <td class="pkg-size">10.8 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-fileroller-debug-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-fileroller-debug</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Detached debugging symbols for dory-fileroller</td>
+          <td class="pkg-size">28.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-image-converter-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-image-converter</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Image converter extension for Dory file manager (git)</td>
+          <td class="pkg-size">18.4 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-image-converter-debug-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-image-converter-debug</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Detached debugging symbols for dory-image-converter</td>
+          <td class="pkg-size">48.6 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-media-columns-6.7.0.r724.a253cc8-1-any.pkg.tar.zst" target="_blank">dory-media-columns</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Media columns extension for Dory file manager (git)</td>
+          <td class="pkg-size">12.7 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-pastebin-6.7.0.r724.a253cc8-1-any.pkg.tar.zst" target="_blank">dory-pastebin</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Pastebin extension for Dory file manager (git)</td>
+          <td class="pkg-size">25.6 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-preview-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-preview</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>File preview extension for Dory file manager (git)</td>
+          <td class="pkg-size">62.7 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-preview-debug-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-preview-debug</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Detached debugging symbols for dory-preview</td>
+          <td class="pkg-size">167.4 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-python-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-python</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Python bindings and scripting support for Dory file manager (git)</td>
+          <td class="pkg-size">16.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-python-debug-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-python-debug</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Detached debugging symbols for dory-python</td>
+          <td class="pkg-size">58.9 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-repairer-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-repairer</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Filename repairer extension for Dory file manager (git)</td>
+          <td class="pkg-size">22.8 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-repairer-debug-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-repairer-debug</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Detached debugging symbols for dory-repairer</td>
+          <td class="pkg-size">76.9 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-seahorse-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-seahorse</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>PGP encryption extension for Dory file manager (git)</td>
+          <td class="pkg-size">19.7 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-share-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-share</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Network share extension for Dory file manager (git)</td>
+          <td class="pkg-size">27.8 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-share-debug-6.7.0.r724.a253cc8-1-x86_64.pkg.tar.zst" target="_blank">dory-share-debug</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Detached debugging symbols for dory-share</td>
+          <td class="pkg-size">76.6 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/dory-terminal-6.7.0.r724.a253cc8-1-any.pkg.tar.zst" target="_blank">dory-terminal</a></td>
+          <td>6.7.0.r724.a253cc8-1</td>
+          <td>Embedded VTE terminal for Dory file manager (git)</td>
+          <td class="pkg-size">29.4 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/graphite-gtk-theme-git-2025.07.06.r10.g57028b0-1-any.pkg.tar.zst" target="_blank">graphite-gtk-theme-git</a></td>
+          <td>2025.07.06.r10.g57028b0-1</td>
+          <td>Graphite gtk theme</td>
+          <td class="pkg-size">3.7 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/grub-silent-ldfix-2.14-1-x86_64.pkg.tar.zst" target="_blank">grub-silent-ldfix</a></td>
+          <td>2.14-1</td>
+          <td>GNU GRand Unified Bootloader (2) [without welcome and kernel messages, patched for linker address alignment bug]</td>
+          <td class="pkg-size">12.5 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/grub-silent-ldfix-debug-2.14-1-x86_64.pkg.tar.zst" target="_blank">grub-silent-ldfix-debug</a></td>
+          <td>2.14-1</td>
+          <td>Detached debugging symbols for grub-silent-ldfix</td>
+          <td class="pkg-size">525.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/httptoolkit-1:1.26.1-1-x86_64.pkg.tar.zst" target="_blank">httptoolkit</a></td>
+          <td>1:1.26.1-1</td>
+          <td>Beautiful, cross-platform &amp; open-source HTTP(S) proxy, analyzer and client.</td>
+          <td class="pkg-size">87.0 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/httptoolkit-debug-1:1.26.1-1-x86_64.pkg.tar.zst" target="_blank">httptoolkit-debug</a></td>
+          <td>1:1.26.1-1</td>
+          <td>Detached debugging symbols for httptoolkit</td>
+          <td class="pkg-size">8.8 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/lib32-nvidia-390xx-utils-390.157-2-x86_64.pkg.tar.zst" target="_blank">lib32-nvidia-390xx-utils</a></td>
+          <td>390.157-2</td>
+          <td>NVIDIA drivers utilities (32-bit), 390xx legacy branch</td>
+          <td class="pkg-size">27.4 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/linux-cachyos-lts-v2-6.18.38-1-x86_64.pkg.tar.zst" target="_blank">linux-cachyos-lts-v2</a></td>
+          <td>6.18.38-1</td>
+          <td>The Linux EEVDF + Cachy Sauce Kernel by CachyOS with x86-64-v2 CPU optimizations - Long Term Service kernel and modules</td>
+          <td class="pkg-size">150.3 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/linux-cachyos-lts-v2-headers-6.18.38-1-x86_64.pkg.tar.zst" target="_blank">linux-cachyos-lts-v2-headers</a></td>
+          <td>6.18.38-1</td>
+          <td>Headers and scripts for building modules for the Linux EEVDF + Cachy Sauce Kernel by CachyOS with x86-64-v2 CPU optimizations - Long Term Service kernel</td>
+          <td class="pkg-size">74.2 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/markpad-1.0.0-1-x86_64.pkg.tar.zst" target="_blank">markpad</a></td>
+          <td>1.0.0-1</td>
+          <td>Lightweight GTK3 markdown editor/viewer</td>
+          <td class="pkg-size">87.0 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/markpad-debug-1.0.0-1-x86_64.pkg.tar.zst" target="_blank">markpad-debug</a></td>
+          <td>1.0.0-1</td>
+          <td>Detached debugging symbols for markpad</td>
+          <td class="pkg-size">295.6 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/nerd-dictation-0.0.r161.41f3727-1-any.pkg.tar.zst" target="_blank">nerd-dictation</a></td>
+          <td>0.0.r161.41f3727-1</td>
+          <td>Simple, hackable offline speech to text - using the VOSK-API.</td>
+          <td class="pkg-size">31.8 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/nvidia-390xx-settings-390.157-1-x86_64.pkg.tar.zst" target="_blank">nvidia-390xx-settings</a></td>
+          <td>390.157-1</td>
+          <td>Tool for configuring the NVIDIA graphics driver, 390xx legacy branch</td>
+          <td class="pkg-size">877.6 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/nvidia-390xx-settings-debug-390.157-1-x86_64.pkg.tar.zst" target="_blank">nvidia-390xx-settings-debug</a></td>
+          <td>390.157-1</td>
+          <td>Detached debugging symbols for nvidia-390xx-settings</td>
+          <td class="pkg-size">94.7 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/nvidia-390xx-utils-390.157-22-x86_64.pkg.tar.zst" target="_blank">nvidia-390xx-utils</a></td>
+          <td>390.157-22</td>
+          <td>NVIDIA drivers utilities</td>
+          <td class="pkg-size">30.4 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/respite-1.2.1-1-x86_64.pkg.tar.zst" target="_blank">respite</a></td>
+          <td>1.2.1-1</td>
+          <td>A GTK3 media player (fork of Parole, Xfce deps removed)</td>
+          <td class="pkg-size">451.2 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/respite-debug-1.2.1-1-x86_64.pkg.tar.zst" target="_blank">respite-debug</a></td>
+          <td>1.2.1-1</td>
+          <td>Detached debugging symbols for respite</td>
+          <td class="pkg-size">792.6 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/tela-icon-theme-2026.07.07-1-any.pkg.tar.zst" target="_blank">tela-icon-theme</a></td>
+          <td>2026.07.07-1</td>
+          <td>A flat colorful design icon theme.</td>
+          <td class="pkg-size">90.4 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/valuate-1.1.0-1-x86_64.pkg.tar.zst" target="_blank">valuate</a></td>
+          <td>1.1.0-1</td>
+          <td>A GTK3, XApp and Cinnamon-rebased calculator fork</td>
+          <td class="pkg-size">1.3 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/valuate-debug-1.1.0-1-x86_64.pkg.tar.zst" target="_blank">valuate-debug</a></td>
+          <td>1.1.0-1</td>
+          <td>Detached debugging symbols for valuate</td>
+          <td class="pkg-size">2.4 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xdg-desktop-portal-xapp-filepicker-1.1.4.r78.1ee47bb-1-x86_64.pkg.tar.zst" target="_blank">xdg-desktop-portal-xapp-filepicker</a></td>
+          <td>1.1.4.r78.1ee47bb-1</td>
+          <td>A backend implementation for xdg-desktop-portal using GTK/Cinnamon with native folder selection support (git)</td>
+          <td class="pkg-size">65.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xdg-desktop-portal-xapp-filepicker-debug-1.1.4.r78.1ee47bb-1-x86_64.pkg.tar.zst" target="_blank">xdg-desktop-portal-xapp-filepicker-debug</a></td>
+          <td>1.1.4.r78.1ee47bb-1</td>
+          <td>Detached debugging symbols for xdg-desktop-portal-xapp-filepicker</td>
+          <td class="pkg-size">372.4 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-input-libinput-25.0.1-3-x86_64.pkg.tar.zst" target="_blank">xlibre-input-libinput</a></td>
+          <td>25.0.1-3</td>
+          <td>Generic input driver for the XLibre Xserver based on libinput</td>
+          <td class="pkg-size">52.1 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-input-libinput-debug-25.0.1-3-x86_64.pkg.tar.zst" target="_blank">xlibre-input-libinput-debug</a></td>
+          <td>25.0.1-3</td>
+          <td>Detached debugging symbols for xlibre-input-libinput</td>
+          <td class="pkg-size">183.4 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-amdgpu-25.1.1-4-x86_64.pkg.tar.zst" target="_blank">xlibre-video-amdgpu</a></td>
+          <td>25.1.1-4</td>
+          <td>XLibre amdgpu video driver</td>
+          <td class="pkg-size">89.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-amdgpu-debug-25.1.1-4-x86_64.pkg.tar.zst" target="_blank">xlibre-video-amdgpu-debug</a></td>
+          <td>25.1.1-4</td>
+          <td>Detached debugging symbols for xlibre-video-amdgpu</td>
+          <td class="pkg-size">526.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-ati-1:25.0.1-4-x86_64.pkg.tar.zst" target="_blank">xlibre-video-ati</a></td>
+          <td>1:25.0.1-4</td>
+          <td>XLibre ati video driver</td>
+          <td class="pkg-size">191.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-ati-debug-1:25.0.1-4-x86_64.pkg.tar.zst" target="_blank">xlibre-video-ati-debug</a></td>
+          <td>1:25.0.1-4</td>
+          <td>Detached debugging symbols for xlibre-video-ati</td>
+          <td class="pkg-size">1.2 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-fbdev-25.0.0-8-x86_64.pkg.tar.zst" target="_blank">xlibre-video-fbdev</a></td>
+          <td>25.0.0-8</td>
+          <td>XLibre framebuffer video driver</td>
+          <td class="pkg-size">16.9 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-fbdev-debug-25.0.0-8-x86_64.pkg.tar.zst" target="_blank">xlibre-video-fbdev-debug</a></td>
+          <td>25.0.0-8</td>
+          <td>Detached debugging symbols for xlibre-video-fbdev</td>
+          <td class="pkg-size">54.2 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-intel-25.0.0-9-x86_64.pkg.tar.zst" target="_blank">xlibre-video-intel</a></td>
+          <td>25.0.0-9</td>
+          <td>XLibre Intel i810/i830/i915/945G/G965+ video drivers</td>
+          <td class="pkg-size">885.1 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-intel-debug-25.0.0-9-x86_64.pkg.tar.zst" target="_blank">xlibre-video-intel-debug</a></td>
+          <td>25.0.0-9</td>
+          <td>Detached debugging symbols for xlibre-video-intel</td>
+          <td class="pkg-size">4.8 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-nouveau-25.0.0-8-x86_64.pkg.tar.zst" target="_blank">xlibre-video-nouveau</a></td>
+          <td>25.0.0-8</td>
+          <td>XLibre Open Source 3D acceleration driver for nVidia cards</td>
+          <td class="pkg-size">110.5 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-nouveau-debug-25.0.0-8-x86_64.pkg.tar.zst" target="_blank">xlibre-video-nouveau-debug</a></td>
+          <td>25.0.0-8</td>
+          <td>Detached debugging symbols for xlibre-video-nouveau</td>
+          <td class="pkg-size">701.6 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-vesa-25.0.0-8-x86_64.pkg.tar.zst" target="_blank">xlibre-video-vesa</a></td>
+          <td>25.0.0-8</td>
+          <td>XLibre vesa video driver</td>
+          <td class="pkg-size">20.4 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-vesa-debug-25.0.0-8-x86_64.pkg.tar.zst" target="_blank">xlibre-video-vesa-debug</a></td>
+          <td>25.0.0-8</td>
+          <td>Detached debugging symbols for xlibre-video-vesa</td>
+          <td class="pkg-size">78.7 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-vmware-25.0.0-10-x86_64.pkg.tar.zst" target="_blank">xlibre-video-vmware</a></td>
+          <td>25.0.0-10</td>
+          <td>XLibre vmware video driver</td>
+          <td class="pkg-size">38.3 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-video-vmware-debug-25.0.0-10-x86_64.pkg.tar.zst" target="_blank">xlibre-video-vmware-debug</a></td>
+          <td>25.0.0-10</td>
+          <td>Detached debugging symbols for xlibre-video-vmware</td>
+          <td class="pkg-size">247.5 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-xserver-common-legacyabi-25.1.8-1-x86_64.pkg.tar.zst" target="_blank">xlibre-xserver-common-legacyabi</a></td>
+          <td>25.1.8-1</td>
+          <td>XLibre server common files (legacy ABI)</td>
+          <td class="pkg-size">31.9 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-xserver-devel-legacyabi-25.1.8-1-x86_64.pkg.tar.zst" target="_blank">xlibre-xserver-devel-legacyabi</a></td>
+          <td>25.1.8-1</td>
+          <td>Development files for the XLibre Xserver (legacy ABI)</td>
+          <td class="pkg-size">207.1 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-xserver-legacyabi-25.1.8-1-x86_64.pkg.tar.zst" target="_blank">xlibre-xserver-legacyabi</a></td>
+          <td>25.1.8-1</td>
+          <td>XLibre X server (legacy ABI)</td>
+          <td class="pkg-size">2.9 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-xserver-legacyabi-debug-25.1.8-1-x86_64.pkg.tar.zst" target="_blank">xlibre-xserver-legacyabi-debug</a></td>
+          <td>25.1.8-1</td>
+          <td>Detached debugging symbols for xlibre-xserver-legacyabi</td>
+          <td class="pkg-size">29.6 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-xserver-xephyr-legacyabi-25.1.8-1-x86_64.pkg.tar.zst" target="_blank">xlibre-xserver-xephyr-legacyabi</a></td>
+          <td>25.1.8-1</td>
+          <td>A nested X server that runs as an X application (legacy ABI)</td>
+          <td class="pkg-size">1.2 MB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-xserver-xnest-legacyabi-25.1.8-1-x86_64.pkg.tar.zst" target="_blank">xlibre-xserver-xnest-legacyabi</a></td>
+          <td>25.1.8-1</td>
+          <td>A nested X server that runs as an X application (legacy ABI)</td>
+          <td class="pkg-size">796.7 KB</td>
+        </tr>
+        <tr>
+          <td class="pkg-name"><a href="https://github.com/Twilight0/aliveos-repo/releases/download/latest/xlibre-xserver-xvfb-legacyabi-25.1.8-1-x86_64.pkg.tar.zst" target="_blank">xlibre-xserver-xvfb-legacyabi</a></td>
+          <td>25.1.8-1</td>
+          <td>Virtual framebuffer X server (legacy ABI)</td>
+          <td class="pkg-size">1020.0 KB</td>
+        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 AliveOS Project. All rights reserved.</p>
+            <p>
+                <a href="https://aliveos.org">aliveos.org</a> |
+                <a href="https://github.com/Twilight0/aliveos-repo">View on GitHub</a> |
+                <a href="https://github.com/Twilight0/aliveos/discussions">Forum</a>
+            </p>
+            <p style="margin-top: 0.5rem; font-family: 'Roboto Mono', monospace; font-size: 0.8rem;">Build: </p>
+        </footer>
+    </div>
+</body>
+</html>
