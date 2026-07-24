@@ -36,7 +36,12 @@ jobs:
 
       - name: Configure Pacman with Chaotic-AUR
         run: |
-          pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com
+          for keyserver in keyserver.ubuntu.com keys.openpgp.org pgp.mit.edu; do
+            echo "Trying keyserver: $keyserver"
+            pacman-key --recv-key 3056513887B78AEB --keyserver "$keyserver" && break
+            echo "Keyserver $keyserver failed, trying next..."
+            sleep 2
+          done
           pacman-key --lsign-key 3056513887B78AEB
           pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
           cat <<EOF >> /etc/pacman.conf
@@ -58,9 +63,19 @@ jobs:
 
       - name: Import CachyOS GPG key
         run: |
-          pacman-key --recv-key E8B9AA39F054E30E8290D492C3C4820857F654FE --keyserver keyserver.ubuntu.com
+          for keyserver in keyserver.ubuntu.com keys.openpgp.org pgp.mit.edu; do
+            echo "Trying keyserver: $keyserver"
+            pacman-key --recv-key E8B9AA39F054E30E8290D492C3C4820857F654FE --keyserver "$keyserver" && break
+            echo "Keyserver $keyserver failed, trying next..."
+            sleep 2
+          done
           pacman-key --lsign-key E8B9AA39F054E30E8290D492C3C4820857F654FE
-          sudo -u builder gpg --keyserver keyserver.ubuntu.com --recv-keys E8B9AA39F054E30E8290D492C3C4820857F654FE
+          for keyserver in keyserver.ubuntu.com keys.openpgp.org pgp.mit.edu; do
+            echo "Trying keyserver for builder: $keyserver"
+            sudo -u builder gpg --keyserver "$keyserver" --recv-keys E8B9AA39F054E30E8290D492C3C4820857F654FE && break
+            echo "Keyserver $keyserver failed for builder, trying next..."
+            sleep 2
+          done
 
       - name: Build Packages & Generate Repository Database
         run: |
