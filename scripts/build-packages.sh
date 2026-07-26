@@ -46,7 +46,7 @@ PACKAGES=(
   "aur:dory-seahorse-git:dory-seahorse"
   "aur:dory-share-git:dory-share"
   "aur:dory-terminal-git:dory-terminal"
-  "aur:xdg-desktop-portal-xapp-filepicker-git:xdg-desktop-portal-xapp-filepicker"
+  "aur:xdg-desktop-portal-xapp-filepicker:"
   "aur:cinnamon-no-nemo:"
   "aur:nerd-dictation-git:nerd-dictation"
   "local:aliveos-settings"
