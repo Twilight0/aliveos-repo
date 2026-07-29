@@ -8,7 +8,7 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 
 1.  **`aliveos-assets`** - Custom icon themes and graphic assets for AliveOS.
 2.  **`aliveos-settings`** - Core configuration and styling packages for AliveOS.
-3.  **`cinnamon-no-nemo`** - Cinnamon desktop environment repackaged without Nemo dependency (utilizes Dory).
+3.  **`cinnamon-aliveos`** - Cinnamon desktop environment for AliveOS (without Nemo, with Dory integration and custom enhancements).
 4.  **`dory`** - Nemo-based standalone file chooser portal helper.
 5.  **`dory-extensions`** - Standard set of file manager extensions for Dory:
     *   `dory-audio-tab`, `dory-compare`, `dory-dropbox`, `dory-emblems`, `dory-fileroller`, `dory-image-converter`, `dory-media-columns`, `dory-pastebin`, `dory-preview`, `dory-python`, `dory-repairer`, `dory-seahorse`, `dory-share`, `dory-terminal`

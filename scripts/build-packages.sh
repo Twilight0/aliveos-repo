@@ -47,7 +47,7 @@ PACKAGES=(
   "aur:dory-share-git:dory-share"
   "aur:dory-terminal-git:dory-terminal"
   "aur:xdg-desktop-portal-xapp-filepicker:"
-  "aur:cinnamon-no-nemo:"
+  "aur:cinnamon-aliveos:"
   "aur:nerd-dictation-git:nerd-dictation"
   "local:aliveos-settings"
   "local:aliveos-assets"

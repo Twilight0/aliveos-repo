@@ -10,7 +10,7 @@ arch=('any')
 url="https://github.com/Twilight0/aliveos-settings"
 license=('GPL3')
 depends=(
-  'cinnamon-no-nemo'
+  'cinnamon-aliveos'
   'dory'
   'xdotool'
   'xclip'
