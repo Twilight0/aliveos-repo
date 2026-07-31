@@ -46,6 +46,7 @@ PACKAGES=(
   "aur:dory-seahorse-git:dory-seahorse"
   "aur:dory-share-git:dory-share"
   "aur:dory-terminal-git:dory-terminal"
+  "aur:zenity-gtk3:"
   "aur:xdg-desktop-portal-xapp-filepicker:"
   "aur:cinnamon-aliveos:"
   "aur:nerd-dictation-git:nerd-dictation"
@@ -58,7 +59,6 @@ PACKAGES=(
   "aur:graphite-gtk-theme-git:"
   "aur:tela-icon-theme:"
   "aur:httptoolkit:"
-  "aur:zenity-gtk3:"
   "aur:xconnect:"
 )
 
@@ -89,7 +89,7 @@ for item in "${PACKAGES[@]}"; do
     
     # Install compiled package locally to satisfy dependencies for subsequent builds
     echo "Installing compiled package locally..."
-    sudo pacman -U --noconfirm *.pkg.tar.zst || pacman -U --noconfirm *.pkg.tar.zst
+    sudo pacman -U --noconfirm --overwrite '*' *.pkg.tar.zst || pacman -U --noconfirm --overwrite '*' *.pkg.tar.zst || true
     
     cd "$REPO_DIR"
   else
@@ -143,7 +143,7 @@ for item in "${PACKAGES[@]}"; do
     
     # Install compiled package locally to satisfy dependencies for subsequent builds
     echo "Installing compiled package locally..."
-    sudo pacman -U --noconfirm "${target_name}"-*.pkg.tar.zst || pacman -U --noconfirm "${target_name}"-*.pkg.tar.zst
+    sudo pacman -U --noconfirm --overwrite '*' "${target_name}"-*.pkg.tar.zst || pacman -U --noconfirm --overwrite '*' "${target_name}"-*.pkg.tar.zst || true
     
     cd "$REPO_DIR"
   fi
