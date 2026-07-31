@@ -58,6 +58,7 @@ PACKAGES=(
   "aur:graphite-gtk-theme-git:"
   "aur:tela-icon-theme:"
   "aur:httptoolkit:"
+  "aur:zenity-gtk3:"
   "aur:xconnect:"
 )
 
