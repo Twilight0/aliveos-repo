@@ -316,6 +316,12 @@ for item in "${PACKAGES[@]}"; do
       echo "Replaced gtk2 with gtk2-compat in $pkg_name PKGBUILD dependencies"
     fi
 
+    # Replace xlibre-xserver-devel with xlibre-xserver-devel-legacyabi for xlibre driver packages
+    if [[ "$pkg_name" == xlibre-video-* || "$pkg_name" == xlibre-input-* ]]; then
+      sed -i 's/xlibre-xserver-devel/xlibre-xserver-devel-legacyabi/g' PKGBUILD
+      echo "Replaced xlibre-xserver-devel with xlibre-xserver-devel-legacyabi in $pkg_name PKGBUILD"
+    fi
+
     # Security scan before building
     if ! scan_pkgbuild "PKGBUILD" "$pkg_name"; then
       echo ""
