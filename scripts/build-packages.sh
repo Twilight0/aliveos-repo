@@ -58,7 +58,7 @@ PACKAGES=(
   "upstream:https://github.com/Twilight0/respite.git:respite:"
   "aur:graphite-gtk-theme-git:"
   "aur:tela-icon-theme:"
-  "aur:httptoolkit:"
+  "upstream:https://github.com/httptoolkit/httptoolkit-desktop.git:httptoolkit:"
   "upstream:https://github.com/Twilight0/xconnect.git:xconnect:"
 )
 
