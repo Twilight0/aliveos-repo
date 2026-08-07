@@ -15,7 +15,7 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Format: "local|NAME" or "aur|AUR_NAME|TARGET_NAME" or "upstream|REPO_URL|TARGET_NAME|TAG"
 # Using | as delimiter to avoid conflicts with https:// URLs
 PACKAGES=(
-  "aur|xlibre-xserver-legacyabi|"
+  "local|xlibre-xserver-legacyabi|"
   "upstream|https://github.com/CachyOS/linux-cachyos.git|linux-cachyos-lts|linux-cachyos-lts|linux-cachyos-lts"
   "aur|xlibre-input-libinput|"
   "aur|xlibre-video-amdgpu|"
