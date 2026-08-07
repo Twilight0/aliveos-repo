@@ -15,7 +15,7 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Format: "local:NAME" or "aur:AUR_NAME:TARGET_NAME" or "upstream:REPO_URL:TARGET_NAME:TAG"
 PACKAGES=(
   "local:xlibre-xserver-legacyabi"
-  "local:linux-cachyos-lts-v2"
+  "upstream:https://github.com/CachyOS/linux-cachyos.git:linux-cachyos-lts:master"
   "aur:xlibre-input-libinput:"
   "aur:xlibre-video-amdgpu:"
   "aur:xlibre-video-ati:"
@@ -198,7 +198,7 @@ for item in "${PACKAGES[@]}"; do
     
     cd "$REPO_DIR"
   elif [ "$type" == "upstream" ]; then
-    # upstream:REPO_URL:TARGET_NAME:TAG
+    # upstream:REPO_URL:TARGET_NAME:TAG_OR_SUBDIR
     IFS=':' read -r _ repo_url pkg_name target_name tag <<< "$item"
     
     if [ -z "$target_name" ]; then
@@ -231,10 +231,16 @@ for item in "${PACKAGES[@]}"; do
     done
     cd "$pkg_name"
 
-    # Checkout specific tag if provided
+    # If tag/subdir is provided, checkout tag or cd into subdirectory
     if [ -n "$tag" ]; then
-      git fetch --tags
-      git checkout "$tag"
+      if [ -d "$tag" ]; then
+        # It's a subdirectory (e.g., linux-cachyos-lts)
+        cd "$tag"
+      else
+        # It's a git tag
+        git fetch --tags
+        git checkout "$tag"
+      fi
     fi
 
     # Security scan before building
