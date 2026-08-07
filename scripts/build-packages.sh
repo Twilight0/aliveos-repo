@@ -12,7 +12,7 @@ BUILD_DIR="$REPO_DIR/build"
 OUTPUT_DIR="$REPO_DIR/x86_64"
 
 # Define packages to build in precise dependency order
-# Format: "local:NAME" or "aur:AUR_NAME:TARGET_NAME"
+# Format: "local:NAME" or "aur:AUR_NAME:TARGET_NAME" or "upstream:REPO_URL:TARGET_NAME:TAG"
 PACKAGES=(
   "local:xlibre-xserver-legacyabi"
   "local:linux-cachyos-lts-v2"
@@ -27,39 +27,39 @@ PACKAGES=(
   "aur:nvidia-390xx-utils:"
   "aur:lib32-nvidia-390xx-utils:"
   "aur:nvidia-390xx-settings:"
-  "aur:dory:"
-  "aur:dory-python-git:dory-python"
-  "aur:dory-audio-tab-git:dory-audio-tab"
-  "aur:dory-compare-git:dory-compare"
-  "aur:dory-dropbox-git:dory-dropbox"
-  "aur:dory-emblems-git:dory-emblems"
-  "aur:dory-fileroller-git:dory-fileroller"
-  "aur:dory-image-converter-git:dory-image-converter"
-  "aur:dory-media-columns-git:dory-media-columns"
-  "aur:dory-pastebin-git:dory-pastebin"
+  "upstream:https://github.com/Twilight0/dory.git:dory:"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-python:dory-python"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-audio-tab:dory-audio-tab"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-compare:dory-compare"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-dropbox:dory-dropbox"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-emblems:dory-emblems"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-fileroller:dory-fileroller"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-image-converter:dory-image-converter"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-media-columns:dory-media-columns"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-pastebin:dory-pastebin"
   "aur:cogl:"
   "aur:clutter:"
   "aur:clutter-gtk:"
   "aur:clutter-gst:"
-  "aur:dory-preview-git:dory-preview"
-  "aur:dory-repairer-git:dory-repairer"
-  "aur:dory-seahorse-git:dory-seahorse"
-  "aur:dory-share-git:dory-share"
-  "aur:dory-terminal-git:dory-terminal"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-preview:dory-preview"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-repairer:dory-repairer"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-seahorse:dory-seahorse"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-share:dory-share"
+  "upstream:https://github.com/Twilight0/dory-extensions.git:dory-terminal:dory-terminal"
   "aur:zenity-gtk3:"
   "aur:xdg-desktop-portal-xapp-filepicker:"
-  "aur:cinnamon-aliveos:"
+  "upstream:https://github.com/Twilight0/cinnamon-aliveos.git:cinnamon-aliveos:"
   "aur:nerd-dictation-git:nerd-dictation"
   "local:aliveos-settings"
   "local:aliveos-assets"
   "aur:grub-silent-ldfix:"
   "aur:valuate:"
   "aur:markpad:"
-  "aur:respite:"
+  "upstream:https://github.com/Twilight0/respite.git:respite:"
   "aur:graphite-gtk-theme-git:"
   "aur:tela-icon-theme:"
   "aur:httptoolkit:"
-  "aur:xconnect:"
+  "upstream:https://github.com/Twilight0/xconnect.git:xconnect:"
 )
 
 echo "=== AliveOS Package Repository Builder ==="
@@ -195,6 +195,67 @@ for item in "${PACKAGES[@]}"; do
     # Install compiled package locally to satisfy dependencies for subsequent builds
     echo "Installing compiled package locally..."
     sudo pacman -U --noconfirm --overwrite '*' *.pkg.tar.zst || pacman -U --noconfirm --overwrite '*' *.pkg.tar.zst || true
+    
+    cd "$REPO_DIR"
+  elif [ "$type" == "upstream" ]; then
+    # upstream:REPO_URL:TARGET_NAME:TAG
+    IFS=':' read -r _ repo_url pkg_name target_name tag <<< "$item"
+    
+    if [ -z "$target_name" ]; then
+      target_name="$pkg_name"
+    fi
+
+    echo ""
+    echo "----------------------------------------"
+    echo "Building upstream package: $pkg_name -> $target_name"
+    echo "----------------------------------------"
+
+    cd "$BUILD_DIR"
+
+    # Clone upstream repo with retry loop
+    max_attempts=5
+    attempt=1
+    while [ "$attempt" -le "$max_attempts" ]; do
+      rm -rf "$pkg_name"
+      echo "Cloning upstream repo (attempt $attempt/$max_attempts)..."
+      if git clone --depth=1 "$repo_url" "$pkg_name"; then
+        break
+      fi
+      if [ "$attempt" -eq "$max_attempts" ]; then
+        echo "ERROR: Failed to clone $repo_url after $max_attempts attempts" >&2
+        exit 1
+      fi
+      echo "Clone failed, retrying in $((attempt * 10)) seconds..."
+      sleep $((attempt * 10))
+      attempt=$((attempt + 1))
+    done
+    cd "$pkg_name"
+
+    # Checkout specific tag if provided
+    if [ -n "$tag" ]; then
+      git fetch --tags
+      git checkout "$tag"
+    fi
+
+    # Security scan before building
+    if ! scan_pkgbuild "PKGBUILD" "$pkg_name"; then
+      echo ""
+      echo "SECURITY WARNING: Issues detected in $pkg_name"
+      echo "Skipping this package."
+      cd "$REPO_DIR"
+      continue
+    fi
+
+    # Run makepkg
+    makepkg --syncdeps --noconfirm --nocheck --clean
+
+    # Copy built packages to output directory
+    echo "Copying built packages to $OUTPUT_DIR..."
+    cp "${target_name}"-*.pkg.tar.zst "$OUTPUT_DIR/"
+    
+    # Install compiled package locally to satisfy dependencies for subsequent builds
+    echo "Installing compiled package locally..."
+    sudo pacman -U --noconfirm --overwrite '*' "${target_name}"-*.pkg.tar.zst || pacman -U --noconfirm --overwrite '*' "${target_name}"-*.pkg.tar.zst || true
     
     cd "$REPO_DIR"
   else
