@@ -69,6 +69,92 @@ mkdir -p "$OUTPUT_DIR"
 # Clean previous builds in build directory
 rm -rf "$BUILD_DIR"/*
 
+# Security scan function: check PKGBUILD for malicious patterns
+scan_pkgbuild() {
+  local pkgbuild="$1"
+  local pkg_name="$2"
+  local issues=0
+
+  if [ ! -f "$pkgbuild" ]; then
+    echo "  WARNING: PKGBUILD not found at $pkgbuild"
+    return 1
+  fi
+
+  echo "  Scanning PKGBUILD for security issues..."
+
+  # Check for known malicious npm packages (Atomic Arch attack)
+  if grep -qi "atomic-lockfile\|js-digest" "$pkgbuild"; then
+    echo "  CRITICAL: Known malicious npm package detected (atomic-lockfile/js-digest)"
+    issues=$((issues + 1))
+  fi
+
+  # Check for npm install in non-JavaScript packages
+  if grep -qi "npm install\|npm i " "$pkgbuild"; then
+    # Allow if package name suggests it's a JS/Node project
+    if ! echo "$pkg_name" | grep -qi "node\|npm\|js\|javascript"; then
+      echo "  WARNING: npm install found in non-JavaScript package"
+      issues=$((issues + 1))
+    fi
+  fi
+
+  # Check for suspicious download patterns
+  if grep -qiE "curl.*\|.*sh|wget.*\|.*sh|bash.*-c.*curl\|bash.*-c.*wget" "$pkgbuild"; then
+    echo "  WARNING: Suspicious curl/wget pipe to shell detected"
+    issues=$((issues + 1))
+  fi
+
+  # Check for base64 decode (common obfuscation)
+  if grep -qi "base64.*-d\|base64.*--decode" "$pkgbuild"; then
+    echo "  WARNING: base64 decode detected (possible obfuscation)"
+    issues=$((issues + 1))
+  fi
+
+  # Check for encoded executables
+  if grep -qiE "echo.*\\\\x[0-9a-f]{2}.*>.*\.sh\|printf.*\\\\x[0-9a-f]{2}" "$pkgbuild"; then
+    echo "  WARNING: Encoded executable content detected"
+    issues=$((issues + 1))
+  fi
+
+  # Check for /dev/tcp (reverse shell indicator)
+  if grep -qi "/dev/tcp/" "$pkgbuild"; then
+    echo "  CRITICAL: /dev/tcp detected (possible reverse shell)"
+    issues=$((issues + 1))
+  fi
+
+  # Check for recent maintainer email changes (heuristic)
+  if grep -qiE " Maintainer.*<.*@.*>" "$pkgbuild"; then
+    echo "  INFO: Maintainer field found — verify it matches AUR records"
+  fi
+
+  # Check for post_install/post_upgrade hooks with suspicious content
+  if grep -qiE "post_install|post_upgrade" "$pkgbuild"; then
+    local hooks
+    hooks=$(grep -A5 -E "post_install|post_upgrade" "$pkgbuild" | grep -iE "curl|wget|exec|eval|nc |ncat |python.*-c|perl.*-e")
+    if [ -n "$hooks" ]; then
+      echo "  WARNING: Suspicious content in post_install/post_upgrade hook"
+      issues=$((issues + 1))
+    fi
+  fi
+
+  # Check for systemd service installation (potential persistence)
+  if grep -qiE "\.service.*install|install.*\.service" "$pkgbuild"; then
+    echo "  INFO: Systemd service installation detected — verify legitimacy"
+  fi
+
+  # Check for polkit rules (privilege escalation)
+  if grep -qiE "polkit.*\.rules|pkla.*\.pkla" "$pkgbuild"; then
+    echo "  INFO: Polkit rules detected — verify no privilege escalation"
+  fi
+
+  if [ "$issues" -gt 0 ]; then
+    echo "  SCAN RESULT: $issues issue(s) found in $pkg_name PKGBUILD"
+    return 1
+  else
+    echo "  SCAN RESULT: No issues detected"
+    return 0
+  fi
+}
+
 # Build all packages sequentially
 for item in "${PACKAGES[@]}"; do
   IFS=':' read -r type pkg_name target_name <<< "$item"
@@ -151,6 +237,18 @@ for item in "${PACKAGES[@]}"; do
     if [[ "$pkg_name" == nvidia-*-settings ]]; then
       sed -i '/^depends=/s/\bgtk2\b/gtk2-compat/g; /^makedepends=/s/\bgtk2\b/gtk2-compat/g; /^optdepends=/s/\bgtk2\b/gtk2-compat/g' PKGBUILD
       echo "Replaced gtk2 with gtk2-compat in $pkg_name PKGBUILD dependencies"
+    fi
+
+    # Security scan before building
+    if ! scan_pkgbuild "PKGBUILD" "$pkg_name"; then
+      echo ""
+      echo "SECURITY WARNING: Issues detected in $pkg_name"
+      echo "Review the PKGBUILD manually before building:"
+      echo "  cat $BUILD_DIR/$pkg_name/PKGBUILD"
+      echo ""
+      echo "Skipping this package. Fix issues and re-run the build."
+      cd "$REPO_DIR"
+      continue
     fi
 
     # Run makepkg
