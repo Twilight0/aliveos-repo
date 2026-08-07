@@ -16,7 +16,7 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Using | as delimiter to avoid conflicts with https:// URLs
 PACKAGES=(
   "aur|xlibre-xserver-legacyabi|"
-  "upstream|https://github.com/CachyOS/linux-cachyos.git|linux-cachyos-lts|linux-cachyos-lts"
+  "upstream|https://github.com/CachyOS/linux-cachyos.git|linux-cachyos-lts|linux-cachyos-lts|linux-cachyos-lts"
   "aur|xlibre-input-libinput|"
   "aur|xlibre-video-amdgpu|"
   "aur|xlibre-video-ati|"
@@ -266,9 +266,12 @@ for item in "${PACKAGES[@]}"; do
     echo "Copying built packages to $OUTPUT_DIR..."
     cp "${target_name}"-*.pkg.tar.zst "$OUTPUT_DIR/"
     
-    # Install compiled package locally to satisfy dependencies for subsequent builds
-    echo "Installing compiled package locally..."
-    sudo pacman -U --noconfirm --overwrite '*' "${target_name}"-*.pkg.tar.zst || pacman -U --noconfirm --overwrite '*' "${target_name}"-*.pkg.tar.zst || true
+    # Install all compiled packages locally to satisfy dependencies for subsequent builds
+    echo "Installing compiled packages locally..."
+    for pkg in *.pkg.tar.zst; do
+      [ -f "$pkg" ] || continue
+      sudo pacman -U --noconfirm --overwrite '*' "$pkg" || pacman -U --noconfirm --overwrite '*' "$pkg" || true
+    done
     
     cd "$REPO_DIR"
   else
@@ -351,9 +354,12 @@ for item in "${PACKAGES[@]}"; do
     done
     cd "$BUILD_DIR/$pkg_name"
     
-    # Install compiled package locally to satisfy dependencies for subsequent builds
-    echo "Installing compiled package locally..."
-    sudo pacman -U --noconfirm --overwrite '*' "${target_name}"-*.pkg.tar.zst || pacman -U --noconfirm --overwrite '*' "${target_name}"-*.pkg.tar.zst || true
+    # Install all compiled packages locally to satisfy dependencies for subsequent builds
+    echo "Installing compiled packages locally..."
+    for pkg in *.pkg.tar.zst; do
+      [ -f "$pkg" ] || continue
+      sudo pacman -U --noconfirm --overwrite '*' "$pkg" || pacman -U --noconfirm --overwrite '*' "$pkg" || true
+    done
     
     cd "$REPO_DIR"
   fi
