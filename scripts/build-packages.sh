@@ -14,8 +14,8 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Define packages to build in precise dependency order
 # Format: "local:NAME" or "aur:AUR_NAME:TARGET_NAME" or "upstream:REPO_URL:TARGET_NAME:TAG"
 PACKAGES=(
-  "local:xlibre-xserver-legacyabi"
-  "upstream:https://github.com/CachyOS/linux-cachyos.git:linux-cachyos-lts:master"
+  "aur:xlibre-xserver-legacyabi:"
+  "upstream:https://github.com/CachyOS/linux-cachyos.git:linux-cachyos-lts:linux-cachyos-lts"
   "aur:xlibre-input-libinput:"
   "aur:xlibre-video-amdgpu:"
   "aur:xlibre-video-ati:"
@@ -50,8 +50,8 @@ PACKAGES=(
   "aur:xdg-desktop-portal-xapp-filepicker:"
   "upstream:https://github.com/Twilight0/cinnamon-aliveos.git:cinnamon-aliveos:"
   "aur:nerd-dictation-git:nerd-dictation"
-  "local:aliveos-settings"
-  "local:aliveos-assets"
+  "upstream:https://github.com/Twilight0/aliveos-settings.git:aliveos-settings:"
+  "upstream:https://github.com/Twilight0/aliveos-assets.git:aliveos-assets:"
   "aur:grub-silent-ldfix:"
   "aur:valuate:"
   "aur:markpad:"
@@ -241,6 +241,12 @@ for item in "${PACKAGES[@]}"; do
         git fetch --tags
         git checkout "$tag"
       fi
+    fi
+
+    # Set Intel Sandybridge optimization for CachyOS kernel
+    if [[ "$pkg_name" == "linux-cachyos-lts" ]]; then
+      echo "Setting Intel Sandybridge build flag (GENERIC_V2)..."
+      sed -i 's/: "${_processor_opt:=}"/: "${_processor_opt:=GENERIC_V2}"/' PKGBUILD
     fi
 
     # Security scan before building
