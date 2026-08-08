@@ -195,7 +195,7 @@ for item in "${PACKAGES[@]}"; do
     
     # Install compiled package locally to satisfy dependencies for subsequent builds
     echo "Installing compiled package locally..."
-    sudo pacman -U --noconfirm --overwrite '*' *.pkg.tar.zst || pacman -U --noconfirm --overwrite '*' *.pkg.tar.zst || true
+    sudo pacman -U --noconfirm --ask=4 --overwrite '*' *.pkg.tar.zst || pacman -U --noconfirm --ask=4 --overwrite '*' *.pkg.tar.zst || true
     
     cd "$REPO_DIR"
   elif [ "$type" == "upstream" ]; then
@@ -270,7 +270,7 @@ for item in "${PACKAGES[@]}"; do
     echo "Installing compiled packages locally..."
     for pkg in *.pkg.tar.zst; do
       [ -f "$pkg" ] || continue
-      sudo pacman -U --noconfirm --overwrite '*' "$pkg" || pacman -U --noconfirm --overwrite '*' "$pkg" || true
+      sudo pacman -U --noconfirm --ask=4 --overwrite '*' "$pkg" || pacman -U --noconfirm --ask=4 --overwrite '*' "$pkg" || true
     done
     
     cd "$REPO_DIR"
