@@ -51,7 +51,6 @@ PACKAGES=(
   "aur|xdg-desktop-portal-xapp-filepicker|"
   "upstream|https://github.com/Twilight0/cinnamon-aliveos.git|cinnamon-aliveos|"
   "aur|nerd-dictation-git|nerd-dictation"
-  "upstream|https://github.com/Twilight0/aliveos-settings.git|aliveos-settings|"
   "upstream|https://github.com/Twilight0/aliveos-assets.git|aliveos-assets|"
   "aur|grub-silent-ldfix|"
   "local|valuate|"
