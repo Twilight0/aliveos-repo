@@ -54,7 +54,7 @@ PACKAGES=(
   "upstream|https://github.com/Twilight0/aliveos-assets.git|aliveos-assets|"
   "aur|grub-silent-ldfix|"
   "local|valuate|"
-  "upstream|https://github.com/Twilight0/MarkPad.git|markpad|markpad|packaging/arch"
+  "upstream|https://github.com/Twilight0/Skript.git|skript|"
   "upstream|https://github.com/Twilight0/respite.git|respite|"
   "aur|graphite-gtk-theme-git|"
   "aur|tela-icon-theme|"
