@@ -7,22 +7,25 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 ## Packages Included
 
 1.  **`aliveos-assets`** - Custom icon themes and graphic assets for AliveOS.
-2.  **`aliveos-settings`** - Core configuration and styling packages for AliveOS.
-3.  **`cinnamon-aliveos`** - Cinnamon desktop environment for AliveOS (without Nemo, with Dory integration and custom enhancements).
-4.  **`dory`** - Nemo-based standalone file chooser portal helper.
-5.  **`dory-extensions`** - Standard set of file manager extensions for Dory:
+2.  **`cinnamon-aliveos`** - Cinnamon desktop environment for AliveOS (without Nemo, with Dory integration and custom enhancements).
+3.  **`dory`** - Nemo-based standalone file chooser portal helper.
+4.  **`dory-extensions`** - Standard set of file manager extensions for Dory:
     *   `dory-audio-tab`, `dory-compare`, `dory-dropbox`, `dory-emblems`, `dory-fileroller`, `dory-image-converter`, `dory-media-columns`, `dory-pastebin`, `dory-preview`, `dory-python`, `dory-repairer`, `dory-seahorse`, `dory-share`, `dory-terminal`
-6.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
-7.  **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
-8.  **`markpad`** - Lightweight GTK3 markdown editor/viewer.
-9.  **`respite`** - A GTK3 media player (fork of Parole, Xfce deps removed).
-10. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
-11. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
-12. **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview` (`cogl`, `clutter`, `clutter-gtk`, `clutter-gst`).
-13. **`graphite-gtk-theme-git`** - Graphite GTK theme (includes the black compact variant).
-14. **`tela-icon-theme`** - Tela flat icon theme.
-15. **`nvidia-390xx-utils`** - Patched legacy NVIDIA 390.xx drivers compatible with modern kernels and Xlibre.
-16. **`nvidia-340xx-utils`** - Patched legacy NVIDIA 340.xx drivers compatible with modern kernels and Xlibre.
+5.  **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
+6.  **`skript`** - Lightweight GTK3 markdown editor/viewer.
+7.  **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
+8.  **`valuate`** - Lightweight calculator application for AliveOS.
+9.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
+10. **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
+11. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
+12. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
+13. **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview` (`cogl`, `clutter`, `clutter-gtk`, `clutter-gst`).
+14. **`graphite-gtk-theme-git`** - Graphite GTK theme (includes the black compact variant).
+15. **`tela-icon-theme`** - Tela flat icon theme.
+16. **`httptoolkit`** - HTTP(S) interception, debugging, and mock proxy desktop application.
+17. **`linux-cachyos-lts`** - Performance-optimized LTS Linux kernel with BORE scheduler and CPU optimizations.
+18. **`nvidia-390xx-utils`** - Patched legacy NVIDIA 390.xx drivers compatible with modern kernels and Xlibre.
+19. **`nvidia-340xx-utils`** - Patched legacy NVIDIA 340.xx drivers compatible with modern kernels and Xlibre.
 
 ---
 
