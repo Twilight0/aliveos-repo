@@ -321,6 +321,12 @@ for item in "${PACKAGES[@]}"; do
       echo "Replaced xlibre-xserver-devel with xlibre-xserver-devel-legacyabi in $pkg_name PKGBUILD"
     fi
 
+    # Fix DESTDIR in graphite-gtk-theme-git PKGBUILD so gnome-theme-switcher installs into $pkgdir instead of host /usr/bin
+    if [[ "$pkg_name" == "graphite-gtk-theme-git" ]]; then
+      sed -i 's|\./install\.sh|DESTDIR="${pkgdir}" ./install.sh|g' PKGBUILD
+      echo "Added DESTDIR to graphite-gtk-theme-git install.sh calls"
+    fi
+
     # Security scan before building
     if ! scan_pkgbuild "PKGBUILD" "$pkg_name"; then
       echo ""

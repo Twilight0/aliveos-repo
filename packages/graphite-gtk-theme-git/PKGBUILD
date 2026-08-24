@@ -51,7 +51,7 @@ package_graphite-gtk-theme-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}"
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}"
 }
 package_graphite-gtk-theme-wallpaper-git() {
     provides=('graphite-theme-wallpaper')
@@ -71,138 +71,138 @@ package_graphite-gtk-theme-nord-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks nord
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks nord
 }
 package_graphite-gtk-theme-black-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks black
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks black
 }
 package_graphite-gtk-theme-rimless-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks rimless
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks rimless
 }
 package_graphite-gtk-theme-normal-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks normal
 }
 package_graphite-gtk-theme-nord-rimless-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks nord rimless
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks nord rimless
 }
 package_graphite-gtk-theme-nord-normal-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks nord normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks nord normal
 }
 package_graphite-gtk-theme-black-rimless-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks black rimless
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks black rimless
 }
 package_graphite-gtk-theme-black-normal-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks black normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks black normal
 }
 package_graphite-gtk-theme-rimless-normal-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks rimless normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks rimless normal
 }
 package_graphite-gtk-theme-nord-rimless-normal-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks nord rimless normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks nord rimless normal
 }
 package_graphite-gtk-theme-black-rimless-normal-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" --tweaks black rimless normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" --tweaks black rimless normal
 }
 package_graphite-gtk-theme-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact
 }
 package_graphite-gtk-theme-nord-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks nord
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks nord
 }
 package_graphite-gtk-theme-black-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks black
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks black
 }
 package_graphite-gtk-theme-rimless-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks rimless
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks rimless
 }
 package_graphite-gtk-theme-normal-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks normal
 }
 package_graphite-gtk-theme-nord-rimless-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks nord rimless
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks nord rimless
 }
 package_graphite-gtk-theme-nord-normal-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks nord normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks nord normal
 }
 package_graphite-gtk-theme-black-rimless-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks black rimless
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks black rimless
 }
 package_graphite-gtk-theme-black-normal-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks black normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks black normal
 }
 package_graphite-gtk-theme-rimless-normal-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks rimless normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks rimless normal
 }
 package_graphite-gtk-theme-nord-rimless-normal-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks nord rimless normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks nord rimless normal
 }
 package_graphite-gtk-theme-black-rimless-normal-compact-git() {
     dist="${pkgdir}/usr/share/themes"
     mkdir -p "${dist}"
     cd "${srcdir}/${_reponame}"
-    ./install.sh -t all -d "${dist}" -s compact --tweaks black rimless normal
+    DESTDIR="${pkgdir}" ./install.sh -t all -d "${dist}" -s compact --tweaks black rimless normal
 }
 
