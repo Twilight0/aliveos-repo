@@ -16,7 +16,7 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Using | as delimiter to avoid conflicts with https:// URLs
 PACKAGES=(
   "local|xlibre-xserver-legacyabi|"
-  "upstream|https://github.com/CachyOS/linux-cachyos.git|linux-cachyos-lts|linux-cachyos-lts|linux-cachyos-lts"
+  "upstream|https://github.com/CachyOS/linux-cachyos.git|linux-cachyos-lts|linux-cachyos-lts-v2|linux-cachyos-lts"
   "aur|xlibre-input-libinput|"
   "aur|xlibre-video-amdgpu|"
   "aur|xlibre-video-ati|"
@@ -243,10 +243,11 @@ for item in "${PACKAGES[@]}"; do
       fi
     fi
 
-    # Set Intel Sandybridge optimization for CachyOS kernel
+    # Set Intel Sandybridge optimization for CachyOS kernel and -v2 package suffix
     if [[ "$pkg_name" == "linux-cachyos-lts" ]]; then
-      echo "Setting Intel Sandybridge build flag (GENERIC_V2)..."
+      echo "Setting Intel Sandybridge build flag (GENERIC_V2) and -v2 package suffix..."
       sed -i 's/: "${_processor_opt:=}"/: "${_processor_opt:=GENERIC_V2}"/' PKGBUILD
+      sed -i 's/_pkgsuffix="cachyos-lts"/_pkgsuffix="cachyos-lts-v2"/' PKGBUILD
     fi
 
     # Security scan before building

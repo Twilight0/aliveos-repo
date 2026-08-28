@@ -15,7 +15,7 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 6.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
 7.  **`httptoolkit`** - HTTP(S) interception, debugging, and mock proxy desktop application.
 8.  **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview` (`cogl`, `clutter`, `clutter-gtk`, `clutter-gst`).
-9.  **`linux-cachyos-lts`** - Performance-optimized LTS Linux kernel with BORE scheduler and CPU optimizations.
+9.  **`linux-cachyos-lts-v2`** - Performance-optimized LTS Linux kernel (x86-64-v2 baseline) with BORE scheduler and CPU optimizations.
 10. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
 11. **`nvidia-340xx-utils`** - Patched legacy NVIDIA 340.xx drivers compatible with modern kernels and Xlibre.
 12. **`nvidia-390xx-utils`** - Patched legacy NVIDIA 390.xx drivers compatible with modern kernels and Xlibre.
