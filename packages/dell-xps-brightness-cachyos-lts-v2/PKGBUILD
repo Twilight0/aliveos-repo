@@ -1,0 +1,41 @@
+# Maintainer: Twilight0 <https://github.com/Twilight0>
+pkgname=dell-xps-brightness-cachyos-lts-v2
+_pkgname=dell-xps-brightness
+pkgver=1.0.1
+pkgrel=1
+pkgdesc="Prebuilt Dell XPS L702X EC hardware brightness driver for linux-cachyos-lts-v2"
+arch=('x86_64')
+url="https://github.com/Twilight0/dell-xps-brightness-dkms"
+license=('GPL-2.0-or-later')
+depends=('linux-cachyos-lts-v2')
+makedepends=('linux-cachyos-lts-v2-headers')
+provides=('dell-xps-brightness')
+conflicts=('dell-xps-brightness-dkms')
+install="${pkgname}.install"
+source=("dell-xps-brightness.c"
+        "Makefile"
+        "dell-xps-brightness.conf")
+sha256sums=('2fe23b008a2d4ba2ff41c4aae2864849aef83668d7a388c059041b8b53b7860f'
+            'abaaf738c5ee608fd417a1f22e9bce249beaa7bc3c937970465b13e5d6bf1aed'
+            '72d0efb0a0dc01a072200f6302b6de7aa34d07421e035de9307e3a32c7699e6d')
+
+build() {
+  local _kernver
+  _kernver="$(pacman -Qql linux-cachyos-lts-v2-headers 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
+
+  msg2 "Building dell-xps-brightness module for kernel ${_kernver}..."
+  make -C "/usr/lib/modules/${_kernver}/build" M="$srcdir" modules
+}
+
+package() {
+  local _kernver
+  _kernver="$(pacman -Qql linux-cachyos-lts-v2-headers 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
+  local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
+
+  install -dm755 "${_moddir}"
+  install -m644 "${srcdir}/dell-xps-brightness.ko" "${_moddir}/dell-xps-brightness.ko"
+  zstd -q -19 -f "${_moddir}/dell-xps-brightness.ko"
+  rm -f "${_moddir}/dell-xps-brightness.ko"
+
+  install -Dm644 "${srcdir}/dell-xps-brightness.conf" "${pkgdir}/usr/lib/modules-load.d/dell-xps-brightness.conf"
+}

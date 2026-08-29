@@ -18,16 +18,18 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 9.  **`linux-cachyos-lts-v2`** - Performance-optimized LTS Linux kernel (x86-64-v2 baseline) with BORE scheduler and CPU optimizations.
 10. **`nouveau-fermi-reclock-cachyos-lts-v2`** - **Prebuilt** binary Nouveau kernel module with Fermi GPU dynamic reclocking and native 120Hz eDP support for `linux-cachyos-lts-v2`.
 11. **`nouveau-fermi-reclock-dkms`** - DKMS source package for out-of-tree Nouveau driver.
-12. **`nvidia-390xx-cachyos-lts-v2`** - **Prebuilt** binary NVIDIA 390.xx kernel modules (`nvidia.ko`, `nvidia-modeset.ko`, `nvidia-drm.ko`, `nvidia-uvm.ko`) for `linux-cachyos-lts-v2`.
-13. **`nvidia-390xx-utils`**, **`nvidia-390xx-dkms`**, **`nvidia-390xx-settings`** - Patched legacy NVIDIA 390.xx userspace drivers, DKMS module sources, and utilities.
-14. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
-15. **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
-16. **`skript`** - Lightweight GTK3 markdown editor/viewer.
-17. **`tela-icon-theme`** - Tela flat icon theme.
-18. **`valuate`** - Lightweight calculator application for AliveOS.
-19. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
-20. **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
-21. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
+12. **`dell-xps-brightness-cachyos-lts-v2`** - **Prebuilt** binary Dell XPS L702X EC hardware brightness driver for `linux-cachyos-lts-v2`.
+13. **`dell-xps-brightness-dkms`** - DKMS source package for Dell XPS L702X EC hardware brightness driver.
+14. **`nvidia-390xx-cachyos-lts-v2`** - **Prebuilt** binary NVIDIA 390.xx kernel modules (`nvidia.ko`, `nvidia-modeset.ko`, `nvidia-drm.ko`, `nvidia-uvm.ko`) for `linux-cachyos-lts-v2`.
+15. **`nvidia-390xx-utils`**, **`nvidia-390xx-dkms`**, **`nvidia-390xx-settings`** - Patched legacy NVIDIA 390.xx userspace drivers, DKMS module sources, and utilities.
+16. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
+17. **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
+18. **`skript`** - Lightweight GTK3 markdown editor/viewer.
+19. **`tela-icon-theme`** - Tela flat icon theme.
+20. **`valuate`** - Lightweight calculator application for AliveOS.
+21. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
+22. **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
+23. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
 
 ---
 

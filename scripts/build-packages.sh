@@ -19,6 +19,8 @@ PACKAGES=(
   "upstream|https://github.com/CachyOS/linux-cachyos.git|linux-cachyos-lts|linux-cachyos-lts-v2|linux-cachyos-lts"
   "local|nouveau-fermi-reclock-cachyos-lts-v2|"
   "aur|nouveau-fermi-reclock-dkms|"
+  "local|dell-xps-brightness-cachyos-lts-v2|"
+  "aur|dell-xps-brightness-dkms|"
   "local|nvidia-390xx-utils|"
   "local|nvidia-390xx-cachyos-lts-v2|"
   "aur|lib32-nvidia-390xx-utils|"
