@@ -1,0 +1,12 @@
+post_install() {
+  _kernver="$(pacman -Qql linux-cachyos-lts-v2-headers 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
+  depmod -a "${_kernver}"
+}
+
+post_upgrade() {
+  post_install
+}
+
+post_remove() {
+  post_install
+}

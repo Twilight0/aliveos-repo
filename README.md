@@ -16,16 +16,18 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 7.  **`httptoolkit`** - HTTP(S) interception, debugging, and mock proxy desktop application.
 8.  **Legacy Clutter Stack** - Compiled from the AUR to satisfy dependencies for `dory-preview` (`cogl`, `clutter`, `clutter-gtk`, `clutter-gst`).
 9.  **`linux-cachyos-lts-v2`** - Performance-optimized LTS Linux kernel (x86-64-v2 baseline) with BORE scheduler and CPU optimizations.
-10. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
-11. **`nvidia-340xx-utils`** - Patched legacy NVIDIA 340.xx drivers compatible with modern kernels and Xlibre.
-12. **`nvidia-390xx-utils`** - Patched legacy NVIDIA 390.xx drivers compatible with modern kernels and Xlibre.
-13. **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
-14. **`skript`** - Lightweight GTK3 markdown editor/viewer.
-15. **`tela-icon-theme`** - Tela flat icon theme.
-16. **`valuate`** - Lightweight calculator application for AliveOS.
-17. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
-18. **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
-19. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
+10. **`nouveau-fermi-reclock-cachyos-lts-v2`** - **Prebuilt** binary Nouveau kernel module with Fermi GPU dynamic reclocking and native 120Hz eDP support for `linux-cachyos-lts-v2`.
+11. **`nouveau-fermi-reclock-dkms`** - DKMS source package for out-of-tree Nouveau driver.
+12. **`nvidia-390xx-cachyos-lts-v2`** - **Prebuilt** binary NVIDIA 390.xx kernel modules (`nvidia.ko`, `nvidia-modeset.ko`, `nvidia-drm.ko`, `nvidia-uvm.ko`) for `linux-cachyos-lts-v2`.
+13. **`nvidia-390xx-utils`**, **`nvidia-390xx-dkms`**, **`nvidia-390xx-settings`** - Patched legacy NVIDIA 390.xx userspace drivers, DKMS module sources, and utilities.
+14. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
+15. **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
+16. **`skript`** - Lightweight GTK3 markdown editor/viewer.
+17. **`tela-icon-theme`** - Tela flat icon theme.
+18. **`valuate`** - Lightweight calculator application for AliveOS.
+19. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
+20. **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
+21. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
 
 ---
 

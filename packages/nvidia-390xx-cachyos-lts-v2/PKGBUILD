@@ -1,0 +1,105 @@
+# Maintainer: Twilight0 <https://github.com/Twilight0>
+pkgname=nvidia-390xx-cachyos-lts-v2
+pkgver=390.157
+pkgrel=22
+pkgdesc="Prebuilt NVIDIA 390.xx kernel modules for linux-cachyos-lts-v2"
+arch=('x86_64')
+url="https://www.nvidia.com/"
+license=('custom')
+depends=('linux-cachyos-lts-v2' "nvidia-390xx-utils=${pkgver}")
+makedepends=('linux-cachyos-lts-v2-headers')
+provides=('NVIDIA-MODULE')
+conflicts=('nvidia-390xx-dkms')
+options=('!strip')
+install="${pkgname}.install"
+_pkg="NVIDIA-Linux-x86_64-${pkgver}"
+source=("https://us.download.nvidia.com/XFree86/Linux-x86_64/${pkgver}/${_pkg}.run"
+        kernel-6.2.patch
+        kernel-6.3.patch
+        kernel-6.4.patch
+        kernel-6.5.patch
+        kernel-6.6.patch
+        kernel-6.8.patch
+        gcc-14.patch
+        kernel-6.10.patch
+        kernel-6.12.patch
+        kernel-6.13.patch
+        kernel-6.14.patch
+        gcc-15.patch
+        kernel-6.15.patch
+        kernel-6.17.patch
+        kernel-6.19.patch
+        kernel-6.18-nv_workqueue_flush.patch
+        kernel-7.0.patch
+        kernel-4.16+-memory-encryption.patch)
+sha256sums=('5bebbca6e8fed5d6b9d81070fb9e351f18edc534952553cbdc71e8fd0b9b328a'
+            'a94d34cda96d443d02d992ee7962ce7c9949134b899e366fc3dafaf48bc19ebe'
+            'd380ee05adc4cf2aeb673b72327fe6a4b3a43f7d1bb1823084228129e31e6c59'
+            '92f3cb65ee1b5d07b0a28d02424cd7ae1ad5705d407b5aa7d635da680b4c8568'
+            '10e50e41aca33d26f02df2ba53512cab7d3fbc0f49c161952e67cde619104b45'
+            '11917658c2f4bb1d8c1a4603b9e3844cc9be10171fb6df0e9b482c07a3a3b6aa'
+            '4add71eff4d4c7970a518faa4c6fbf83879c6237b082a37eb6427de4f1b95bfe'
+            'c6ef988c7b3d379b62bd0000285464c85342100a4822678df174fc60597d4281'
+            '11585c97eca50f163e929ede4d010ba454a7efa8d119e283f3aad0f79eece084'
+            'dd38b6e66e6294917b83e1a1d3bb94a507de4e52c71872a3f80cb0a94538725e'
+            'd05256023b9ef2b43b72f3b5102d5c57f6e08d61cf3480b10feaa2f505980a95'
+            '95ba4c333a554711a1cce60a3c089ed6f515f080354af3b685fddf0bc776761f'
+            '5fd6cf3265e771f7ae0f3ccaebaf39a5354dd9ed184cc2c512ae15da6f755ff5'
+            'e481670e24240844a159f024ae1084f8b420dd3e2173e6a1cdc4352a178a9662'
+            '05dcce0044785c96074f4d0d2b4e369b0e62c03774bdb77d39cd58e63d231a12'
+            'bcad4de79047e56a55c080824d7fd9c742a69479ae887349e5bfe501725aa44b'
+            'e1bba1a8b4081730998cc747beeb85f70f152cae5993048619833f24d3c9f56b'
+            '7255f73688a8ebc0899316d69c36d4bc38cb4f66a60fbf429ded01047bdd7d41'
+            '6c5f5b11dbb43f40f4e2c6a2b5417f44b50cf29d16bbd091420b7e737acb6ccd')
+
+prepare() {
+    sh "${_pkg}.run" --extract-only
+    cd "${_pkg}"
+
+    patch -Np1 -i ../kernel-4.16+-memory-encryption.patch
+    patch -Np1 -i ../kernel-6.2.patch
+    patch -Np1 -i ../kernel-6.3.patch
+    patch -Np1 -i ../kernel-6.4.patch
+    patch -Np1 -i ../kernel-6.5.patch
+    patch -Np1 -i ../kernel-6.6.patch
+    patch -Np1 -i ../kernel-6.8.patch
+    patch -Np1 -i ../gcc-14.patch
+    patch -Np1 -i ../kernel-6.10.patch
+    patch -Np1 -i ../kernel-6.12.patch
+    patch -Np1 -i ../kernel-6.13.patch
+    patch -Np1 -i ../kernel-6.14.patch
+    patch -Np1 -i ../gcc-15.patch
+    patch -Np1 -i ../kernel-6.15.patch
+    patch -Np1 -i ../kernel-6.17.patch
+    patch -Np1 -i ../kernel-6.19.patch
+    patch -Np1 -i ../kernel-6.18-nv_workqueue_flush.patch
+    patch -Np1 -i ../kernel-7.0.patch
+}
+
+build() {
+    local _kernver
+    _kernver="$(pacman -Qql linux-cachyos-lts-v2-headers 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
+
+    msg2 "Building NVIDIA 390.xx modules for kernel ${_kernver}..."
+    cd "${_pkg}/kernel"
+    make -C "/usr/lib/modules/${_kernver}/build" M="$PWD" NV_EXCLUDE_BUILD_MODULES='' IGNORE_PREEMPT_RT_PRESENCE=1 SYSSRC="/usr/lib/modules/${_kernver}/build" module
+}
+
+package() {
+    local _kernver
+    _kernver="$(pacman -Qql linux-cachyos-lts-v2-headers 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
+    local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
+
+    install -dm755 "${_moddir}"
+    cd "${_pkg}/kernel"
+
+    for mod in nvidia.ko nvidia-modeset.ko nvidia-drm.ko nvidia-uvm.ko; do
+        if [ -f "$mod" ]; then
+            install -m644 "$mod" "${_moddir}/$mod"
+            zstd -q -19 -f "${_moddir}/$mod"
+            rm -f "${_moddir}/$mod"
+        fi
+    done
+
+    install -Dm644 "${srcdir}/${_pkg}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

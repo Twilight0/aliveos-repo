@@ -1,0 +1,59 @@
+# Maintainer: Twilight0 <https://github.com/Twilight0>
+pkgname=nouveau-fermi-reclock-cachyos-lts-v2
+_pkgname=nouveau-fermi-reclock
+pkgver=1.0.1
+pkgrel=1
+pkgdesc="Prebuilt Nouveau kernel module with Fermi core/shader reclocking and native 120Hz eDP for linux-cachyos-lts-v2"
+arch=('x86_64')
+url="https://github.com/Twilight0/nouveau-fermi-reclock-dkms"
+license=('GPL-2.0-only')
+depends=('linux-cachyos-lts-v2' 'python')
+makedepends=('linux-cachyos-lts-v2-headers')
+provides=('nouveau-fermi-reclock')
+conflicts=('nouveau-fermi-reclock-dkms')
+install="${pkgname}.install"
+source=(
+  "https://github.com/Twilight0/nouveau-fermi-reclock-dkms/releases/download/v1.0.0/nouveau-source.tar.gz"
+  "nouveau-fermi-reclock.patch"
+  "nouveau-fermi-reclock.conf"
+  "nouveau-dynclockd.py"
+  "nouveau-dynclockd.service"
+)
+sha256sums=('1426cea7f5c4959cfcaec78b4974cde3071f51eb9fdf9beedf38efae0bc6b9ad'
+            '0db9f2f1bb611c0ba54122c2ee06164d9457c53a8dce69c9a5be2539d1810da7'
+            'b4aa1f2d25fc8bdf9ed5e13c68edaab09746a2bbf818278d2fae3bc5f0fa134d'
+            '1055100c81d244dcd5dca924912f8cd7c7228806ed0cc726f667b1432f2860f8'
+            '92911764e6fe601af3599a9e0fb95b48fe6109be6208d4150fa762f17c32c7fa')
+
+prepare() {
+  msg2 "Applying Fermi reclocking, 120Hz display, and backlight patches..."
+  patch -Np1 -d "${srcdir}/nouveau-source" < "${srcdir}/nouveau-fermi-reclock.patch"
+}
+
+build() {
+  local _kernver
+  _kernver="$(pacman -Qql linux-cachyos-lts-v2-headers 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
+  
+  msg2 "Building Nouveau module for kernel ${_kernver}..."
+  make -C "/usr/lib/modules/${_kernver}/build" M="${srcdir}/nouveau-source" CONFIG_DRM_NOUVEAU=m modules
+}
+
+package() {
+  local _kernver
+  _kernver="$(pacman -Qql linux-cachyos-lts-v2-headers 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
+  local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
+  
+  install -dm755 "${_moddir}"
+  install -m644 "${srcdir}/nouveau-source/nouveau.ko" "${_moddir}/nouveau.ko"
+  zstd -q -19 -f "${_moddir}/nouveau.ko"
+  rm -f "${_moddir}/nouveau.ko"
+
+  # Install default modprobe configuration
+  install -Dm644 "${srcdir}/nouveau-fermi-reclock.conf" "${pkgdir}/usr/lib/modprobe.d/nouveau-fermi-reclock.conf"
+
+  # Install the dynamic clock daemon
+  install -Dm755 "${srcdir}/nouveau-dynclockd.py" "${pkgdir}/usr/bin/nouveau-dynclockd.py"
+
+  # Install systemd service
+  install -Dm644 "${srcdir}/nouveau-dynclockd.service" "${pkgdir}/usr/lib/systemd/system/nouveau-dynclockd.service"
+}
