@@ -1,7 +1,7 @@
 # Maintainer: Twilight0 <https://github.com/Twilight0>
 pkgname=nouveau-fermi-reclock-cachyos-lts-v2
 _pkgname=nouveau-fermi-reclock
-pkgver=1.0.1
+pkgver=1.0.2
 pkgrel=1
 pkgdesc="Prebuilt Nouveau kernel module with Fermi core/shader reclocking and native 120Hz eDP for linux-cachyos-lts-v2"
 arch=('x86_64')
