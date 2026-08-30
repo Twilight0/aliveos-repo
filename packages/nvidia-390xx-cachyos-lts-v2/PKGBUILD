@@ -81,7 +81,7 @@ build() {
     _kernver="$(pacman -Qql linux-cachyos-lts-v2-headers 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
 
     msg2 "Building NVIDIA 390.xx modules for kernel ${_kernver}..."
-    cd "${_pkg}/kernel"
+    cd "${srcdir}/${_pkg}/kernel"
     make -C "/usr/lib/modules/${_kernver}/build" M="$PWD" NV_EXCLUDE_BUILD_MODULES='' IGNORE_PREEMPT_RT_PRESENCE=1 SYSSRC="/usr/lib/modules/${_kernver}/build" module
 }
 
@@ -91,7 +91,7 @@ package() {
     local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
 
     install -dm755 "${_moddir}"
-    cd "${_pkg}/kernel"
+    cd "${srcdir}/${_pkg}/kernel"
 
     for mod in nvidia.ko nvidia-modeset.ko nvidia-drm.ko nvidia-uvm.ko; do
         if [ -f "$mod" ]; then

@@ -13,7 +13,7 @@ provides=('nouveau-fermi-reclock')
 conflicts=('nouveau-fermi-reclock-dkms')
 install="${pkgname}.install"
 source=(
-  "https://github.com/Twilight0/nouveau-fermi-reclock-dkms/releases/download/v1.0.0/nouveau-source.tar.gz"
+  "https://github.com/Twilight0/nouveau-fermi-reclock-dkms/releases/download/v${pkgver}/nouveau-source.tar.gz"
   "nouveau-fermi-reclock.patch"
   "nouveau-fermi-reclock.conf"
   "nouveau-dynclockd.py"

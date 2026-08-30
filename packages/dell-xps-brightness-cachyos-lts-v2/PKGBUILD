@@ -33,9 +33,9 @@ package() {
   local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
 
   install -dm755 "${_moddir}"
-  install -m644 "${srcdir}/dell-xps-brightness.ko" "${_moddir}/dell-xps-brightness.ko"
-  zstd -q -19 -f "${_moddir}/dell-xps-brightness.ko"
-  rm -f "${_moddir}/dell-xps-brightness.ko"
+  install -m644 "${srcdir}/dell_xps_brightness.ko" "${_moddir}/dell_xps_brightness.ko"
+  zstd -q -19 -f "${_moddir}/dell_xps_brightness.ko"
+  rm -f "${_moddir}/dell_xps_brightness.ko"
 
   install -Dm644 "${srcdir}/dell-xps-brightness.conf" "${pkgdir}/usr/lib/modules-load.d/dell-xps-brightness.conf"
 }
