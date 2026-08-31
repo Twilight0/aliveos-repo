@@ -82,7 +82,7 @@ build() {
 
     msg2 "Building NVIDIA 390.xx modules for kernel ${_kernver}..."
     cd "${srcdir}/${_pkg}/kernel"
-    make -C "/usr/lib/modules/${_kernver}/build" M="$PWD" NV_EXCLUDE_BUILD_MODULES='' IGNORE_PREEMPT_RT_PRESENCE=1 SYSSRC="/usr/lib/modules/${_kernver}/build" module
+    make SYSSRC="/usr/lib/modules/${_kernver}/build" module
 }
 
 package() {
