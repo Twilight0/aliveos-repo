@@ -65,7 +65,6 @@ PACKAGES=(
   "aur|tela-icon-theme|"
   "upstream|https://github.com/httptoolkit/httptoolkit-desktop.git|httptoolkit|"
   "upstream|https://github.com/Twilight0/xconnect.git|xconnect|"
-  "aur|kddockwidgets-qt6|"
 )
 
 echo "=== AliveOS Package Repository Builder ==="
