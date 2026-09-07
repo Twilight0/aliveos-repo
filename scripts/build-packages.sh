@@ -59,12 +59,14 @@ PACKAGES=(
   "upstream|https://github.com/Twilight0/aliveos-assets.git|aliveos-assets|"
   "aur|grub-silent-ldfix|"
   "local|valuate|"
+  "upstream|https://github.com/Twilight0/muse-code.git|muse-code|"
   "upstream|https://github.com/Twilight0/Skript.git|skript|"
   "upstream|https://github.com/Twilight0/respite.git|respite|"
   "aur|graphite-gtk-theme-git|"
   "aur|tela-icon-theme|"
   "upstream|https://github.com/httptoolkit/httptoolkit-desktop.git|httptoolkit|"
   "upstream|https://github.com/Twilight0/xconnect.git|xconnect|"
+  "upstream|https://github.com/Twilight0/polkit-aliveos.git|polkit-aliveos|"
 )
 
 echo "=== AliveOS Package Repository Builder ==="

@@ -39,7 +39,7 @@ build() {
   _kernver="$(pacman -Qql linux-cachyos-lts-v2-headers 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
   
   msg2 "Building Nouveau module for kernel ${_kernver}..."
-  make -C "/usr/lib/modules/${_kernver}/build" M="${srcdir}/nouveau-source" CONFIG_DRM_NOUVEAU=m modules
+  make -j"$(nproc)" -C "/usr/lib/modules/${_kernver}/build" M="${srcdir}/nouveau-source" CONFIG_DRM_NOUVEAU=m modules
 }
 
 package() {
