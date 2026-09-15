@@ -24,13 +24,14 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 15. **`nouveau-fermi-reclock-dkms`** - DKMS source package for out-of-tree Nouveau driver.
 16. **`nvidia-390xx-cachyos-lts-v2`** - **Prebuilt** binary NVIDIA 390.xx kernel modules (`nvidia.ko`, `nvidia-modeset.ko`, `nvidia-drm.ko`, `nvidia-uvm.ko`) for `linux-cachyos-lts-v2`.
 17. **`nvidia-390xx-utils`**, **`nvidia-390xx-dkms`**, **`nvidia-390xx-settings`** - Patched legacy NVIDIA 390.xx userspace drivers, DKMS module sources, and utilities.
-18. **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
-19. **`skript`** - Lightweight GTK3 markdown editor/viewer.
-20. **`tela-icon-theme`** - Tela flat icon theme.
-21. **`valuate`** - Lightweight calculator application for AliveOS.
-22. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
-23. **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
-24. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
+18. **`polkit-aliveos`** - Transparent Polkit authentication agent for AliveOS with explicit caller disclosure, UAC screen dimming, and Zenity-GTK3 styling.
+19. **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
+20. **`skript`** - Lightweight GTK3 markdown editor/viewer.
+21. **`tela-icon-theme`** - Tela flat icon theme.
+22. **`valuate`** - Lightweight calculator application for AliveOS.
+23. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
+24. **`xdg-desktop-portal-xapp-filepicker`** - Portal backend using XApp file dialogs.
+25. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
 
 ---
 
