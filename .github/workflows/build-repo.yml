@@ -43,7 +43,24 @@ jobs:
             sleep 2
           done
           pacman-key --lsign-key 3056513887B78AEB
-          pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+          CHAOTIC_MIRRORS=(
+            "https://cdn-mirror.chaotic.cx/chaotic-aur"
+            "https://geo-mirror.chaotic.cx/chaotic-aur"
+            "https://builds.garudalinux.org/repos/chaotic-aur"
+          )
+          installed=0
+          for mirror in "${CHAOTIC_MIRRORS[@]}"; do
+            echo "Trying Chaotic-AUR mirror: $mirror"
+            if curl --retry 3 --retry-delay 2 -fsSL "${mirror}/chaotic-keyring.pkg.tar.zst" -o /tmp/chaotic-keyring.pkg.tar.zst && \
+               curl --retry 3 --retry-delay 2 -fsSL "${mirror}/chaotic-mirrorlist.pkg.tar.zst" -o /tmp/chaotic-mirrorlist.pkg.tar.zst; then
+              pacman -U --noconfirm /tmp/chaotic-keyring.pkg.tar.zst /tmp/chaotic-mirrorlist.pkg.tar.zst && installed=1 && break
+            fi
+            echo "Mirror $mirror failed, trying next..."
+          done
+          if [ "$installed" -ne 1 ]; then
+            echo "Failed to install Chaotic-AUR keyring/mirrorlist from all mirrors" >&2
+            exit 1
+          fi
           cat <<EOF >> /etc/pacman.conf
 
           [multilib]

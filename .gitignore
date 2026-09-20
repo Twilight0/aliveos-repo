@@ -6,3 +6,4 @@ packages/aliveos-icon-theme/
 *.tar.gz
 *.tar.xz
 *.tar.bz2
+*.pkg.tar.zst
