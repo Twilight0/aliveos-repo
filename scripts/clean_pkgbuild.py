@@ -36,11 +36,10 @@ def clean_pkgbuild(filepath, original_name, target_name):
         content += f"\n{conflicts_expr}\n"
 
     dependency_renames = {
-        "nemo": "dory",
-        "dory-git": "dory",
-        "dory-python-git": "dory-python",
         "nerd-dictation-git": "nerd-dictation",
-        "xdg-desktop-portal-xapp-filepicker-git": "xdg-desktop-portal-xapp-filepicker"
+        "xdg-desktop-portal-aliveos-git": "xdg-desktop-portal-aliveos",
+        "xdg-desktop-portal-xapp-filepicker-git": "xdg-desktop-portal-aliveos",
+        "xdg-desktop-portal-xapp-filepicker": "xdg-desktop-portal-aliveos"
     }
     for old_dep, new_dep in dependency_renames.items():
         content = content.replace(f"'{old_dep}'", f"'{new_dep}'")
