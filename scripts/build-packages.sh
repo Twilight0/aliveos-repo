@@ -174,6 +174,50 @@ for item in "${PACKAGES[@]}"; do
     
     cd "$REPO_DIR/packages/$pkg_name"
     
+    # Kernel-aware auto-increment for prebuilt kernel module packages
+    if [[ "$pkg_name" == *-cachyos-lts-v2 ]]; then
+      local_prev_db="/tmp/aliveos-repo-prev.db.tar.gz"
+      if [ ! -f "$local_prev_db" ]; then
+        echo "Fetching current repository database from GitHub release..."
+        curl -fsSL "https://github.com/Twilight0/aliveos-repo/releases/download/latest/aliveos-repo.db" -o "$local_prev_db" 2>/dev/null || true
+      fi
+
+      if [ -f "$local_prev_db" ] && [ -s "$local_prev_db" ]; then
+        prev_kernel="$(tar -ztf "$local_prev_db" 2>/dev/null | grep -E '^linux-cachyos-lts-v2-[0-9]' | head -n1 | sed 's|^linux-cachyos-lts-v2-||; s|/$||')"
+        prev_pkg_entry="$(tar -ztf "$local_prev_db" 2>/dev/null | grep -E "^${pkg_name}-[0-9]" | head -n1 | sed "s|^${pkg_name}-||; s|/$||")"
+        curr_kernel="$(pacman -Q linux-cachyos-lts-v2 2>/dev/null | awk '{print $2}')"
+        curr_pkgver="$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2 | tr -d "'\"")"
+        git_pkgrel="$(grep -E '^pkgrel=' PKGBUILD | cut -d= -f2 | tr -d "'\"")"
+
+        if [ -n "$prev_pkg_entry" ]; then
+          prev_pkgver="${prev_pkg_entry%-*}"
+          prev_pkgrel="${prev_pkg_entry##*-}"
+
+          if [ "$curr_pkgver" != "$prev_pkgver" ]; then
+            # Upstream/driver version changed -> reset pkgrel to 1
+            echo "  [Auto-pkgrel] Driver version changed ($prev_pkgver -> $curr_pkgver). Resetting pkgrel to 1."
+            target_pkgrel=1
+          elif [ -n "$curr_kernel" ] && [ -n "$prev_kernel" ] && [ "$curr_kernel" != "$prev_kernel" ]; then
+            # Kernel updated with same driver version -> increment pkgrel
+            target_pkgrel=$((prev_pkgrel + 1))
+            echo "  [Auto-pkgrel] Kernel updated ($prev_kernel -> $curr_kernel) for $curr_pkgver. Incrementing pkgrel to $target_pkgrel."
+          else
+            # Kernel and driver unchanged -> maintain previous pkgrel
+            target_pkgrel="${prev_pkgrel}"
+            echo "  [Auto-pkgrel] Kernel ($curr_kernel) and driver ($curr_pkgver) unchanged. Keeping pkgrel=$target_pkgrel."
+          fi
+
+          # If git PKGBUILD explicitly specified a higher pkgrel, honor it
+          if [ -n "$git_pkgrel" ] && [ "$git_pkgrel" -gt "$target_pkgrel" ] 2>/dev/null; then
+            echo "  [Auto-pkgrel] PKGBUILD specifies higher pkgrel ($git_pkgrel > $target_pkgrel). Using $git_pkgrel."
+            target_pkgrel="$git_pkgrel"
+          fi
+
+          sed -i "s/^pkgrel=.*/pkgrel=${target_pkgrel}/" PKGBUILD
+        fi
+      fi
+    fi
+
     # Run makepkg
     makepkg --syncdeps --noconfirm --nocheck --clean
     

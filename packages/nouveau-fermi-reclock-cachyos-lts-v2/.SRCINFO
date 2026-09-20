@@ -1,13 +1,13 @@
 pkgbase = nouveau-fermi-reclock-cachyos-lts-v2
 	pkgdesc = Prebuilt Nouveau kernel module with Fermi core, shader, and DDR3 memory reclocking for linux-cachyos-lts-v2
 	pkgver = 2.0.1
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/Twilight0/nouveau-fermi-reclock-dkms
 	install = nouveau-fermi-reclock-cachyos-lts-v2.install
 	arch = x86_64
 	license = GPL-2.0-only
 	makedepends = linux-cachyos-lts-v2-headers
-	depends = linux-cachyos-lts-v2
+	depends = linux-cachyos-lts-v2=6.18.52-1
 	depends = python
 	provides = nouveau-fermi-reclock
 	conflicts = nouveau-fermi-reclock-dkms
