@@ -40,6 +40,7 @@ PACKAGES=(
   "aur|grub-silent-ldfix|"
   "local|valuate|"
   "upstream|https://github.com/Twilight0/muse-code.git|muse-code|"
+  "aur|agentty-bin|"
   "upstream|https://github.com/Twilight0/Skript.git|skript|"
   "upstream|https://github.com/Twilight0/respite.git|respite|"
   "aur|graphite-gtk-theme-git|"
