@@ -14,7 +14,7 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 6.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
 7.  **`httptoolkit`** - HTTP(S) interception, debugging, and mock proxy desktop application.
 8.  **`linux-cachyos-lts-v2`** - Performance-optimized LTS Linux kernel (x86-64-v2 baseline) with BORE scheduler and CPU optimizations.
-9.  **`muse-code`** - Terminal-based AI coding agent powered by Meta's Muse Spark with AVX2 legacy CPU emulation fallback and interactive session manager.
+9.  **`muse-code-bin`** - Terminal-based AI coding agent powered by Meta's Muse Spark with opt-in AVX2 legacy CPU emulation fallback and interactive session manager.
 10. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
 11. **`nouveau-fermi-reclock-cachyos-lts-v2`** - **Prebuilt** binary Nouveau kernel module with Fermi GPU dynamic reclocking and native 120Hz eDP support for `linux-cachyos-lts-v2`.
 12. **`nouveau-fermi-reclock-dkms`** - DKMS source package for out-of-tree Nouveau driver.
