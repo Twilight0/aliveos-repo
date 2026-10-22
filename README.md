@@ -28,6 +28,7 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 20. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
 21. **`xdg-desktop-portal-aliveos`** - Portal backend with native multi-view file chooser dialog for AliveOS.
 22. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
+23. **`mcp-kodi`** - MCP server that lets an AI assistant control Kodi over its JSON-RPC API (22 tools: transport, volume, library search, queue, history, audio/subtitle switching, notifications).
 
 ---
 
