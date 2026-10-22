@@ -149,6 +149,9 @@ scan_pkgbuild() {
 # Build all packages sequentially
 for item in "${PACKAGES[@]}"; do
   IFS='|' read -r type pkg_name target_name <<< "$item"
+
+  # Keep pacman sync databases updated to prevent 404s on rotated upstream dependencies
+  sudo pacman -Sy --noconfirm 2>/dev/null || pacman -Sy --noconfirm 2>/dev/null || true
   
   if [ "$type" == "local" ]; then
     echo ""

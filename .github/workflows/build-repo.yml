@@ -26,13 +26,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Builder User
+      - name: Setup Builder User & Mirrors
         run: |
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder
           chmod 440 /etc/sudoers.d/builder
           pacman-key --init
           pacman-key --populate archlinux
+
+          # Add reliable worldwide tier-1 mirrors before existing mirrorlist
+          cat << 'EOF' > /tmp/mirrorlist.new
+Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch
+Server = https://fastly.mirror.pkgbuild.com/$repo/os/$arch
+Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch
+Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch
+Server = https://mirror.leaseweb.com/archlinux/$repo/os/$arch
+EOF
+          cat /etc/pacman.d/mirrorlist >> /tmp/mirrorlist.new 2>/dev/null || true
+          mv /tmp/mirrorlist.new /etc/pacman.d/mirrorlist
 
       - name: Configure Pacman with Chaotic-AUR
         run: |
