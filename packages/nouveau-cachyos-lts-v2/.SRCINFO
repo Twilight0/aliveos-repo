@@ -1,0 +1,36 @@
+pkgbase = nouveau-cachyos-lts-v2
+	pkgdesc = Prebuilt Nouveau kernel module with Fermi core, shader, and DDR3 memory reclocking for linux-cachyos-lts-v2
+	pkgver = 2.1.0
+	pkgrel = 1
+	url = https://github.com/Twilight0/nouveau-dkms
+	install = nouveau-cachyos-lts-v2.install
+	arch = x86_64
+	license = GPL-2.0-only
+	makedepends = linux-cachyos-lts-v2-headers
+	depends = linux-cachyos-lts-v2=6.18.55-2
+	depends = python
+	provides = nouveau-fermi-reclock
+	provides = nouveau-fermi-reclock-cachyos-lts-v2
+	conflicts = nouveau-fermi-reclock-dkms
+	conflicts = nouveau-fermi-reclock-cachyos-lts-v2
+	conflicts = nouveau-dkms
+	replaces = nouveau-fermi-reclock-cachyos-lts-v2
+	backup = etc/nouveau-dynclockd.conf
+	source = https://github.com/Twilight0/nouveau-dkms/releases/download/v2.1.0/nouveau-source.tar.gz
+	source = nouveau.patch
+	source = nouveau.conf
+	source = nouveau-dynclockd.conf
+	source = nouveau-dynclockd.py
+	source = nouveau-dynclockd.service
+	source = nouveau-ctrl
+	source = nouveau-tui
+	sha256sums = 1426cea7f5c4959cfcaec78b4974cde3071f51eb9fdf9beedf38efae0bc6b9ad
+	sha256sums = efcf76af97471e399b2f048a1bb7545b5d8d5da9027d89f569fedfc73bcce842
+	sha256sums = 326efac21bf858f7be0e41b21f2c585bfd1ef5b18dad9cce022685a4623bb090
+	sha256sums = a28abe29db225765c93c03b02aec60ac6db4ad59826689fcad92e59d5ec8d69b
+	sha256sums = 2b8d254d3f0f341890e22898d59f787f79044e5728fae75bc2e9731e18292ff6
+	sha256sums = 87f698b1de37689cb3889bfae916ceaba1caca634ab6a653b1602bda613b20e4
+	sha256sums = d69c3ff716892b2eb22cf2b8494f15117c1d85efcf0f03d3159b49c69916a294
+	sha256sums = b868f1e1688c36e67cdff0bcb753cce891ed165c6a4b3811f3dc37d633bc1dc0
+
+pkgname = nouveau-cachyos-lts-v2
