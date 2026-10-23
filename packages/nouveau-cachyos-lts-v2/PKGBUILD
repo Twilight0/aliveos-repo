@@ -14,7 +14,7 @@ else
   depends=('linux-cachyos-lts-v2' 'python')
 fi
 makedepends=('linux-cachyos-lts-v2-headers')
-provides=('nouveau' 'nouveau-fermi-reclock' 'nouveau-fermi-reclock-cachyos-lts-v2')
+provides=('nouveau')
 conflicts=('nouveau-fermi-reclock-dkms' 'nouveau-fermi-reclock-cachyos-lts-v2' 'nouveau-dkms')
 replaces=('nouveau-fermi-reclock-cachyos-lts-v2')
 backup=('etc/nouveau-dynclockd.conf')
