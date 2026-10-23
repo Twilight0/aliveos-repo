@@ -9,6 +9,7 @@ pkgbase = nouveau-cachyos-lts-v2
 	makedepends = linux-cachyos-lts-v2-headers
 	depends = linux-cachyos-lts-v2=6.18.55-2
 	depends = python
+	provides = nouveau
 	provides = nouveau-fermi-reclock
 	provides = nouveau-fermi-reclock-cachyos-lts-v2
 	conflicts = nouveau-fermi-reclock-dkms
