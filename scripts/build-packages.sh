@@ -47,6 +47,7 @@ PACKAGES=(
   "aur|sdb-bin|"
   "aur|tizen-cli|"
   "aur|mcp-kodi|"
+  "aur|blender-4.5-lts-bin|blender-4.5-lts"
   "upstream|https://github.com/httptoolkit/httptoolkit-desktop.git|httptoolkit|"
   "upstream|https://github.com/Twilight0/xconnect.git|xconnect|"
   "upstream|https://github.com/Twilight0/polkit-aliveos.git|polkit-aliveos|"

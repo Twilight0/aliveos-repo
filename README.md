@@ -7,28 +7,29 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 ## Packages Included
 
 1.  **`aliveos-assets`** - Custom icon themes and graphic assets for AliveOS.
-2.  **`cinnamon-aliveos`** - Cinnamon desktop environment for AliveOS with Zenity GTK3 dialogs and custom enhancements.
-3.  **`dell-xps-brightness-cachyos-lts-v2`** - **Prebuilt** binary Dell XPS L702X EC hardware brightness driver for `linux-cachyos-lts-v2`.
-4.  **`dell-xps-brightness-dkms`** - DKMS source package for Dell XPS L702X EC hardware brightness driver.
-5.  **`graphite-gtk-theme-git`** - Graphite GTK theme (includes the black compact variant).
-6.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
-7.  **`httptoolkit`** - HTTP(S) interception, debugging, and mock proxy desktop application.
-8.  **`linux-cachyos-lts-v2`** - Performance-optimized LTS Linux kernel (x86-64-v2 baseline) with BORE scheduler and CPU optimizations.
-9.  **`muse-code-bin`** - Terminal-based AI coding agent powered by Meta's Muse Spark with opt-in AVX2 legacy CPU emulation fallback and interactive session manager.
-10. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
-11. **`nouveau-fermi-reclock-cachyos-lts-v2`** - **Prebuilt** binary Nouveau kernel module with Fermi GPU dynamic reclocking and native 120Hz eDP support for `linux-cachyos-lts-v2`.
-12. **`nouveau-fermi-reclock-dkms`** - DKMS source package for out-of-tree Nouveau driver.
-13. **`nvidia-390xx-cachyos-lts-v2`** - **Prebuilt** binary NVIDIA 390.xx kernel modules (`nvidia.ko`, `nvidia-modeset.ko`, `nvidia-drm.ko`, `nvidia-uvm.ko`) for `linux-cachyos-lts-v2`.
-14. **`nvidia-390xx-utils`**, **`nvidia-390xx-dkms`**, **`nvidia-390xx-settings`** - Patched legacy NVIDIA 390.xx userspace drivers, DKMS module sources, and utilities.
-15. **`polkit-aliveos`** - Transparent Polkit authentication agent for AliveOS with explicit caller disclosure, UAC screen dimming, and Zenity-GTK3 styling.
-16. **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
-17. **`skript`** - Lightweight GTK3 markdown editor/viewer.
-18. **`tela-icon-theme`** - Tela flat icon theme.
-19. **`valuate`** - Lightweight calculator application for AliveOS.
-20. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
-21. **`xdg-desktop-portal-aliveos`** - Portal backend with native multi-view file chooser dialog for AliveOS.
-22. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
-23. **`mcp-kodi`** - MCP server that lets an AI assistant control Kodi over its JSON-RPC API (22 tools: transport, volume, library search, queue, history, audio/subtitle switching, notifications).
+2.  **`blender-4.5-lts`** - Full-featured 3D creation suite (official 4.5 LTS release).
+3.  **`cinnamon-aliveos`** - Cinnamon desktop environment for AliveOS with Zenity GTK3 dialogs and custom enhancements.
+4.  **`dell-xps-brightness-cachyos-lts-v2`** - **Prebuilt** binary Dell XPS L702X EC hardware brightness driver for `linux-cachyos-lts-v2`.
+5.  **`dell-xps-brightness-dkms`** - DKMS source package for Dell XPS L702X EC hardware brightness driver.
+6.  **`graphite-gtk-theme-git`** - Graphite GTK theme (includes the black compact variant).
+7.  **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
+8.  **`httptoolkit`** - HTTP(S) interception, debugging, and mock proxy desktop application.
+9.  **`linux-cachyos-lts-v2`** - Performance-optimized LTS Linux kernel (x86-64-v2 baseline) with BORE scheduler and CPU optimizations.
+10. **`mcp-kodi`** - MCP server that lets an AI assistant control Kodi over its JSON-RPC API (22 tools: transport, volume, library search, queue, history, audio/subtitle switching, notifications).
+11. **`muse-code-bin`** - Terminal-based AI coding agent powered by Meta's Muse Spark with opt-in AVX2 legacy CPU emulation fallback and interactive session manager.
+12. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
+13. **`nouveau-fermi-reclock-cachyos-lts-v2`** - **Prebuilt** binary Nouveau kernel module with Fermi GPU dynamic reclocking and native 120Hz eDP support for `linux-cachyos-lts-v2`.
+14. **`nouveau-fermi-reclock-dkms`** - DKMS source package for out-of-tree Nouveau driver.
+15. **`nvidia-390xx-cachyos-lts-v2`** - **Prebuilt** binary NVIDIA 390.xx kernel modules (`nvidia.ko`, `nvidia-modeset.ko`, `nvidia-drm.ko`, `nvidia-uvm.ko`) for `linux-cachyos-lts-v2`.
+16. **`nvidia-390xx-utils`**, **`nvidia-390xx-dkms`**, **`nvidia-390xx-settings`** - Patched legacy NVIDIA 390.xx userspace drivers, DKMS module sources, and utilities.
+17. **`polkit-aliveos`** - Transparent Polkit authentication agent for AliveOS with explicit caller disclosure, UAC screen dimming, and Zenity-GTK3 styling.
+18. **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
+19. **`skript`** - Lightweight GTK3 markdown editor/viewer.
+20. **`tela-icon-theme`** - Tela flat icon theme.
+21. **`valuate`** - Lightweight calculator application for AliveOS.
+22. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
+23. **`xdg-desktop-portal-aliveos`** - Portal backend with native multi-view file chooser dialog for AliveOS.
+24. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
 
 ---
 
