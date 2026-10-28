@@ -10,6 +10,7 @@ pkgbase = nouveau-cachyos-lts-v2
 	depends = linux-cachyos-lts-v2=6.18.55-2
 	optdepends = nouveau-utils: dynamic clock governor daemon, CLI management tool, and interactive TUI
 	provides = nouveau
+	provides = nouveau-dkms=2.2.3
 	conflicts = nouveau-fermi-reclock-dkms
 	conflicts = nouveau-fermi-reclock-cachyos-lts-v2
 	conflicts = nouveau-dkms

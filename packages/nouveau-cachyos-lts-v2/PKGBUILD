@@ -15,7 +15,7 @@ else
 fi
 optdepends=('nouveau-utils: dynamic clock governor daemon, CLI management tool, and interactive TUI')
 makedepends=('linux-cachyos-lts-v2-headers')
-provides=('nouveau')
+provides=('nouveau' "nouveau-dkms=${pkgver}")
 conflicts=('nouveau-fermi-reclock-dkms' 'nouveau-fermi-reclock-cachyos-lts-v2' 'nouveau-dkms')
 replaces=('nouveau-fermi-reclock-cachyos-lts-v2')
 install="${pkgname}.install"
