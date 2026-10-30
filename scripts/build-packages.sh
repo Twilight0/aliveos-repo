@@ -35,6 +35,16 @@ PACKAGES=(
   "aur|xdg-desktop-portal-aliveos|"
   "upstream|https://github.com/Twilight0/cinnamon-aliveos.git|cinnamon-aliveos|"
   "aur|nerd-dictation-git|nerd-dictation"
+  # Piper neural TTS stack, in dependency order:
+  #   piper-tts            engine (piper-voices-common depends on it)
+  #   piper-voices-common  voice index + Speech Dispatcher module
+  #   piper-voices-el-gr   Greek voices (joy-medium, rapunzelina-medium/low)
+  # common must precede the voice package: its install hook appends to
+  # piper-tts-generic.conf, a filename only the AUR common (1.0.1-2)
+  # provides - chaotic-aur still ships the older piper-generic.conf name.
+  "aur|piper-tts|"
+  "aur|piper-voices-common|"
+  "aur|piper-voices-el-gr|"
   "upstream|https://github.com/Twilight0/aliveos-assets.git|aliveos-assets|"
   "aur|grub-silent-ldfix|"
   "local|valuate|"
