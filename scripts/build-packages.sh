@@ -16,12 +16,12 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Using | as delimiter to avoid conflicts with https:// URLs
 PACKAGES=(
   "local|xlibre-xserver-legacyabi|"
-  "upstream|https://github.com/CachyOS/linux-cachyos.git|linux-cachyos-lts|linux-cachyos-lts-v2|linux-cachyos-lts"
-  "local|nouveau-cachyos-lts-v2|"
-  "local|dell-xps-brightness-cachyos-lts-v2|"
+  "aur|linux-xanmod-lts-linux-bin-x64v2|"
+  "local|nouveau-xanmod-lts-x64v2|"
+  "local|dell-xps-brightness-xanmod-lts-x64v2|"
   "aur|dell-xps-brightness-dkms|"
   "local|nvidia-390xx-utils|"
-  "local|nvidia-390xx-cachyos-lts-v2|"
+  "local|nvidia-390xx-xanmod-lts-x64v2|"
   "aur|lib32-nvidia-390xx-utils|"
   "aur|nvidia-390xx-settings|"
   "aur|xlibre-input-libinput|"
@@ -172,7 +172,7 @@ for item in "${PACKAGES[@]}"; do
     cd "$REPO_DIR/packages/$pkg_name"
     
     # Kernel-aware auto-increment for prebuilt kernel module packages
-    if [[ "$pkg_name" == *-cachyos-lts-v2 ]]; then
+    if [[ "$pkg_name" == *-cachyos-lts-v2 || "$pkg_name" == *-xanmod-lts-x64v2 ]]; then
       local_prev_db="/tmp/aliveos-repo-prev.db.tar.gz"
       if [ ! -f "$local_prev_db" ]; then
         echo "Fetching current repository database from GitHub release..."
@@ -180,9 +180,14 @@ for item in "${PACKAGES[@]}"; do
       fi
 
       if [ -f "$local_prev_db" ] && [ -s "$local_prev_db" ]; then
-        prev_kernel="$(tar -ztf "$local_prev_db" 2>/dev/null | grep -E '^linux-cachyos-lts-v2-[0-9]' | head -n1 | sed 's|^linux-cachyos-lts-v2-||; s|/$||')"
+        if [[ "$pkg_name" == *-xanmod-lts-x64v2 ]]; then
+          prev_kernel="$(tar -ztf "$local_prev_db" 2>/dev/null | grep -E '^linux-xanmod-lts-linux-bin-x64v2-[0-9]' | head -n1 | sed 's|^linux-xanmod-lts-linux-bin-x64v2-||; s|/$||')"
+          curr_kernel="$(pacman -Q linux-xanmod-lts-linux-bin-x64v2 2>/dev/null | awk '{print $2}')"
+        else
+          prev_kernel="$(tar -ztf "$local_prev_db" 2>/dev/null | grep -E '^linux-cachyos-lts-v2-[0-9]' | head -n1 | sed 's|^linux-cachyos-lts-v2-||; s|/$||')"
+          curr_kernel="$(pacman -Q linux-cachyos-lts-v2 2>/dev/null | awk '{print $2}')"
+        fi
         prev_pkg_entry="$(tar -ztf "$local_prev_db" 2>/dev/null | grep -E "^${pkg_name}-[0-9]" | head -n1 | sed "s|^${pkg_name}-||; s|/$||")"
-        curr_kernel="$(pacman -Q linux-cachyos-lts-v2 2>/dev/null | awk '{print $2}')"
         curr_pkgver="$(grep -E '^pkgver=' PKGBUILD | cut -d= -f2 | tr -d "'\"")"
         git_pkgrel="$(grep -E '^pkgrel=' PKGBUILD | cut -d= -f2 | tr -d "'\"")"
 
@@ -312,7 +317,11 @@ for item in "${PACKAGES[@]}"; do
 
     # Copy built packages to output directory
     echo "Copying built packages to $OUTPUT_DIR..."
-    cp "${target_name}"-*.pkg.tar.zst "$OUTPUT_DIR/"
+    if [ "$target_name" != "$pkg_name" ]; then
+      cp "${target_name}"-*.pkg.tar.zst "$OUTPUT_DIR/"
+    else
+      cp *.pkg.tar.zst "$OUTPUT_DIR/"
+    fi
     
     # Install all compiled packages locally to satisfy dependencies for subsequent builds
     echo "Installing compiled packages locally..."
@@ -393,7 +402,11 @@ for item in "${PACKAGES[@]}"; do
 
     # Copy built packages to output directory
     echo "Copying built packages to $OUTPUT_DIR..."
-    cp "${target_name}"-*.pkg.tar.zst "$OUTPUT_DIR/"
+    if [ "$target_name" != "$pkg_name" ]; then
+      cp "${target_name}"-*.pkg.tar.zst "$OUTPUT_DIR/"
+    else
+      cp *.pkg.tar.zst "$OUTPUT_DIR/"
+    fi
     
     # Fix epoch versions in copied files
     cd "$OUTPUT_DIR"

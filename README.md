@@ -10,21 +10,21 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 2. **`blender-3.6-lts`** - Full-featured 3D creation suite (official 3.6 LTS release).
 3. **`blender-4.5-lts`** - Full-featured 3D creation suite (official 4.5 LTS release).
 4. **`cinnamon-aliveos`** - Cinnamon desktop environment for AliveOS with Zenity GTK3 dialogs and custom enhancements.
-5. **`dell-xps-brightness-cachyos-lts-v2`** - **Prebuilt** binary Dell XPS L702X EC hardware brightness driver for `linux-cachyos-lts-v2`.
-6. **`dell-xps-brightness-dkms`** - DKMS source package for Dell XPS L702X EC hardware brightness driver.
+5. **`dell-xps-brightness-dkms`** - DKMS source package for Dell XPS L702X EC hardware brightness driver.
+6. **`dell-xps-brightness-xanmod-lts-x64v2`** - **Prebuilt** binary Dell XPS L702X EC hardware brightness driver for `linux-xanmod-lts-linux-bin-x64v2`.
 7. **`graphite-gtk-theme-git`** - Graphite GTK theme (includes the black compact variant).
 8. **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
 9. **`httptoolkit`** - HTTP(S) interception, debugging, and mock proxy desktop application.
-10. **`linux-cachyos-lts-v2`** - Performance-optimized LTS Linux kernel (x86-64-v2 baseline) with BORE scheduler and CPU optimizations.
+10. **`linux-xanmod-lts-linux-bin-x64v2`** & **`linux-xanmod-lts-linux-headers-bin-x64v2`** - Prebuilt LTS Linux kernel and headers with XanMod performance patches (x86-64-v2 baseline).
 11. **`mcp-kodi`** - MCP server that lets an AI assistant control Kodi over its JSON-RPC API (22 tools: transport, volume, library search, queue, history, audio/subtitle switching, notifications).
 12. **`muse-code-bin`** - Terminal-based AI coding agent powered by Meta's Muse Spark with opt-in AVX2 legacy CPU emulation fallback and interactive session manager.
 13. **`nerd-dictation`** - Voice typing/dictation system using Vosk.
-14. **`piper-voices-common`** - Common files (voice index, Speech Dispatcher module config, `piper-dispatcher`) for the Piper neural TTS voices.
-15. **`piper-voices-el-gr`** - Greek (el_GR) neural voices for Piper: `joy-medium`, `rapunzelina-medium` and `rapunzelina-low`.
-16. **`nouveau-fermi-reclock-cachyos-lts-v2`** - **Prebuilt** binary Nouveau kernel module with Fermi GPU dynamic reclocking and native 120Hz eDP support for `linux-cachyos-lts-v2`.
-17. **`nouveau-fermi-reclock-dkms`** - DKMS source package for out-of-tree Nouveau driver.
-18. **`nvidia-390xx-cachyos-lts-v2`** - **Prebuilt** binary NVIDIA 390.xx kernel modules (`nvidia.ko`, `nvidia-modeset.ko`, `nvidia-drm.ko`, `nvidia-uvm.ko`) for `linux-cachyos-lts-v2`.
-19. **`nvidia-390xx-utils`**, **`nvidia-390xx-dkms`**, **`nvidia-390xx-settings`** - Patched legacy NVIDIA 390.xx userspace drivers, DKMS module sources, and utilities.
+14. **`nouveau-fermi-reclock-dkms`** / **`nouveau-dkms`** - DKMS source package for out-of-tree Nouveau driver.
+15. **`nouveau-xanmod-lts-x64v2`** - **Prebuilt** binary Nouveau kernel module with Fermi core, shader, and DDR3 memory reclocking and native 120Hz eDP support for `linux-xanmod-lts-linux-bin-x64v2`.
+16. **`nvidia-390xx-utils`**, **`nvidia-390xx-dkms`**, **`nvidia-390xx-settings`** - Patched legacy NVIDIA 390.xx userspace drivers, DKMS module sources, and utilities.
+17. **`nvidia-390xx-xanmod-lts-x64v2`** - **Prebuilt** binary NVIDIA 390.xx kernel modules (`nvidia.ko`, `nvidia-modeset.ko`, `nvidia-drm.ko`, `nvidia-uvm.ko`) for `linux-xanmod-lts-linux-bin-x64v2`.
+18. **`piper-voices-common`** - Common files (voice index, Speech Dispatcher module config, `piper-dispatcher`) for the Piper neural TTS voices.
+19. **`piper-voices-el-gr`** - Greek (el_GR) neural voices for Piper: `joy-medium`, `rapunzelina-medium` and `rapunzelina-low`.
 20. **`polkit-aliveos`** - Transparent Polkit authentication agent for AliveOS with explicit caller disclosure, UAC screen dimming, and Zenity-GTK3 styling.
 21. **`respite`** - GTK3 media player (fork of Parole, Xfce deps removed).
 22. **`skript`** - Lightweight GTK3 markdown editor/viewer.

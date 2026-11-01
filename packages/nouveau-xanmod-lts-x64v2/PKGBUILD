@@ -1,0 +1,56 @@
+# Maintainer: Twilight0 <https://github.com/Twilight0>
+pkgname=nouveau-xanmod-lts-x64v2
+_pkgname=nouveau
+pkgver=2.2.3
+pkgrel=1
+pkgdesc="Prebuilt Nouveau kernel module with Fermi core, shader, and DDR3 memory reclocking for linux-xanmod-lts-linux-bin-x64v2"
+arch=('x86_64')
+url="https://github.com/Twilight0/nouveau-dkms"
+license=('GPL-2.0-only')
+_kernpkgver="$(pacman -Q linux-xanmod-lts-linux-bin-x64v2 2>/dev/null | awk '{print $2}')"
+if [ -n "$_kernpkgver" ]; then
+  depends=("linux-xanmod-lts-linux-bin-x64v2=${_kernpkgver}")
+else
+  depends=('linux-xanmod-lts-linux-bin-x64v2')
+fi
+optdepends=('nouveau-utils: dynamic clock governor daemon, CLI management tool, and interactive TUI')
+makedepends=('linux-xanmod-lts-linux-headers-bin-x64v2' 'clang')
+provides=('nouveau' "nouveau-dkms=${pkgver}" 'nouveau-cachyos-lts-v2')
+conflicts=('nouveau-fermi-reclock-dkms' 'nouveau-fermi-reclock-cachyos-lts-v2' 'nouveau-cachyos-lts-v2' 'nouveau-dkms')
+replaces=('nouveau-cachyos-lts-v2' 'nouveau-fermi-reclock-cachyos-lts-v2')
+install="${pkgname}.install"
+source=(
+  "nouveau-source.tar.gz::https://github.com/Twilight0/nouveau-dkms/releases/download/v2.1.0/nouveau-source.tar.gz"
+  "nouveau.patch"
+  "nouveau.conf"
+)
+sha256sums=('1426cea7f5c4959cfcaec78b4974cde3071f51eb9fdf9beedf38efae0bc6b9ad'
+            '7ed52cec77e29419b19165cd2e7b2d876831f91cf4227ab9385fedb87a24dbfa'
+            '326efac21bf858f7be0e41b21f2c585bfd1ef5b18dad9cce022685a4623bb090')
+
+prepare() {
+  msg2 "Applying Fermi reclocking and 120Hz display patches..."
+  patch -Np1 -d "${srcdir}/nouveau-source" < "${srcdir}/nouveau.patch"
+}
+
+build() {
+  local _kernver
+  _kernver="$(pacman -Qql linux-xanmod-lts-linux-headers-bin-x64v2 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
+  
+  msg2 "Building Nouveau module for kernel ${_kernver}..."
+  make -j"$(nproc)" -C "/usr/lib/modules/${_kernver}/build" M="${srcdir}/nouveau-source" CC=clang CONFIG_DRM_NOUVEAU=m modules
+}
+
+package() {
+  local _kernver
+  _kernver="$(pacman -Qql linux-xanmod-lts-linux-headers-bin-x64v2 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
+  local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
+  
+  install -dm755 "${_moddir}"
+  install -m644 "${srcdir}/nouveau-source/nouveau.ko" "${_moddir}/nouveau.ko"
+  zstd -q -19 -f "${_moddir}/nouveau.ko"
+  rm -f "${_moddir}/nouveau.ko"
+
+  # Install default modprobe configuration
+  install -Dm644 "${srcdir}/nouveau.conf" "${pkgdir}/usr/lib/modprobe.d/nouveau.conf"
+}

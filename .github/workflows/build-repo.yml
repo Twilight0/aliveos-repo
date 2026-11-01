@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Install Base Build Tools
         run: |
-          pacman -Sy --noconfirm git base-devel sudo binutils libarchive grep intltool glib2-devel python
+          pacman -Sy --noconfirm git base-devel sudo binutils libarchive grep intltool glib2-devel python clang libxml2
 
       - name: Checkout Code
         uses: actions/checkout@v4
