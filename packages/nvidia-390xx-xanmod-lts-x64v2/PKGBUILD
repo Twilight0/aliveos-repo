@@ -88,7 +88,7 @@ build() {
 
     msg2 "Building NVIDIA 390.xx modules for kernel ${_kernver}..."
     cd "${srcdir}/${_pkg}/kernel"
-    make CC=clang SYSSRC="/usr/lib/modules/${_kernver}/build" module
+    IGNORE_CC_MISMATCH=1 make CC=clang SYSSRC="/usr/lib/modules/${_kernver}/build" module
 }
 
 package() {
