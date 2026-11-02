@@ -80,6 +80,9 @@ prepare() {
     patch -Np1 -i ../kernel-6.19.patch
     patch -Np1 -i ../kernel-6.18-nv_workqueue_flush.patch
     patch -Np1 -i ../kernel-7.0.patch
+
+    # Remove redundant -MD flag (Kbuild already passes -Wp,-MMD) and suppress Clang strict prototype/unused arg errors
+    sed -i 's/-Wall -MD/-Wall/g; s/-Wno-error/-Wno-error -Wno-unused-command-line-argument -Wno-strict-prototypes/g' kernel/Kbuild
 }
 
 build() {
@@ -88,7 +91,7 @@ build() {
 
     msg2 "Building NVIDIA 390.xx modules for kernel ${_kernver}..."
     cd "${srcdir}/${_pkg}/kernel"
-    IGNORE_CC_MISMATCH=1 make CC=clang SYSSRC="/usr/lib/modules/${_kernver}/build" module
+    IGNORE_CC_MISMATCH=1 make -j"$(nproc)" CC=clang SYSSRC="/usr/lib/modules/${_kernver}/build" module
 }
 
 package() {
