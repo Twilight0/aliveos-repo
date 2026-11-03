@@ -1,7 +1,7 @@
 # Maintainer: Twilight0 <https://github.com/Twilight0>
 pkgname=nouveau-xanmod-lts-x64v2
 _pkgname=nouveau
-pkgver=2.3.0
+pkgver=2.3.1
 pkgrel=1
 pkgdesc="Prebuilt Nouveau kernel module with Fermi core, shader, and DDR3 memory reclocking for linux-xanmod-lts-linux-bin-x64v2"
 arch=('x86_64')

@@ -1,6 +1,6 @@
 pkgbase = nouveau-xanmod-lts-x64v2
 	pkgdesc = Prebuilt Nouveau kernel module with Fermi core, shader, and DDR3 memory reclocking for linux-xanmod-lts-linux-bin-x64v2
-	pkgver = 2.3.0
+	pkgver = 2.3.1
 	pkgrel = 1
 	url = https://github.com/Twilight0/nouveau-dkms
 	install = nouveau-xanmod-lts-x64v2.install
@@ -11,7 +11,7 @@ pkgbase = nouveau-xanmod-lts-x64v2
 	depends = linux-xanmod-lts-linux-bin-x64v2
 	optdepends = nouveau-utils: dynamic clock governor daemon, CLI management tool, and interactive TUI
 	provides = nouveau
-	provides = nouveau-dkms=2.3.0
+	provides = nouveau-dkms=2.3.1
 	provides = nouveau-cachyos-lts-v2
 	conflicts = nouveau-fermi-reclock-dkms
 	conflicts = nouveau-fermi-reclock-cachyos-lts-v2
