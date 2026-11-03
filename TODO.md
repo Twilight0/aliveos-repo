@@ -16,7 +16,7 @@ This document tracks planned packages, kernel module builds, and repository infr
     - `nvidia-drm.ko`
     - `nvidia-uvm.ko`
     - `nvidia-peermem.ko`
-  - **Installation Path**: `/usr/lib/modules/${_kernver}/extramodules/` (compressed with `zstd -19`).
+  - **Installation Path**: `/usr/lib/modules/${_kernver}/updates/` (compressed with `zstd -19`).
   - **Dependencies**:
     - `depends=('linux-cachyos-lts-v2' "nvidia-580xx-utils=${pkgver}")`
     - `makedepends=('linux-cachyos-lts-v2-headers')`

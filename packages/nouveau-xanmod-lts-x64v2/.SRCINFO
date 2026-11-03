@@ -1,7 +1,7 @@
 pkgbase = nouveau-xanmod-lts-x64v2
 	pkgdesc = Prebuilt Nouveau kernel module with Fermi core, shader, and DDR3 memory reclocking for linux-xanmod-lts-linux-bin-x64v2
 	pkgver = 2.2.3
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/Twilight0/nouveau-dkms
 	install = nouveau-xanmod-lts-x64v2.install
 	arch = x86_64

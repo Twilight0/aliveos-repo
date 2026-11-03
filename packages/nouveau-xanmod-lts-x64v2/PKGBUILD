@@ -2,7 +2,7 @@
 pkgname=nouveau-xanmod-lts-x64v2
 _pkgname=nouveau
 pkgver=2.2.3
-pkgrel=1
+pkgrel=2
 pkgdesc="Prebuilt Nouveau kernel module with Fermi core, shader, and DDR3 memory reclocking for linux-xanmod-lts-linux-bin-x64v2"
 arch=('x86_64')
 url="https://github.com/Twilight0/nouveau-dkms"
@@ -44,7 +44,7 @@ build() {
 package() {
   local _kernver
   _kernver="$(pacman -Qql linux-xanmod-lts-linux-headers-bin-x64v2 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
-  local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
+  local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/updates"
   
   install -dm755 "${_moddir}"
   install -m644 "${srcdir}/nouveau-source/nouveau.ko" "${_moddir}/nouveau.ko"

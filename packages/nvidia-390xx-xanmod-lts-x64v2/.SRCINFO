@@ -1,7 +1,7 @@
 pkgbase = nvidia-390xx-xanmod-lts-x64v2
 	pkgdesc = Prebuilt NVIDIA 390.xx kernel modules for linux-xanmod-lts-linux-bin-x64v2
 	pkgver = 390.157
-	pkgrel = 1
+	pkgrel = 2
 	url = https://www.nvidia.com/
 	install = nvidia-390xx-xanmod-lts-x64v2.install
 	arch = x86_64

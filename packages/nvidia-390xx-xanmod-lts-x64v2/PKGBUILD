@@ -1,7 +1,7 @@
 # Maintainer: Twilight0 <https://github.com/Twilight0>
 pkgname=nvidia-390xx-xanmod-lts-x64v2
 pkgver=390.157
-pkgrel=1
+pkgrel=2
 pkgdesc="Prebuilt NVIDIA 390.xx kernel modules for linux-xanmod-lts-linux-bin-x64v2"
 arch=('x86_64')
 url="https://www.nvidia.com/"
@@ -97,7 +97,7 @@ build() {
 package() {
     local _kernver
     _kernver="$(pacman -Qql linux-xanmod-lts-linux-headers-bin-x64v2 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
-    local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
+    local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/updates"
 
     install -dm755 "${_moddir}"
     cd "${srcdir}/${_pkg}/kernel"

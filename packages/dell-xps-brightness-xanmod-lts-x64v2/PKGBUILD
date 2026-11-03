@@ -2,7 +2,7 @@
 pkgname=dell-xps-brightness-xanmod-lts-x64v2
 _pkgname=dell-xps-brightness
 pkgver=1.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Prebuilt Dell XPS L702X EC hardware brightness driver for linux-xanmod-lts-linux-bin-x64v2"
 arch=('x86_64')
 url="https://github.com/Twilight0/dell-xps-brightness-dkms"
@@ -36,7 +36,7 @@ build() {
 package() {
   local _kernver
   _kernver="$(pacman -Qql linux-xanmod-lts-linux-headers-bin-x64v2 2>/dev/null | grep -Po '^/usr/lib/modules/\K[^/]+' | head -n1 || uname -r)"
-  local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
+  local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/updates"
 
   install -dm755 "${_moddir}"
   install -m644 "${srcdir}/dell_xps_brightness.ko" "${_moddir}/dell_xps_brightness.ko"
