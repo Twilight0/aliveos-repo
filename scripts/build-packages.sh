@@ -18,6 +18,7 @@ PACKAGES=(
   "local|xlibre-xserver-legacyabi|"
   "aur|linux-xanmod-lts-linux-bin-x64v2|"
   "local|nouveau-xanmod-lts-x64v2|"
+  "aur|nouveau-dkms|"
   "local|nouveau-utils|"
   "local|dell-xps-brightness-xanmod-lts-x64v2|"
   "aur|dell-xps-brightness-dkms|"

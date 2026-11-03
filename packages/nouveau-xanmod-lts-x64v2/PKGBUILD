@@ -1,8 +1,8 @@
 # Maintainer: Twilight0 <https://github.com/Twilight0>
 pkgname=nouveau-xanmod-lts-x64v2
 _pkgname=nouveau
-pkgver=2.2.3
-pkgrel=2
+pkgver=2.3.0
+pkgrel=1
 pkgdesc="Prebuilt Nouveau kernel module with Fermi core, shader, and DDR3 memory reclocking for linux-xanmod-lts-linux-bin-x64v2"
 arch=('x86_64')
 url="https://github.com/Twilight0/nouveau-dkms"
@@ -25,7 +25,7 @@ source=(
   "nouveau.conf"
 )
 sha256sums=('1426cea7f5c4959cfcaec78b4974cde3071f51eb9fdf9beedf38efae0bc6b9ad'
-            '7ed52cec77e29419b19165cd2e7b2d876831f91cf4227ab9385fedb87a24dbfa'
+            'e23842094a6a36dc97a3a8c748e7a36dcae887f9a43f9a47ea680acfe2184eeb'
             '326efac21bf858f7be0e41b21f2c585bfd1ef5b18dad9cce022685a4623bb090')
 
 prepare() {
