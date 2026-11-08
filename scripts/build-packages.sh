@@ -15,7 +15,6 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Format: "local|NAME" or "aur|AUR_NAME|TARGET_NAME" or "upstream|REPO_URL|TARGET_NAME|TAG"
 # Using | as delimiter to avoid conflicts with https:// URLs
 PACKAGES=(
-  "local|xlibre-xserver-legacyabi|"
   "aur|linux-xanmod-lts-linux-bin-x64v2|"
   "local|nouveau-xanmod-lts-x64v2|"
   "aur|nouveau-dkms|"
@@ -373,12 +372,6 @@ for item in "${PACKAGES[@]}"; do
     if [[ "$pkg_name" == nvidia-*-settings ]]; then
       sed -i '/^depends=/s/\bgtk2\b/gtk2-compat/g; /^makedepends=/s/\bgtk2\b/gtk2-compat/g; /^optdepends=/s/\bgtk2\b/gtk2-compat/g' PKGBUILD
       echo "Replaced gtk2 with gtk2-compat in $pkg_name PKGBUILD dependencies"
-    fi
-
-    # Replace xlibre-xserver-devel with xlibre-xserver-devel-legacyabi for xlibre driver packages
-    if [[ "$pkg_name" == xlibre-video-* || "$pkg_name" == xlibre-input-* ]]; then
-      sed -i 's/xlibre-xserver-devel/xlibre-xserver-devel-legacyabi/g' PKGBUILD
-      echo "Replaced xlibre-xserver-devel with xlibre-xserver-devel-legacyabi in $pkg_name PKGBUILD"
     fi
 
     # Fix DESTDIR in graphite-gtk-theme-git PKGBUILD so gnome-theme-switcher installs into $pkgdir instead of host /usr/bin

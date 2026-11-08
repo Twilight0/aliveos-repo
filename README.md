@@ -32,7 +32,6 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 24. **`valuate`** - Lightweight calculator application for AliveOS.
 25. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
 26. **`xdg-desktop-portal-aliveos`** - Portal backend with native multi-view file chooser dialog for AliveOS.
-27. **`xlibre-xserver`** & **`xlibre-xserver-legacyabi`** - XLibre drop-in replacement for X11 display server (along with legacy ABI support for older drivers).
 
 ---
 

@@ -14,8 +14,7 @@ url="https://www.nvidia.com/"
 license=('custom')
 options=('!strip')
 _pkg="NVIDIA-Linux-x86_64-${pkgver}"
-source=('nvidia-drm-outputclass.conf'
-        'nvidia-390xx-utils.sysusers'
+source=('nvidia-390xx-utils.sysusers'
         'nvidia-390xx.rules'
         'systemd-homed-override.conf'
         'systemd-suspend-override.conf'
@@ -41,8 +40,7 @@ source=('nvidia-drm-outputclass.conf'
         'nvidia-drm-outputclass-xlibre.conf'
         'xlibre.conf'
         '20-nvidia.conf')
-b2sums=('8e24aea70b139185bd682b080d32aeda673e6e92b45a90e6f6e0d736674180400bc8bd1aa5c66b8d033fc9d5e0cfffed456a87298bd93a3afbbc30b8dc48c4e9'
-        'c1da4ce5784e43385465913a95053a3e54f800aac6f1b49f33e2a77504d76da5e6db6ec7074fbe7ba5f52dcef9e1ebaa620942c33ff825a56caba5c9c8b0d1be'
+b2sums=('c1da4ce5784e43385465913a95053a3e54f800aac6f1b49f33e2a77504d76da5e6db6ec7074fbe7ba5f52dcef9e1ebaa620942c33ff825a56caba5c9c8b0d1be'
         '67e32932eeddda8fef667d25c34faf7b3a02f01cf9c15a97e5613bd44a0e8dcf7396e25399a52701f55dd18054c689720f237bb07d5bd580394d8dc8c9d05534'
         'a797a5bca65281ba35ed535f625dd997e649b91064226b59f3288c833f2f358fd3dea32674e0f5968de1eb025e4872e4b8b7883c5dfdb1f7116257ddfae4fe22'
         'b8ada501cc9a88d440d91efaeddb52b4bba7582d2dbc6fdefcf109a8a8a2a030070aa8567569eacaa30b1bb9447c0a90b4907a9bba850bed4a4ad284c6f0f575'
@@ -297,13 +295,11 @@ package_nvidia-390xx-utils() {
     cp -r html "${pkgdir}/usr/share/doc/nvidia/"
     ln -s nvidia "${pkgdir}/usr/share/doc/nvidia-utils"
 
-    # distro specific files must be installed in /usr/share/X11/xorg.conf.d
-    if pacman -Qsq "^xlibre.*legacyabi$" >/dev/null 2>&1; then
-        install -Dm644 "${srcdir}/nvidia-drm-outputclass-xlibre.conf" "${pkgdir}/usr/share/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf"
-        install -Dm644 "${srcdir}/xlibre.conf" "${pkgdir}/usr/share/X11/xorg.conf.d/xlibre.conf"
-    else
-        install -Dm644 "${srcdir}/nvidia-drm-outputclass.conf" "${pkgdir}/usr/share/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf"
-    fi
+    # XLibre-only repo: always install the XLibre outputclass config
+    # (xlibre-25 module path, PrimaryGPU) plus IgnoreABI for the 390xx
+    # legacy driver on the newer server ABI.
+    install -Dm644 "${srcdir}/nvidia-drm-outputclass-xlibre.conf" "${pkgdir}/usr/share/X11/xorg.conf.d/10-nvidia-drm-outputclass.conf"
+    install -Dm644 "${srcdir}/xlibre.conf" "${pkgdir}/usr/share/X11/xorg.conf.d/xlibre.conf"
 
     # AliveOS: Install nvidia config for XLibre compatibility
     install -Dm644 "${srcdir}/20-nvidia.conf" "${pkgdir}/etc/X11/xorg.conf.d/20-nvidia.conf"
