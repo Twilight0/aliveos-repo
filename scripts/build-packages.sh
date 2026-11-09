@@ -325,12 +325,19 @@ for item in "${PACKAGES[@]}"; do
       cp *.pkg.tar.zst "$OUTPUT_DIR/"
     fi
     
-    # Install all compiled packages locally to satisfy dependencies for subsequent builds
-    echo "Installing compiled packages locally..."
-    for pkg in *.pkg.tar.zst; do
-      [ -f "$pkg" ] || continue
-      sudo pacman -U --noconfirm --ask=4 --overwrite '*' "$pkg" || pacman -U --noconfirm --ask=4 --overwrite '*' "$pkg" || true
-    done
+    # Install all compiled packages locally to satisfy dependencies for subsequent builds.
+    # Single transaction first: split packages can depend on each other
+    # (e.g. xlibre-xserver needs its own -common), and glob order is not
+    # install order. Fall back to per-file installs so that a set which
+    # cannot go in as one unit still lands whatever it can.
+    echo "Installing compiled packages locally (single transaction)..."
+    if ! sudo pacman -U --noconfirm --ask=4 --overwrite '*' *.pkg.tar.zst; then
+      echo "Single-transaction install failed, falling back to per-file installs..."
+      for pkg in *.pkg.tar.zst; do
+        [ -f "$pkg" ] || continue
+        sudo pacman -U --noconfirm --ask=4 --overwrite '*' "$pkg" || pacman -U --noconfirm --ask=4 --overwrite '*' "$pkg" || true
+      done
+    fi
     
     cd "$REPO_DIR"
   else
@@ -423,12 +430,19 @@ for item in "${PACKAGES[@]}"; do
     done
     cd "$BUILD_DIR/$pkg_name"
     
-    # Install all compiled packages locally to satisfy dependencies for subsequent builds
-    echo "Installing compiled packages locally..."
-    for pkg in *.pkg.tar.zst; do
-      [ -f "$pkg" ] || continue
-      sudo pacman -U --noconfirm --overwrite '*' "$pkg" || pacman -U --noconfirm --overwrite '*' "$pkg" || true
-    done
+    # Install all compiled packages locally to satisfy dependencies for subsequent builds.
+    # Single transaction first: split packages can depend on each other
+    # (e.g. xlibre-xserver needs its own -common), and glob order is not
+    # install order. Fall back to per-file installs so that a set which
+    # cannot go in as one unit still lands whatever it can.
+    echo "Installing compiled packages locally (single transaction)..."
+    if ! sudo pacman -U --noconfirm --overwrite '*' *.pkg.tar.zst; then
+      echo "Single-transaction install failed, falling back to per-file installs..."
+      for pkg in *.pkg.tar.zst; do
+        [ -f "$pkg" ] || continue
+        sudo pacman -U --noconfirm --overwrite '*' "$pkg" || pacman -U --noconfirm --overwrite '*' "$pkg" || true
+      done
+    fi
     
     cd "$REPO_DIR"
   fi
