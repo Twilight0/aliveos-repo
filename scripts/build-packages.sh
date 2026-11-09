@@ -35,7 +35,6 @@ PACKAGES=(
   "aur|xlibre-video-fbdev|"
   "aur|zenity-gtk3|"
   "aur|xdg-desktop-portal-aliveos|"
-  "upstream|https://github.com/Twilight0/cinnamon-aliveos.git|cinnamon-aliveos|"
   "aur|nerd-dictation-git|nerd-dictation"
   # Piper neural TTS: Greek voices.
   # The engine is NOT built here - chaotic-aur ships piper-tts-git, which
