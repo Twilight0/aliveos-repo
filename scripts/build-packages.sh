@@ -16,7 +16,7 @@ OUTPUT_DIR="$REPO_DIR/x86_64"
 # Using | as delimiter to avoid conflicts with https:// URLs
 PACKAGES=(
   "aur|linux-xanmod-lts-linux-bin-x64v2|"
-  "local|xlibre-xserver|"
+  "aur|xlibre-xserver|"
   "local|nouveau-xanmod-lts-x64v2|"
   "aur|nouveau-dkms|"
   "local|nouveau-utils|"
