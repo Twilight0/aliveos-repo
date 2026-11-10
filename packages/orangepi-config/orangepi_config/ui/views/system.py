@@ -9,6 +9,7 @@ import subprocess
 from typing import Any, Callable, List, Optional
 import urwid
 
+from orangepi_config.config import DEFAULT_WINDOW_TITLE, get_window_title, set_window_title
 from orangepi_config.ui.widgets import CustomButton
 
 
@@ -17,9 +18,11 @@ class SystemView(urwid.WidgetWrap):
         self,
         on_run_command: Optional[Callable[[str, List[str]], None]] = None,
         on_confirm_dialog: Optional[Callable[[str, str, Callable[[], None]], None]] = None,
+        on_title_change: Optional[Callable[[str], None]] = None,
     ) -> None:
         self.on_run_command = on_run_command
         self.on_confirm_dialog = on_confirm_dialog
+        self.on_title_change = on_title_change
 
         self.txt_status = urwid.Text(("status_info", "Select a maintenance task or system control."))
 
@@ -44,7 +47,7 @@ class SystemView(urwid.WidgetWrap):
             ], cell_width=32, h_sep=2, v_sep=1, align="left"),
         ])
 
-        # Card 2: System Configuration
+        # Card 2: System Hostname
         self.edit_hostname = urwid.Edit(("card_label", "New Hostname: "), "")
         card_config = self._build_card("System Hostname", [
             urwid.Columns([
@@ -53,7 +56,20 @@ class SystemView(urwid.WidgetWrap):
             ]),
         ])
 
-        # Card 3: Power Management
+        # Card 3: Window & Web Tab Title Customization
+        self.edit_window_title = urwid.Edit(("card_label", "Window Title: "), get_window_title())
+        card_title = self._build_card("Window & Web Tab Title", [
+            urwid.Text(("card_label", "Customize browser tab (ttyd) and terminal window title:")),
+            urwid.Divider(" "),
+            urwid.Columns([
+                (44, self.edit_window_title),
+                (18, CustomButton("Apply Title", on_press=lambda _: self._apply_window_title())),
+                (2, urwid.Text("")),
+                (19, CustomButton("Reset Default", on_press=lambda _: self._reset_window_title())),
+            ]),
+        ])
+
+        # Card 4: Power Management
         card_power = self._build_card("Power & Reboot", [
             urwid.Text(("card_label", "Safely reboot or shutdown the Orange Pi Zero:")),
             urwid.Divider(" "),
@@ -69,6 +85,7 @@ class SystemView(urwid.WidgetWrap):
             card_status,
             card_pacman,
             card_config,
+            card_title,
             card_power,
         ])
 
@@ -98,6 +115,29 @@ class SystemView(urwid.WidgetWrap):
                 self.txt_status.set_text(("status_alert", f"Failed: {res.stderr.strip()}"))
         except Exception as e:
             self.txt_status.set_text(("status_alert", f"Error: {e}"))
+
+    def _apply_window_title(self) -> None:
+        new_title = self.edit_window_title.get_edit_text().strip()
+        if not new_title:
+            self.txt_status.set_text(("status_alert", "Error: Window title cannot be empty."))
+            return
+        try:
+            saved_path = set_window_title(new_title)
+            if self.on_title_change:
+                self.on_title_change(new_title)
+            self.txt_status.set_text(("status_ok", f"Window title set to '{new_title}' (saved to {saved_path})."))
+        except Exception as e:
+            self.txt_status.set_text(("status_alert", f"Failed to save window title: {e}"))
+
+    def _reset_window_title(self) -> None:
+        self.edit_window_title.set_edit_text(DEFAULT_WINDOW_TITLE)
+        try:
+            saved_path = set_window_title(DEFAULT_WINDOW_TITLE)
+            if self.on_title_change:
+                self.on_title_change(DEFAULT_WINDOW_TITLE)
+            self.txt_status.set_text(("status_ok", f"Window title reset to default (saved to {saved_path})."))
+        except Exception as e:
+            self.txt_status.set_text(("status_alert", f"Failed to reset window title: {e}"))
 
     def _prompt_reboot(self) -> None:
         if self.on_confirm_dialog:

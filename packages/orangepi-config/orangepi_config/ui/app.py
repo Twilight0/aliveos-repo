@@ -17,6 +17,7 @@ from orangepi_config.backend.hardware_ctrl import HardwareController
 from orangepi_config.backend.network_ctrl import NetworkController
 from orangepi_config.backend.package_mgr import PackageManager
 from orangepi_config.backend.system_info import SystemInfo
+from orangepi_config.config import emit_terminal_title, get_window_title
 from orangepi_config.ui.styles import PALETTE
 from orangepi_config.ui.views.dashboard import DashboardView
 from orangepi_config.ui.views.hardware import HardwareView
@@ -28,7 +29,9 @@ from orangepi_config.ui.widgets import CustomButton, ModalDialog, TabButton
 
 
 class OrangePiConfigApp:
-    def __init__(self) -> None:
+    def __init__(self, window_title: Optional[str] = None) -> None:
+        self.window_title = window_title or get_window_title()
+
         # Backends
         self.sys_info = SystemInfo()
         self.hw_ctrl = HardwareController()
@@ -47,6 +50,7 @@ class OrangePiConfigApp:
         self.view_system = SystemView(
             on_run_command=self.show_command_dialog,
             on_confirm_dialog=self.show_confirm_dialog,
+            on_title_change=self.set_window_title,
         )
         self.view_terminal = TerminalView(
             on_launch_terminal=self.launch_terminal,
@@ -92,11 +96,11 @@ class OrangePiConfigApp:
         self._schedule_refresh()
 
     def _build_header(self) -> urwid.Pile:
-        title = urwid.Text([
+        self.header_title_text = urwid.Text([
             ("header_accent", " orangepi-config "),
-            ("header", f"v{__version__} | Orange Pi Zero Configuration & Diagnostics (Arch Linux ARM)"),
+            ("header", f"v{__version__} | {self.window_title}"),
         ], align="center")
-        header_bar = urwid.AttrMap(title, "header")
+        header_bar = urwid.AttrMap(self.header_title_text, "header")
 
         # Tab navigation buttons
         self.tab_buttons: List[urwid.Button] = []
@@ -116,6 +120,14 @@ class OrangePiConfigApp:
             tabs_row,
             divider,
         ])
+
+    def set_window_title(self, new_title: str) -> None:
+        self.window_title = new_title
+        self.header_title_text.set_text([
+            ("header_accent", " orangepi-config "),
+            ("header", f"v{__version__} | {self.window_title}"),
+        ])
+        emit_terminal_title(self.window_title)
 
     def _build_footer(self) -> urwid.Widget:
         key_hints = [
@@ -146,11 +158,13 @@ class OrangePiConfigApp:
         if 0 <= idx < len(self.views):
             self.current_tab_idx = idx
             self._update_tabs()
+            emit_terminal_title(self.window_title)
 
     def _schedule_refresh(self) -> None:
-        # Refresh dashboard every 2.0s if visible
+        # Refresh dashboard every 2.0s if visible and keep terminal/ttyd window title synced
         if self.current_tab_idx == 0:
             self.view_dashboard.refresh()
+        emit_terminal_title(self.window_title)
         self._refresh_alarm = self.loop.set_alarm_in(2.0, self._timer_tick)
 
     def _timer_tick(self, loop: Any, user_data: Any) -> None:
@@ -323,4 +337,5 @@ class OrangePiConfigApp:
 
     def run(self) -> None:
         """Starts Urwid main loop."""
+        self.loop.set_alarm_in(0.05, lambda *_: emit_terminal_title(self.window_title))
         self.loop.run()
