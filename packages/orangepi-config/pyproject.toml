@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orangepi-config"
+version = "0.2.0"
+description = "A lightweight Urwid TUI configuration and diagnostics utility for Orange Pi Zero and Allwinner H2+/H3 SBCs"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Twilight0", email = "twilight0@vivaldi.net"}
+]
+keywords = ["orangepi", "orange-pi-zero", "tui", "urwid", "hardware-monitor", "archlinux-arm"]
+dependencies = [
+    "urwid>=2.1.0",
+]
+
+[project.scripts]
+orangepi-config = "orangepi_config.cli:main"

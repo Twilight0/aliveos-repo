@@ -1,0 +1,13 @@
+[Unit]
+Description=Apply Persistent CPU Governor
+After=sysinit.target local-fs.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/cpufreq
+ExecStart=/usr/bin/sh -c 'GOV="${GOVERNOR:-performance}"; for g in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do [ -f "$g" ] && echo "$GOV" > "$g"; done'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target multi-user.target

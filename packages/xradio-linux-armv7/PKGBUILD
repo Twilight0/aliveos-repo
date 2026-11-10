@@ -1,0 +1,29 @@
+# Maintainer: Twilight0 <https://github.com/Twilight0>
+pkgname=xradio-linux-armv7
+_pkgname=xradio
+pkgver=r185.3ce657a
+pkgrel=1
+pkgdesc="Prebuilt Allwinner XRadio XR819 wireless driver module for linux-armv7 7.3.3"
+arch=('armv7h')
+url="https://github.com/fifteenhex/xradio"
+license=('GPL-2.0-only')
+depends=('linux-armv7=7.3.3-1')
+provides=('xradio')
+conflicts=('xradio-dkms' 'xradio-dkms-git')
+install="${pkgname}.install"
+source=("xradio_wlan.ko"
+        "xradio.conf")
+sha256sums=('SKIP'
+            'e80b16e7c8c0b5b5f797969bf506071b7c9b0d0015820dc07d009bb3af1e23af')
+
+package() {
+  local _kernver="7.3.3-1-armv7-ARCH"
+  local _moddir="${pkgdir}/usr/lib/modules/${_kernver}/updates"
+
+  install -dm755 "${_moddir}"
+  install -m644 "${srcdir}/xradio_wlan.ko" "${_moddir}/xradio_wlan.ko"
+  zstd -q -19 -f "${_moddir}/xradio_wlan.ko"
+  rm -f "${_moddir}/xradio_wlan.ko"
+
+  install -Dm644 "${srcdir}/xradio.conf" "${pkgdir}/usr/lib/modules-load.d/xradio.conf"
+}

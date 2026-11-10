@@ -1,0 +1,37 @@
+# Maintainer: Twilight0 <https://github.com/Twilight0>
+pkgname=xradio-dkms-git
+_pkgname=xradio
+pkgver=r185.3ce657a
+pkgrel=1
+pkgdesc="DKMS source driver for Allwinner XRadio XR819 wireless chip"
+arch=('any')
+url="https://github.com/fifteenhex/xradio"
+license=('GPL-2.0-only')
+depends=('dkms')
+makedepends=('git')
+provides=('xradio-dkms')
+conflicts=('xradio-dkms')
+source=("git+https://github.com/fifteenhex/xradio.git"
+        "dkms.conf"
+        "xradio.conf")
+sha256sums=('SKIP'
+            '45f112db5f3a7da44e68fd6e304e5e547a4c3026c62ff10c45a16e8216a7b979'
+            'e80b16e7c8c0b5b5f797969bf506071b7c9b0d0015820dc07d009bb3af1e23af')
+
+pkgver() {
+  cd "${srcdir}/${_pkgname}"
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+package() {
+  local _srcdir="${pkgdir}/usr/src/${_pkgname}-${pkgver}"
+
+  install -dm755 "${_srcdir}"
+  cp -r "${srcdir}/${_pkgname}"/* "${_srcdir}/"
+  rm -rf "${_srcdir}/.git"
+  install -m644 "${srcdir}/dkms.conf" "${_srcdir}/dkms.conf"
+  sed -i "s/@PKGVER@/${pkgver}/g" "${_srcdir}/dkms.conf"
+
+  # Autoload module
+  install -Dm644 "${srcdir}/xradio.conf" "${pkgdir}/usr/lib/modules-load.d/xradio.conf"
+}

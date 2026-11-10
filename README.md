@@ -32,6 +32,9 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 24. **`valuate`** - Lightweight calculator application for AliveOS.
 25. **`xconnect`** - KDE Connect protocol implementation in Vala/C with GTK3/XApp GUI.
 26. **`xdg-desktop-portal-aliveos`** - Portal backend with native multi-view file chooser dialog for AliveOS.
+27. **`orangepi-config`** - Urwid TUI configuration and diagnostics utility for Orange Pi Zero (Allwinner H2+/H3).
+28. **`xradio-dkms-git`** - DKMS source driver for the Allwinner XRadio XR819 wireless chip.
+29. **`xradio-linux-armv7`** - Prebuilt binary XRadio XR819 wireless module (`xradio_wlan.ko`) for official Arch Linux ARM `linux-armv7`.
 
 ---
 
@@ -42,7 +45,7 @@ Add the following to the bottom of your `/etc/pacman.conf`:
 ```ini
 [aliveos-repo]
 SigLevel = Optional TrustAll
-Server = https://Twilight0.github.io/aliveos-repo/x86_64
+Server = https://Twilight0.github.io/aliveos-repo/$arch
 ```
 
 Then synchronize your package database and update:

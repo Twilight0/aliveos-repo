@@ -1,0 +1,16 @@
+[Unit]
+Description=Orange Pi Config Web TUI (Port 46363)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root
+Environment=TERM=xterm-256color
+Environment=TTYD_CREDENTIALS=admin:admin
+ExecStart=/usr/bin/ttyd -W -p 46363 -c ${TTYD_CREDENTIALS} -t fontSize=15 -t theme={"background":"#000000"} /usr/bin/orangepi-config
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
