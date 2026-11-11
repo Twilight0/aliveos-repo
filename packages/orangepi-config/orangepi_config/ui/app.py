@@ -51,6 +51,8 @@ class OrangePiConfigApp:
             on_run_command=self.show_command_dialog,
             on_confirm_dialog=self.show_confirm_dialog,
             on_title_change=self.set_window_title,
+            on_modal_dialog=self.open_modal,
+            on_close_modal=self.close_modal,
         )
         self.view_terminal = TerminalView(
             on_launch_terminal=self.launch_terminal,

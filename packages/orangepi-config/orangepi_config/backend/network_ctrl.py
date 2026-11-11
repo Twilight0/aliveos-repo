@@ -332,8 +332,96 @@ class NetworkController:
             return True, f"WiFi credentials for '{ssid}' saved on {iface}. wpa_supplicant restarted."
         except Exception as e:
             return False, f"Failed to configure WiFi: {e}"
+
+    @staticmethod
+    def get_dns_servers() -> List[str]:
+        """Returns list of active DNS servers."""
+        dns: List[str] = []
+        try:
+            r = subprocess.run(["resolvectl", "dns"], capture_output=True, text=True)
+            for line in r.stdout.splitlines():
+                parts = line.split(":")
+                if len(parts) > 1:
+                    servers = parts[1].strip().split()
+                    for s in servers:
+                        if s not in dns:
+                            dns.append(s)
+        except Exception:
+            pass
+
+        if not dns and os.path.isfile("/etc/resolv.conf"):
+            try:
+                with open("/etc/resolv.conf", "r") as f:
+                    for line in f:
+                        if line.startswith("nameserver"):
+                            parts = line.split()
+                            if len(parts) > 1 and parts[1] not in dns:
+                                dns.append(parts[1])
+            except Exception:
+                pass
+        return dns
+
+    @staticmethod
+    def set_dns_servers(dns_servers: str, iface: Optional[str] = None) -> Tuple[bool, str]:
+        """
+        Configures DNS servers persistently in systemd-resolved and networkd.
+        Accepts space-separated IP addresses (e.g. '1.1.1.1 8.8.8.8').
+        """
+        servers = dns_servers.strip().split()
+        if not servers:
+            return False, "DNS server address cannot be empty."
+
+        import ipaddress
+        for s in servers:
+            try:
+                ipaddress.ip_address(s)
+            except ValueError:
+                return False, f"Invalid IP address format: '{s}'"
+
+        dns_str = " ".join(servers)
+        try:
+            # 1. Configure systemd-resolved drop-in
+            resolved_conf_dir = "/etc/systemd/resolved.conf.d"
+            os.makedirs(resolved_conf_dir, exist_ok=True)
+            with open(os.path.join(resolved_conf_dir, "00-custom-dns.conf"), "w") as f:
+                f.write(f"[Resolve]\nDNS={dns_str}\nFallbackDNS=1.1.1.1 8.8.8.8\n")
+
+            # 2. Update networkd interface configs if present
+            net_dir = "/etc/systemd/network"
+            if os.path.isdir(net_dir):
+                for fn in os.listdir(net_dir):
+                    if fn.endswith(".network"):
+                        fp = os.path.join(net_dir, fn)
+                        try:
+                            with open(fp, "r") as f:
+                                lines = f.readlines()
+                            new_lines = []
+                            has_dns = False
+                            for line in lines:
+                                if line.startswith("DNS="):
+                                    new_lines.append(f"DNS={dns_str}\n")
+                                    has_dns = True
+                                else:
+                                    new_lines.append(line)
+                            if not has_dns:
+                                out_lines = []
+                                for line in new_lines:
+                                    out_lines.append(line)
+                                    if line.strip() == "[Network]":
+                                        out_lines.append(f"DNS={dns_str}\n")
+                                new_lines = out_lines
+                            with open(fp, "w") as f:
+                                f.writelines(new_lines)
+                        except Exception:
+                            pass
+
+            # 3. Reload services
+            subprocess.run(["systemctl", "restart", "systemd-networkd", "systemd-resolved"], capture_output=True)
+            subprocess.run(["resolvectl", "flush-caches"], capture_output=True)
+
+            return True, f"DNS servers successfully set to: {dns_str}"
         except Exception as e:
-            return False, f"Failed to configure WiFi: {e}"
+            return False, f"Failed to set DNS servers: {e}"
 
     @staticmethod
     def configure_interface(
@@ -352,8 +440,10 @@ class NetworkController:
             if mode.lower() == "dhcp":
                 content = (
                     f"[Match]\nName={iface}\n\n"
-                    "[Network]\nDHCP=yes\n"
+                    "[Network]\nDHCP=yes\nIPv6PrivacyExtensions=yes\n"
                 )
+                if dns:
+                    content += f"DNS={dns}\n\n[DHCPv4]\nUseDNS=false\n"
             else:
                 if not ip:
                     return False, "Static IP address is required (e.g., 192.168.1.50/24)."

@@ -32,7 +32,10 @@ class NetworkView(urwid.WidgetWrap):
         self.edit_iface = urwid.Edit(("card_label", "Interface (e.g., eth0, wlan0): "), "eth0")
         self.edit_ip = urwid.Edit(("card_label", "Static IP/CIDR (e.g. 192.168.1.150/24): "), "")
         self.edit_gw = urwid.Edit(("card_label", "Default Gateway (e.g. 192.168.1.1): "), "")
-        self.edit_dns = urwid.Edit(("card_label", "DNS Server (e.g. 1.1.1.1): "), "1.1.1.1")
+        self.edit_dns = urwid.Edit(("card_label", "DNS Override for Interface (optional): "), "")
+
+        # Dedicated DNS controls
+        self.edit_global_dns = urwid.Edit(("card_label", "Active DNS Servers (space separated): "), "1.1.1.1 8.8.8.8")
 
         layout = self._build_layout()
         fill = urwid.Filler(layout, valign="top")
@@ -53,24 +56,48 @@ class NetworkView(urwid.WidgetWrap):
             CustomButton("Refresh Network State", on_press=lambda _: self.refresh()),
         ])
 
-        # Card 2: IP Configuration
+        # Card 2: Dedicated DNS Configuration
+        btn_apply_dns = CustomButton("Apply DNS", on_press=lambda _: self._apply_custom_dns())
+        btn_dns_cf = CustomButton("Cloudflare (1.1.1.1)", on_press=lambda _: self._set_dns_preset("1.1.1.1 1.0.0.1"))
+        btn_dns_google = CustomButton("Google (8.8.8.8)", on_press=lambda _: self._set_dns_preset("8.8.8.8 8.8.4.4"))
+        btn_dns_quad9 = CustomButton("Quad9 (9.9.9.9)", on_press=lambda _: self._set_dns_preset("9.9.9.9 149.112.112.112"))
+        btn_dns_adguard = CustomButton("AdGuard (94.140.14.14)", on_press=lambda _: self._set_dns_preset("94.140.14.14 94.140.15.15"))
+
+        card_dns = self._build_card("DNS Server Configuration", [
+            urwid.Text(("card_label", "Configure active upstream DNS servers (systemd-resolved & networkd):")),
+            urwid.Divider(" "),
+            urwid.Columns([
+                (55, self.edit_global_dns),
+                (16, btn_apply_dns),
+            ]),
+            urwid.Divider(" "),
+            urwid.Text(("card_label", "Quick Presets:")),
+            urwid.GridFlow([
+                btn_dns_cf,
+                btn_dns_google,
+                btn_dns_quad9,
+                btn_dns_adguard,
+            ], cell_width=25, h_sep=1, v_sep=1, align="left"),
+        ])
+
+        # Card 3: IP Configuration
         btn_apply_dhcp = CustomButton("Set Selected to DHCP", on_press=lambda _: self._apply_dhcp())
         btn_apply_static = CustomButton("Apply Static IP", on_press=lambda _: self._apply_static())
 
-        card_config = self._build_card("IPv4 Address Configuration", [
+        card_config = self._build_card("Interface IPv4 & DHCP Configuration", [
             self.edit_iface,
+            self.edit_dns,
             urwid.Divider(" "),
             btn_apply_dhcp,
             urwid.Divider("─"),
             urwid.Text(("card_label", "Static IP Mode:")),
             self.edit_ip,
             self.edit_gw,
-            self.edit_dns,
             urwid.Divider(" "),
             btn_apply_static,
         ])
 
-        # Card 3: XR819 Wireless Driver & Diagnostics
+        # Card 4: XR819 Wireless Driver & Diagnostics
         btn_scan = CustomButton("Scan Wi-Fi Networks", on_press=lambda _: self._show_wifi_scan())
         btn_connect = CustomButton("Connect to Wi-Fi Network", on_press=lambda _: self._show_wifi_connect_dialog())
         btn_powersave = CustomButton("Disable Wi-Fi Sleep Bug (iw powersave off)", on_press=lambda _: self._disable_powersave())
@@ -96,9 +123,11 @@ class NetworkView(urwid.WidgetWrap):
             urwid.Divider(" "),
             card_ifaces,
             urwid.Divider(" "),
-            card_xr819,
+            card_dns,
             urwid.Divider(" "),
             card_config,
+            urwid.Divider(" "),
+            card_xr819,
         ])
 
     def refresh(self) -> None:
@@ -153,12 +182,32 @@ class NetworkView(urwid.WidgetWrap):
 
         self.pile_xr819.contents = [(r, ("pack", None)) for r in xr_rows]
 
+        # 3. Active DNS servers
+        active_dns = " ".join(self.net_ctrl.get_dns_servers())
+        if active_dns and not self.edit_global_dns.get_edit_text().strip():
+            self.edit_global_dns.set_edit_text(active_dns)
+
+    def _set_dns_preset(self, preset_servers: str) -> None:
+        self.edit_global_dns.set_edit_text(preset_servers)
+        self._apply_custom_dns()
+
+    def _apply_custom_dns(self) -> None:
+        dns_str = self.edit_global_dns.get_edit_text().strip()
+        if not dns_str:
+            self._set_status("DNS server string cannot be empty.", ok=False)
+            return
+        self._set_status(f"Applying DNS servers: {dns_str}...", ok=True)
+        ok, msg = self.net_ctrl.set_dns_servers(dns_str)
+        self._set_status(msg, ok=ok)
+        self.refresh()
+
     def _apply_dhcp(self) -> None:
         iface = self.edit_iface.get_edit_text().strip()
+        dns = self.edit_dns.get_edit_text().strip()
         if not iface:
             self._set_status("Please specify an interface name.", ok=False)
             return
-        ok, msg = self.net_ctrl.configure_interface(iface, mode="dhcp")
+        ok, msg = self.net_ctrl.configure_interface(iface, mode="dhcp", dns=dns)
         self._set_status(msg, ok=ok)
         self.refresh()
 
