@@ -1,7 +1,7 @@
 # Maintainer: Twilight0 <twilight0@vivaldi.net>
 pkgname=orangepi-config
 pkgver=0.2.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Lightweight Urwid TUI configuration and diagnostics utility for Orange Pi Zero (Allwinner H2+/H3)"
 arch=('any')
 url="https://github.com/Twilight0/orangepi-config"

@@ -48,7 +48,7 @@ class PackagesView(urwid.WidgetWrap):
         self.current_category: Optional[str] = None
         self.selected_pkgs: set[str] = set()
 
-        self.pile_categories = urwid.GridFlow([], cell_width=18, h_sep=1, v_sep=1, align="left")
+        self.pile_categories = urwid.GridFlow([], cell_width=26, h_sep=1, v_sep=1, align="left")
         self.list_walker = urwid.SimpleFocusListWalker([])
         self.list_box = urwid.ListBox(self.list_walker)
         self.txt_summary = urwid.Text(("card_label", "Selected: 0 packages"))
