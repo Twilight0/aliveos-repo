@@ -48,13 +48,20 @@ jobs:
 
       - name: Configure Pacman with Chaotic-AUR
         run: |
-          for keyserver in keyserver.ubuntu.com keys.openpgp.org pgp.mit.edu; do
-            echo "Trying keyserver: $keyserver"
-            pacman-key --recv-key 3056513887B78AEB --keyserver "$keyserver" && break
-            echo "Keyserver $keyserver failed, trying next..."
-            sleep 2
-          done
-          pacman-key --lsign-key 3056513887B78AEB
+          # Import Chaotic-AUR primary keys directly via HTTPS from the official repository
+          if curl --retry 3 --retry-delay 2 -fsSL https://raw.githubusercontent.com/chaotic-aur/keyring/master/master/pedrohlc.asc | pacman-key --add - && \
+             curl --retry 3 --retry-delay 2 -fsSL https://raw.githubusercontent.com/chaotic-aur/keyring/master/master/tne.asc | pacman-key --add -; then
+            echo "Successfully imported Chaotic-AUR keys from official repository"
+          else
+            echo "Direct key fetch failed, attempting keyserver fallback..."
+            for keyserver in hkps://keyserver.ubuntu.com hkp://keyserver.ubuntu.com:80 keys.openpgp.org pgp.mit.edu; do
+              echo "Trying keyserver: $keyserver"
+              pacman-key --recv-key 3056513887B78AEB --keyserver "$keyserver" && break
+              echo "Keyserver $keyserver failed, trying next..."
+              sleep 2
+            done
+          fi
+          pacman-key --lsign-key 3056513887B78AEB || true
           CHAOTIC_MIRRORS=(
             "https://cdn-mirror.chaotic.cx/chaotic-aur"
             "https://geo-mirror.chaotic.cx/chaotic-aur"
@@ -92,20 +99,23 @@ jobs:
 
       - name: Import CachyOS GPG keys
         run: |
+          # Try importing Peter Jung's key directly from GitHub
+          curl -fsSL https://github.com/ptr1337.gpg | pacman-key --add - || true
+          curl -fsSL https://github.com/ptr1337.gpg | sudo -u builder gpg --import - || true
           CACHY_KEYS=(
             "E8B9AA39F054E30E8290D492C3C4820857F654FE" # Peter Jung <admin@ptr1337.dev>
             "E18447AC260021D31F3FF6C4C8A2A4774B8B63C4" # Eric Naim <dnaim@cachyos.org>
           )
           for key in "${CACHY_KEYS[@]}"; do
             echo "Importing key: $key"
-            for keyserver in keyserver.ubuntu.com keys.openpgp.org pgp.mit.edu; do
+            for keyserver in hkps://keyserver.ubuntu.com hkp://keyserver.ubuntu.com:80 keys.openpgp.org pgp.mit.edu; do
               echo "Trying keyserver: $keyserver"
               pacman-key --recv-key "$key" --keyserver "$keyserver" && break
               echo "Keyserver $keyserver failed, trying next..."
               sleep 2
             done
             pacman-key --lsign-key "$key" || true
-            for keyserver in keyserver.ubuntu.com keys.openpgp.org pgp.mit.edu; do
+            for keyserver in hkps://keyserver.ubuntu.com hkp://keyserver.ubuntu.com:80 keys.openpgp.org pgp.mit.edu; do
               echo "Trying keyserver for builder: $keyserver"
               sudo -u builder gpg --keyserver "$keyserver" --recv-keys "$key" && break
               echo "Keyserver $keyserver failed for builder, trying next..."
