@@ -93,6 +93,8 @@ DEFAULT_PACKAGES: List[SoftwarePackage] = [
     SoftwarePackage("mpc", "Media & Audio", "Minimalist command-line client for Music Player Daemon (MPD)"),
     SoftwarePackage("ncmpcpp", "Media & Audio", "Ncurses music player client for MPD with visualizer"),
     SoftwarePackage("shairport-sync", "Media & Audio", "AirPlay audio player with multi-room synchronization"),
+    SoftwarePackage("umurmur", "Media & Audio", "Ultra-lightweight embedded Mumble voice chat server (<5MB RAM)"),
+    SoftwarePackage("mumble-server", "Media & Audio", "Official full-featured Mumble voice chat server daemon (Murmur)"),
     SoftwarePackage("alsa-utils", "Media & Audio", "Advanced Linux Sound Architecture CLI utilities (alsamixer, aplay)"),
     SoftwarePackage("flac", "Media & Audio", "Free Lossless Audio Codec encoder/decoder tools"),
 
