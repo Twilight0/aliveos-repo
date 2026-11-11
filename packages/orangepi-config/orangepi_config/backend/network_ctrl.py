@@ -111,11 +111,31 @@ class NetworkController:
         return interfaces
 
     @staticmethod
+    def get_primary_wireless_interface() -> Optional[str]:
+        """Detects the primary wireless interface name (e.g. wlan0, wld1, wlx...)."""
+        base_net = "/sys/class/net"
+        if not os.path.isdir(base_net):
+            return None
+        # Check standard wlan0 first
+        if os.path.isdir(os.path.join(base_net, "wlan0")):
+            return "wlan0"
+        # Search for any wireless interface
+        for iface in sorted(os.listdir(base_net)):
+            iface_dir = os.path.join(base_net, iface)
+            if os.path.isdir(os.path.join(iface_dir, "wireless")) or os.path.isdir(os.path.join(iface_dir, "phy80211")):
+                return iface
+            if iface.startswith(("wlan", "wl")):
+                return iface
+        return None
+
+    @staticmethod
     def get_xr819_diagnostics() -> Dict[str, Any]:
         """Inspects Xunlong XR819 WiFi module state, firmware presence, and errors."""
+        wlan_iface = NetworkController.get_primary_wireless_interface()
         diag: Dict[str, Any] = {
             "driver_loaded": False,
-            "interface_present": os.path.isdir("/sys/class/net/wlan0"),
+            "interface_name": wlan_iface or "wlan0",
+            "interface_present": (wlan_iface is not None),
             "firmware_ok": False,
             "firmware_files": {},
             "rfkill_blocked": False,
@@ -150,12 +170,13 @@ class NetworkController:
             pass
 
         # Check powersave mode (powersave causes XR819 SDIO sleep hangs)
-        try:
-            iw = subprocess.run(["iw", "dev", "wlan0", "get", "power_save"], capture_output=True, text=True)
-            if "Power save: off" in iw.stdout:
-                diag["powersave_off"] = True
-        except Exception:
-            pass
+        if wlan_iface:
+            try:
+                iw = subprocess.run(["iw", "dev", wlan_iface, "get", "power_save"], capture_output=True, text=True)
+                if "Power save: off" in iw.stdout:
+                    diag["powersave_off"] = True
+            except Exception:
+                pass
 
         # Check dmesg for xradio errors
         try:
@@ -196,13 +217,14 @@ class NetworkController:
 
     @staticmethod
     def disable_wifi_powersave() -> Tuple[bool, str]:
-        """Disables power management on wlan0 (fixes XR819 SDIO sleep timeout dropouts)."""
+        """Disables power management on wireless interface (fixes XR819 SDIO sleep timeout dropouts)."""
         if not shutil.which("iw"):
             return False, "'iw' utility is not installed. Please install it from Software tab."
+        iface = NetworkController.get_primary_wireless_interface() or "wlan0"
         try:
-            res = subprocess.run(["iw", "dev", "wlan0", "set", "power_save", "off"], capture_output=True, text=True)
+            res = subprocess.run(["iw", "dev", iface, "set", "power_save", "off"], capture_output=True, text=True)
             if res.returncode == 0:
-                return True, "WiFi Power Save disabled (XR819 keep-alive active)."
+                return True, f"WiFi Power Save disabled on {iface} (XR819 keep-alive active)."
             return False, res.stderr.strip()
         except Exception as e:
             return False, str(e)
@@ -213,15 +235,16 @@ class NetworkController:
         if not shutil.which("iw"):
             return [{"ssid": "[iw utility not installed]", "signal": "-", "security": "Install 'iw'"}]
 
-        if not os.path.isdir("/sys/class/net/wlan0"):
-            return [{"ssid": "[wlan0 interface not found]", "signal": "-", "security": "Module xradio_wlan not loaded"}]
+        iface = NetworkController.get_primary_wireless_interface()
+        if not iface:
+            return [{"ssid": "[Wireless interface not found]", "signal": "-", "security": "Module xradio_wlan not loaded"}]
 
         # Ensure interface is up before scanning
-        subprocess.run(["ip", "link", "set", "wlan0", "up"], capture_output=True)
+        subprocess.run(["ip", "link", "set", iface, "up"], capture_output=True)
 
         networks: List[Dict[str, str]] = []
         try:
-            res = subprocess.run(["iw", "dev", "wlan0", "scan"], capture_output=True, text=True, timeout=8)
+            res = subprocess.run(["iw", "dev", iface, "scan"], capture_output=True, text=True, timeout=8)
             if res.returncode != 0:
                 err = res.stderr.strip() or "Device busy or scanning error"
                 return [{"ssid": f"[{err}]", "signal": "-", "security": "Error"}]
@@ -263,12 +286,13 @@ class NetworkController:
 
     @staticmethod
     def connect_wifi_wpa(ssid: str, passphrase: str) -> Tuple[bool, str]:
-        """Configures wpa_supplicant for wlan0 with given SSID and passphrase."""
+        """Configures wpa_supplicant for wireless interface with given SSID and passphrase."""
         if not ssid:
             return False, "SSID cannot be empty."
 
+        iface = NetworkController.get_primary_wireless_interface() or "wlan0"
         wpa_dir = "/etc/wpa_supplicant"
-        wpa_conf = os.path.join(wpa_dir, "wpa_supplicant-wlan0.conf")
+        wpa_conf = os.path.join(wpa_dir, f"wpa_supplicant-{iface}.conf")
         try:
             os.makedirs(wpa_dir, exist_ok=True)
             
@@ -301,11 +325,13 @@ class NetworkController:
             os.chmod(wpa_conf, 0o600)
 
             # Bring up interface and restart wpa_supplicant
-            subprocess.run(["ip", "link", "set", "wlan0", "up"], capture_output=True)
-            subprocess.run(["systemctl", "enable", "--now", "wpa_supplicant@wlan0"], capture_output=True)
-            subprocess.run(["systemctl", "restart", "wpa_supplicant@wlan0"], capture_output=True)
+            subprocess.run(["ip", "link", "set", iface, "up"], capture_output=True)
+            subprocess.run(["systemctl", "enable", "--now", f"wpa_supplicant@{iface}"], capture_output=True)
+            subprocess.run(["systemctl", "restart", f"wpa_supplicant@{iface}"], capture_output=True)
 
-            return True, f"WiFi credentials for '{ssid}' saved. wpa_supplicant restarted."
+            return True, f"WiFi credentials for '{ssid}' saved on {iface}. wpa_supplicant restarted."
+        except Exception as e:
+            return False, f"Failed to configure WiFi: {e}"
         except Exception as e:
             return False, f"Failed to configure WiFi: {e}"
 

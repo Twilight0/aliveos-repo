@@ -127,7 +127,8 @@ class NetworkView(urwid.WidgetWrap):
         # 2. XR819 diagnostics
         diag = self.net_ctrl.get_xr819_diagnostics()
         drv_text = ("status_ok", "[xradio_wlan Loaded]") if diag["driver_loaded"] else ("status_warn", "[Driver Not Loaded]")
-        ifc_text = ("status_ok", "[wlan0 Present]") if diag["interface_present"] else ("status_warn", "[wlan0 Missing]")
+        ifc_name = diag.get("interface_name") or "Wireless"
+        ifc_text = ("status_ok", f"[{ifc_name} Present]") if diag["interface_present"] else ("status_warn", f"[{ifc_name} Missing]")
         fw_text = ("status_ok", "[Firmware: OK]") if diag["firmware_ok"] else ("status_alert", "[Firmware Missing/Incomplete]")
         rf_text = ("status_alert", "[RFKill: BLOCKED]") if diag["rfkill_blocked"] else ("status_ok", "[RFKill: Unblocked]")
         ps_text = ("status_ok", "[Powersave: OFF (Keep-Alive)]") if diag["powersave_off"] else ("status_warn", "[Powersave: ON (Sleep Prone)]")
@@ -239,8 +240,9 @@ class NetworkView(urwid.WidgetWrap):
         btn_conn = CustomButton("Connect & Save", on_press=lambda _: _do_connect())
         btn_cancel = CustomButton("Cancel", on_press=lambda _: self._close_modal())
 
+        wlan_label = self.net_ctrl.get_primary_wireless_interface() or "Wireless"
         pile = urwid.Pile([
-            urwid.Text(("card_title", "Configure Wi-Fi Connection (wlan0)")),
+            urwid.Text(("card_title", f"Configure Wi-Fi Connection ({wlan_label})")),
             urwid.Divider("─"),
             edit_ssid,
             edit_pass,
