@@ -225,29 +225,58 @@ class PackageManager:
     def install_packages(package_names: List[str]) -> Generator[str, None, int]:
         """
         Runs pacman -S --needed --noconfirm for specified packages,
+        and delegates standalone utilities (like Jackett) to their installers,
         yielding console output line by line.
         """
         if not package_names:
             yield "No packages selected for installation.\n"
             return 0
 
-        cmd = ["pacman", "-S", "--needed", "--noconfirm"] + package_names
-        yield f"Executing: {' '.join(cmd)}\n\n"
+        install_jackett = "jackett" in package_names
+        pacman_pkgs = [p for p in package_names if p != "jackett"]
 
-        proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-        )
+        rc = 0
+        if pacman_pkgs:
+            cmd = ["pacman", "-S", "--needed", "--noconfirm"] + pacman_pkgs
+            yield f"Executing: {' '.join(cmd)}\n\n"
 
-        if proc.stdout:
-            for line in proc.stdout:
-                yield line
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            )
 
-        proc.wait()
-        rc = proc.returncode
+            if proc.stdout:
+                for line in proc.stdout:
+                    yield line
+
+            proc.wait()
+            rc = proc.returncode
+
+        if install_jackett and rc == 0:
+            yield "\nInstalling Jackett via standalone ARM32 installer...\n"
+            jackett_cmd = ["/usr/bin/orangepi-install-jackett"]
+            if not shutil.which("orangepi-install-jackett") and shutil.os.path.exists("/usr/share/orangepi-config/scripts/install-jackett.sh"):
+                jackett_cmd = ["/usr/share/orangepi-config/scripts/install-jackett.sh"]
+
+            yield f"Executing: {' '.join(jackett_cmd)}\n\n"
+            proc = subprocess.Popen(
+                jackett_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            )
+
+            if proc.stdout:
+                for line in proc.stdout:
+                    yield line
+
+            proc.wait()
+            rc = proc.returncode
+
         if rc == 0:
             yield "\nInstallation completed successfully!\n"
         else:
