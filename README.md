@@ -45,7 +45,7 @@ Add the following to the bottom of your `/etc/pacman.conf`:
 ```ini
 [aliveos-repo]
 SigLevel = Optional TrustAll
-Server = https://Twilight0.github.io/aliveos-repo/$arch
+Server = https://github.com/Twilight0/aliveos-repo/releases/download/latest
 ```
 
 Then synchronize your package database and update:

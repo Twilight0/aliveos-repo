@@ -17,3 +17,7 @@ __pycache__/
 *.old
 xradio/
 
+aliveos-repo.db
+aliveos-repo.files
+aliveos-repo.db.tar.gz
+aliveos-repo.files.tar.gz
