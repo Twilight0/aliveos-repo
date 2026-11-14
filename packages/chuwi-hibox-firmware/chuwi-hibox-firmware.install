@@ -1,0 +1,11 @@
+post_install() {
+  if lsmod | grep -q brcmfmac; then
+    echo "==> Reloading brcmfmac kernel module..."
+    modprobe -r brcmfmac 2>/dev/null || true
+    modprobe brcmfmac 2>/dev/null || true
+  fi
+}
+
+post_upgrade() {
+  post_install
+}

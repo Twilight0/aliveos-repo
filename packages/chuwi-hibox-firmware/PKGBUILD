@@ -1,0 +1,24 @@
+# Maintainer: Twilight0 <https://github.com/Twilight0>
+pkgname=chuwi-hibox-firmware
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Broadcom BCM43340 NVRAM calibration firmware for Chuwi HiBox-hero (Cherry Trail)"
+arch=('any')
+url="https://github.com/Twilight0/aliveos-repo"
+license=('GPL-2.0-or-later')
+depends=('linux-firmware-broadcom')
+install="${pkgname}.install"
+source=("brcmfmac43340-sdio.txt")
+sha256sums=('8ae5a78127e583f647789eda9cb869c5480fdd09124786ff818c1acf3a9a52cc')
+
+package() {
+  local _fwdir="${pkgdir}/usr/lib/firmware/brcm"
+  install -dm755 "${_fwdir}"
+
+  # Base generic calibration profile
+  install -m644 "${srcdir}/brcmfmac43340-sdio.txt" "${_fwdir}/brcmfmac43340-sdio.txt"
+
+  # DMI board string symlinks queried by the kernel on Chuwi HiBox-hero
+  ln -s "brcmfmac43340-sdio.txt" "${_fwdir}/brcmfmac43340-sdio.AMI Corporation-HiBox-hero.txt"
+  ln -s "brcmfmac43340-sdio.txt" "${_fwdir}/brcmfmac43340-sdio.Cherry Trail CR.txt"
+}
