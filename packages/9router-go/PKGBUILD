@@ -1,7 +1,7 @@
 # Maintainer: Twilight0 <https://github.com/Twilight0>
 pkgname=9router-go
 pkgver=1.9.17.exp.5
-pkgrel=1
+pkgrel=2
 pkgdesc="Lightweight Go AI API proxy gateway and token saver (drop-in 9Router replacement)"
 arch=('x86_64' 'armv7h')
 url="https://github.com/luqman-v1/9router-go"
