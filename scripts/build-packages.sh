@@ -388,6 +388,12 @@ for item in "${PACKAGES[@]}"; do
       echo "Added DESTDIR to graphite-gtk-theme-git install.sh calls"
     fi
 
+    # Rewrite download.blender.org to an official mirror without Cloudflare bot protection
+    if [[ "$pkg_name" == blender-* ]]; then
+      sed -i 's|https://download\.blender\.org/release/|https://mirror.clarkson.edu/blender/release/|g' PKGBUILD
+      echo "Rewrote Blender download URL to mirror.clarkson.edu in $pkg_name PKGBUILD"
+    fi
+
     # Security scan before building
     if ! scan_pkgbuild "PKGBUILD" "$pkg_name"; then
       echo ""
