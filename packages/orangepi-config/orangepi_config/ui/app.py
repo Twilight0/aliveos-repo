@@ -57,6 +57,7 @@ class OrangePiConfigApp:
         self.view_terminal = TerminalView(
             on_launch_terminal=self.launch_terminal,
             on_run_command=self.show_command_dialog,
+            get_loop=lambda: self.loop,
         )
 
         self.views = [

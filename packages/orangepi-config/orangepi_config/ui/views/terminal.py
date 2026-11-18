@@ -35,15 +35,69 @@ class TerminalView(urwid.WidgetWrap):
         self,
         on_launch_terminal: Optional[Callable[[str], None]] = None,
         on_run_command: Optional[Callable[[str, List[str]], None]] = None,
+        get_loop: Optional[Callable[[], Any]] = None,
     ) -> None:
         self.on_launch_terminal = on_launch_terminal
         self.on_run_command = on_run_command
+        self.get_loop = get_loop
+        self._term_widget: Optional[urwid.Terminal] = None
 
-        self.txt_status = urwid.Text(("status_info", "Select a system diagnostics shortcut or view environment details."))
+        self.txt_status = urwid.Text(("status_info", "Open an authenticated login terminal below or run quick diagnostics."))
+        self.term_placeholder = urwid.WidgetPlaceholder(self._build_term_launcher())
 
         layout = self._build_layout()
         fill = urwid.Filler(layout, valign="top")
         super().__init__(fill)
+
+    def _build_term_launcher(self) -> urwid.Widget:
+        return urwid.Pile([
+            urwid.Text(("card_label", "Starts an authenticated OS login prompt inside this box (requires username & password).")),
+            urwid.Divider(" "),
+            CustomButton("Open Terminal (Login)", on_press=lambda _: self._start_terminal()),
+        ])
+
+    def _start_terminal(self) -> None:
+        loop = self.get_loop() if self.get_loop else None
+        if loop is None:
+            self.txt_status.set_text(("status_alert", "Error: Event loop not ready."))
+            return
+
+        if self._term_widget is not None:
+            self._stop_terminal()
+
+        cmd = ["/bin/login"] if os.geteuid() == 0 else [
+            "/bin/bash", "-c", "read -r -p 'Username: ' u && exec su - \"$u\""
+        ]
+        try:
+            term = urwid.Terminal(
+                command=cmd,
+                main_loop=loop,
+                escape_sequence="ctrl a",
+            )
+        except Exception as e:
+            self.txt_status.set_text(("status_alert", f"Failed to start terminal: {e}"))
+            return
+
+        self._term_widget = term
+
+        def _on_closed(*_: Any) -> None:
+            self._term_widget = None
+            self.term_placeholder.original_widget = self._build_term_launcher()
+            self.txt_status.set_text(("status_info", "Terminal session closed."))
+
+        urwid.connect_signal(term, "closed", _on_closed)
+        self.term_placeholder.original_widget = urwid.BoxAdapter(term, height=16)
+        self.txt_status.set_text(("status_ok", "Terminal started (login prompt active). Press Ctrl+A then Up/Tab or click a tab to switch."))
+
+    def _stop_terminal(self) -> None:
+        if self._term_widget is not None:
+            try:
+                self._term_widget.terminate()
+            except Exception:
+                pass
+            self._term_widget = None
+        self.term_placeholder.original_widget = self._build_term_launcher()
+        self.txt_status.set_text(("status_info", "Terminal session closed."))
 
     def _build_card(self, title: str, content_widgets: List[urwid.Widget]) -> urwid.Widget:
         header = [("card_title", f" {title} ")]
@@ -51,16 +105,14 @@ class TerminalView(urwid.WidgetWrap):
         return urwid.LineBox(pile)
 
     def _build_layout(self) -> urwid.Pile:
-        # Card 1: Security Policy Notice
-        card_security = self._build_card("Terminal Access & Security Policy", [
-            urwid.Text(("status_warn", "⚠ Direct login to root and system user accounts is disabled from this terminal interface.")),
-            urwid.Divider(" "),
-            urwid.Text(("card_label", "Security Notice:")),
-            urwid.Text(("normal", "When orangepi-config is accessed via web TUI (ttyd) with default credentials (admin/admin), shell login to root or user accounts is disallowed to ensure system integrity.")),
-            urwid.Divider(" "),
-            urwid.Text(("card_label", "SSH Access for Interactive Shells:")),
-            urwid.Text(("normal", "To access a full interactive shell session, please connect securely over SSH using your system account credentials:")),
-            urwid.Text(("card_value", "  $ ssh <username>@<device-ip>")),
+        # Card 1: Embedded Authenticated Terminal Box
+        card_terminal = self._build_card("Interactive Terminal (Authenticated Login)", [
+            urwid.Text(("status_info", "Switch tabs anytime: click a tab above or press Ctrl+A then Up / 1-6.")),
+            urwid.LineBox(self.term_placeholder),
+            urwid.Columns([
+                (26, CustomButton("Close / Reset Terminal", on_press=lambda _: self._stop_terminal())),
+                urwid.Text(("card_label", "  Requires valid Linux username & password (no auto-root).")),
+            ]),
         ])
 
         # Card 2: Quick Diagnostics Runner (Safe single-shot execution)
@@ -111,7 +163,7 @@ class TerminalView(urwid.WidgetWrap):
 
         return urwid.Pile([
             card_status,
-            card_security,
+            card_terminal,
             card_cmd_runner,
             card_info,
         ])
