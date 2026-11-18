@@ -222,31 +222,37 @@ class OrangePiConfigApp:
         )
         self.open_modal(dialog)
 
+    def _resolve_installer_script(self, script_name: str) -> str:
+        """Resolve installed or local-tree helper script path."""
+        installed_path = f"/usr/share/orangepi-config/scripts/{script_name}"
+        if os.path.exists(installed_path):
+            return installed_path
+        local_script = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "scripts", script_name)
+        return local_script if os.path.exists(local_script) else installed_path
+
     def show_install_dialog(self, packages: List[str]) -> None:
         """Launches installation modal for selected packages (pacman or custom standalone)."""
-        pacman_pkgs = [p for p in packages if p != "jackett"]
-        has_jackett = "jackett" in packages
+        standalone_scripts = {
+            "jackett": "install-jackett.sh",
+            "9router-go": "install-9router-go.sh",
+        }
+        pacman_pkgs = [p for p in packages if p not in standalone_scripts]
+        standalone_pkgs = [p for p in packages if p in standalone_scripts]
 
-        if has_jackett and not pacman_pkgs:
-            # Only Jackett
-            cmd = ["/bin/bash", "/usr/share/orangepi-config/scripts/install-jackett.sh"]
-            # Fallback if running directly from source tree
-            if not os.path.exists(cmd[1]):
-                local_script = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "scripts", "install-jackett.sh")
-                if os.path.exists(local_script):
-                    cmd = ["/bin/bash", local_script]
-            self.show_command_dialog("Installing Jackett (Standalone ARM32)", cmd)
+        steps = []
+        if pacman_pkgs:
+            steps.append(f"pacman -S --needed --noconfirm {' '.join(pacman_pkgs)}")
+        for pkg in standalone_pkgs:
+            script_path = self._resolve_installer_script(standalone_scripts[pkg])
+            steps.append(f"bash {script_path}")
+
+        if len(standalone_pkgs) == 1 and not pacman_pkgs:
+            script_path = self._resolve_installer_script(standalone_scripts[standalone_pkgs[0]])
+            self.show_command_dialog(f"Installing {standalone_pkgs[0]}", ["/bin/bash", script_path])
             return
 
-        if has_jackett and pacman_pkgs:
-            # Mixed pacman + Jackett
-            jackett_script = "/usr/share/orangepi-config/scripts/install-jackett.sh"
-            if not os.path.exists(jackett_script):
-                local_script = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "scripts", "install-jackett.sh")
-                if os.path.exists(local_script):
-                    jackett_script = local_script
-            cmd = ["/bin/bash", "-c", f"pacman -S --needed --noconfirm {' '.join(pacman_pkgs)} && bash {jackett_script}"]
-            self.show_command_dialog("Installing Software & Jackett", cmd)
+        if standalone_pkgs:
+            self.show_command_dialog("Installing Selected Software", ["/bin/bash", "-c", " && ".join(steps)])
             return
 
         cmd = ["pacman", "-S", "--needed", "--noconfirm"] + pacman_pkgs

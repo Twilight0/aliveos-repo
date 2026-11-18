@@ -118,6 +118,9 @@ DEFAULT_PACKAGES: List[SoftwarePackage] = [
     SoftwarePackage("gitea", "Home & Git Servers", "Painless, lightweight self-hosted Git service in Go (Web UI port 3000)"),
     SoftwarePackage("forgejo", "Home & Git Servers", "Community-governed lightweight Git forge fork of Gitea"),
 
+    # AI & LLM Gateways
+    SoftwarePackage("9router-go", "AI & LLM Gateways", "Lightweight Go AI API proxy gateway & token saver (~42MB RAM)"),
+
     # Printing & Scanning
     SoftwarePackage("cups", "Printing & Scanning", "Open-source print server standard for Unix/Linux (port 631)"),
     SoftwarePackage("cups-filters", "Printing & Scanning", "OpenPrinting CUPS filters and backends"),
@@ -232,8 +235,12 @@ class PackageManager:
             yield "No packages selected for installation.\n"
             return 0
 
-        install_jackett = "jackett" in package_names
-        pacman_pkgs = [p for p in package_names if p != "jackett"]
+        standalone_map = {
+            "jackett": ("/usr/bin/orangepi-install-jackett", "/usr/share/orangepi-config/scripts/install-jackett.sh"),
+            "9router-go": ("/usr/bin/orangepi-install-9router-go", "/usr/share/orangepi-config/scripts/install-9router-go.sh"),
+        }
+        standalone_pkgs = [p for p in package_names if p in standalone_map]
+        pacman_pkgs = [p for p in package_names if p not in standalone_map]
 
         rc = 0
         if pacman_pkgs:
@@ -255,15 +262,18 @@ class PackageManager:
             proc.wait()
             rc = proc.returncode
 
-        if install_jackett and rc == 0:
-            yield "\nInstalling Jackett via standalone ARM32 installer...\n"
-            jackett_cmd = ["/usr/bin/orangepi-install-jackett"]
-            if not shutil.which("orangepi-install-jackett") and shutil.os.path.exists("/usr/share/orangepi-config/scripts/install-jackett.sh"):
-                jackett_cmd = ["/usr/share/orangepi-config/scripts/install-jackett.sh"]
+        for pkg_name in standalone_pkgs:
+            if rc != 0:
+                break
+            bin_path, share_path = standalone_map[pkg_name]
+            yield f"\nInstalling {pkg_name} via standalone installer...\n"
+            inst_cmd = [bin_path]
+            if not shutil.which(bin_path.rsplit("/", 1)[-1]) and shutil.os.path.exists(share_path):
+                inst_cmd = [share_path]
 
-            yield f"Executing: {' '.join(jackett_cmd)}\n\n"
+            yield f"Executing: {' '.join(inst_cmd)}\n\n"
             proc = subprocess.Popen(
-                jackett_cmd,
+                inst_cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
