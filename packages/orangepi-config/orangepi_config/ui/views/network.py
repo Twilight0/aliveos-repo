@@ -427,11 +427,11 @@ class NetworkView(urwid.WidgetWrap):
         listbox = urwid.ListBox(urwid.SimpleFocusListWalker(items))
         btn_back = CustomButton("Back", on_press=lambda _: _select(edit_region.get_edit_text(), None))
         pile = urwid.Pile([
-            urwid.Text(("card_title", "Select PIA WireGuard Server ([PF] = Port Forwarding)")),
-            urwid.Divider("─"),
-            urwid.BoxAdapter(listbox, height=14),
-            urwid.Divider("─"),
-            btn_back,
+            ("pack", urwid.Text(("card_title", "Select PIA WireGuard Server ([PF] = Port Forwarding)"))),
+            ("pack", urwid.Divider("─")),
+            ("weight", 1, listbox),
+            ("pack", urwid.Divider("─")),
+            ("pack", btn_back),
         ])
         picker = ModalDialog(title="PIA Server Selection", body_widget=pile, width=66, height=22)
         self._close_modal()

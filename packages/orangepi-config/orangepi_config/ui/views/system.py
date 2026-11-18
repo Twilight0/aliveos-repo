@@ -426,19 +426,19 @@ class SystemView(urwid.WidgetWrap):
 
         title_label = "Systemd Services" if unit_type == "service" else "All Systemd Units"
         pile = urwid.Pile([
-            urwid.Text(("card_title", f"{title_label} ({len(units)} shown) — Select a unit to control")),
-            urwid.Divider("─"),
-            urwid.Columns([
+            ("pack", urwid.Text(("card_title", f"{title_label} ({len(units)} shown) — Select a unit to control"))),
+            ("pack", urwid.Divider("─")),
+            ("pack", urwid.Columns([
                 edit_filter,
                 (12, btn_apply),
                 (13, btn_refresh),
-            ]),
-            urwid.Divider("─"),
-            urwid.BoxAdapter(listbox, height=15),
-            urwid.Divider("─"),
-            btn_close,
+            ])),
+            ("pack", urwid.Divider("─")),
+            ("weight", 1, listbox),
+            ("pack", urwid.Divider("─")),
+            ("pack", btn_close),
         ])
-        dialog = ModalDialog(title=title_label, body_widget=pile, width=78, height=23)
+        dialog = ModalDialog(title=title_label, body_widget=pile, width=78, height=24)
         self.on_modal_dialog(dialog)
 
     def _show_unit_control_dialog(self, unit_info: Dict[str, str], unit_type: str, filter_text: str) -> None:
@@ -447,7 +447,7 @@ class SystemView(urwid.WidgetWrap):
 
         unit_name = unit_info["unit"]
         status_out = self.service_mgr.get_unit_status(unit_name)
-        status_lines = status_out.splitlines()[:10]
+        status_lines = status_out.splitlines()[:8]
         status_widget = urwid.Text(("status_info", "\n".join(status_lines) if status_lines else "No status output."))
 
         def _act(action: str) -> None:
@@ -467,24 +467,24 @@ class SystemView(urwid.WidgetWrap):
         ena_attr = "status_ok" if unit_info["enable_state"] == "enabled" else "status_info"
 
         pile = urwid.Pile([
-            urwid.Text([("card_title", f"Unit: {unit_name}")]),
-            urwid.Text([
+            ("pack", urwid.Text([("card_title", f"Unit: {unit_name}")])),
+            ("pack", urwid.Text([
                 ("card_label", "State: "),
                 (act_attr, f"{unit_info['active']}/{unit_info['sub']}"),
                 ("card_label", "   Boot: "),
                 (ena_attr, unit_info["enable_state"]),
-            ]),
-            urwid.Divider("─"),
-            status_widget,
-            urwid.Divider("─"),
-            urwid.GridFlow([
+            ])),
+            ("pack", urwid.Divider("─")),
+            ("weight", 1, urwid.Filler(status_widget, valign="top")),
+            ("pack", urwid.Divider("─")),
+            ("pack", urwid.GridFlow([
                 CustomButton("Start", on_press=lambda _: _act("start")),
                 CustomButton("Stop", on_press=lambda _: _act("stop")),
                 CustomButton("Restart", on_press=lambda _: _act("restart")),
                 CustomButton("Enable", on_press=lambda _: _act("enable")),
                 CustomButton("Disable", on_press=lambda _: _act("disable")),
                 CustomButton("Back to List", on_press=lambda _: _go_back()),
-            ], cell_width=18, h_sep=2, v_sep=1, align="left"),
+            ], cell_width=18, h_sep=2, v_sep=1, align="left")),
         ])
         dialog = ModalDialog(title=f"Control {unit_name}", body_widget=pile, width=76, height=22)
         self._close_modal()
