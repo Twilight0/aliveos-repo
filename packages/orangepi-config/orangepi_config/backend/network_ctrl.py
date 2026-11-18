@@ -467,3 +467,182 @@ class NetworkController:
             return True, f"Configuration saved to {conf_file} and systemd-networkd reloaded."
         except Exception as e:
             return False, f"Failed to configure interface {iface}: {e}"
+
+    @staticmethod
+    def get_pia_status() -> Dict[str, Any]:
+        """Returns current Private Internet Access WireGuard VPN status and forwarded port."""
+        active = False
+        enabled = False
+        forwarded_port = ""
+        configured = os.path.exists("/etc/pia/pia.env")
+        scripts_installed = os.path.exists("/opt/pia-manual-connections/run_setup.sh")
+
+        try:
+            r_act = subprocess.run(["systemctl", "is-active", "pia-vpn.service"], capture_output=True, text=True)
+            active = r_act.stdout.strip() == "active"
+            r_ena = subprocess.run(["systemctl", "is-enabled", "pia-vpn.service"], capture_output=True, text=True)
+            enabled = r_ena.stdout.strip() == "enabled"
+            if active:
+                r_log = subprocess.run(
+                    ["journalctl", "-u", "pia-vpn.service", "-n", "50", "--no-pager"],
+                    capture_output=True,
+                    text=True,
+                )
+                for line in reversed(r_log.stdout.splitlines()):
+                    m = re.search(r"Forwarded port\s+(\d+)", line)
+                    if m:
+                        forwarded_port = m.group(1)
+                        break
+        except Exception:
+            pass
+
+        return {
+            "active": active,
+            "enabled": enabled,
+            "configured": configured,
+            "scripts_installed": scripts_installed,
+            "forwarded_port": forwarded_port,
+        }
+
+    @staticmethod
+    def configure_pia_wireguard(
+        user: str,
+        password: str,
+        port_forward: bool = True,
+        dip_token: str = "",
+        region: str = "",
+    ) -> Tuple[bool, str]:
+        """Configures PIA WireGuard credentials and starts pia-vpn.service."""
+        user = user.strip()
+        password = password.strip()
+        dip_token = dip_token.strip()
+        region = region.strip()
+
+        if not user or not re.match(r"^[pP]\d{7}$", user):
+            return False, "Invalid PIA username (expected format: p1234567)."
+        if len(password) < 8:
+            return False, "PIA password must be at least 8 characters."
+
+        try:
+            # Ensure dependencies and PIA scripts exist
+            missing = [pkg for pkg, bin_name in [("wireguard-tools", "wg"), ("jq", "jq")] if not shutil.which(bin_name)]
+            if missing:
+                subprocess.run(["pacman", "-S", "--needed", "--noconfirm"] + missing, check=True)
+
+            if not os.path.exists("/opt/pia-manual-connections/run_setup.sh"):
+                os.makedirs("/opt/pia-manual-connections", exist_ok=True)
+                subprocess.run(
+                    [
+                        "/bin/bash",
+                        "-c",
+                        "curl -fsSL https://github.com/pia-foss/manual-connections/archive/refs/heads/master.tar.gz "
+                        "| tar -xz --strip-components=1 -C /opt/pia-manual-connections",
+                    ],
+                    check=True,
+                )
+
+            os.makedirs("/etc/pia", mode=0o700, exist_ok=True)
+            os.chmod("/etc/pia", 0o700)
+
+            env_lines = [
+                f"PIA_USER={user}",
+                f"PIA_PASS={password}",
+                f"DIP_TOKEN={dip_token if dip_token else 'no'}",
+                f"PIA_PF={'false' if dip_token else ('true' if port_forward else 'false')}",
+                "DISABLE_IPV6=yes",
+                "VPN_PROTOCOL=wireguard",
+                "PIA_DNS=false",
+            ]
+            if not dip_token:
+                if region:
+                    env_lines.append("AUTOCONNECT=false")
+                    env_lines.append(f"PREFERRED_REGION={region}")
+                else:
+                    env_lines.append("AUTOCONNECT=true")
+                    env_lines.append("MAX_LATENCY=0.25")
+
+            with open("/etc/pia/pia.env", "w") as f:
+                f.write("\n".join(env_lines) + "\n")
+            os.chmod("/etc/pia/pia.env", 0o600)
+
+            runner_path = "/usr/local/bin/pia-vpn"
+            with open(runner_path, "w") as f:
+                f.write(
+                    "#!/usr/bin/env bash\n"
+                    "set -a\n"
+                    "source /etc/pia/pia.env\n"
+                    "set +a\n"
+                    "cd /opt/pia-manual-connections || exit 1\n"
+                    "exec ./run_setup.sh\n"
+                )
+            os.chmod(runner_path, 0o755)
+
+            unit_path = "/etc/systemd/system/pia-vpn.service"
+            with open(unit_path, "w") as f:
+                f.write(
+                    "[Unit]\n"
+                    "Description=Private Internet Access WireGuard VPN (manual-connections)\n"
+                    "After=network.target\n\n"
+                    "[Service]\n"
+                    "Type=simple\n"
+                    "ExecStart=/usr/local/bin/pia-vpn\n"
+                    "ExecStopPost=/bin/sh -c \"wg-quick down pia 2>/dev/null || true\"\n"
+                    "Restart=on-failure\n"
+                    "RestartSec=10\n\n"
+                    "[Install]\n"
+                    "WantedBy=multi-user.target\n"
+                )
+
+            subprocess.run(["systemctl", "daemon-reload"], capture_output=True)
+            subprocess.run(["systemctl", "restart", "pia-vpn.service"], check=True)
+            return True, "PIA WireGuard configured and pia-vpn.service started. Refresh in ~20s for tunnel & port."
+        except Exception as e:
+            return False, f"Failed to configure PIA WireGuard: {e}"
+
+    @staticmethod
+    def stop_pia_vpn() -> Tuple[bool, str]:
+        """Stops pia-vpn.service and tears down the WireGuard interface."""
+        try:
+            subprocess.run(["systemctl", "stop", "pia-vpn.service"], capture_output=True)
+            subprocess.run(["wg-quick", "down", "pia"], capture_output=True)
+            return True, "PIA WireGuard VPN stopped."
+        except Exception as e:
+            return False, f"Failed to stop PIA VPN: {e}"
+
+    @staticmethod
+    def set_pia_autostart(enabled: bool) -> Tuple[bool, str]:
+        """Enables or disables pia-vpn.service at boot."""
+        action = "enable" if enabled else "disable"
+        try:
+            res = subprocess.run(["systemctl", action, "pia-vpn.service"], capture_output=True, text=True)
+            if res.returncode == 0:
+                return True, f"PIA VPN autostart {action}d."
+            return False, res.stderr.strip() or f"Failed to {action} pia-vpn.service."
+        except Exception as e:
+            return False, f"Failed to {action} pia-vpn.service: {e}"
+
+    @staticmethod
+    def get_pia_regions() -> List[Dict[str, Any]]:
+        """Fetches available PIA WireGuard regions from PIA's official server list."""
+        import json
+        import urllib.request
+
+        try:
+            req = urllib.request.Request(
+                "https://serverlist.piaservers.net/vpninfo/servers/v6",
+                headers={"User-Agent": "orangepi-config"},
+            )
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                raw = resp.read().decode("utf-8", errors="replace").splitlines()[0]
+                data = json.loads(raw)
+                regions = []
+                for r in data.get("regions", []):
+                    if r.get("servers", {}).get("wg"):
+                        regions.append({
+                            "id": r.get("id", ""),
+                            "name": r.get("name", ""),
+                            "port_forward": bool(r.get("port_forward", False)),
+                        })
+                return sorted(regions, key=lambda x: x["name"])
+        except Exception:
+            return []

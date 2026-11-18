@@ -27,6 +27,7 @@ class NetworkView(urwid.WidgetWrap):
         self.txt_status = urwid.Text(("status_info", "Network and XR819 diagnostics initialized."))
         self.pile_ifaces = urwid.Pile([])
         self.pile_xr819 = urwid.Pile([])
+        self.pile_pia = urwid.Pile([])
 
         # Static IP inputs
         self.edit_iface = urwid.Edit(("card_label", "Interface (e.g., eth0, wlan0): "), "eth0")
@@ -118,6 +119,21 @@ class NetworkView(urwid.WidgetWrap):
             grid_actions,
         ])
 
+        # Card 5: Private Internet Access (PIA) WireGuard VPN
+        btn_pia_cfg = CustomButton("Configure & Connect PIA", on_press=lambda _: self._show_pia_dialog())
+        btn_pia_stop = CustomButton("Disconnect / Stop PIA", on_press=lambda _: self._stop_pia())
+        btn_pia_boot = CustomButton("Toggle Boot Autostart", on_press=lambda _: self._toggle_pia_autostart())
+
+        card_pia = self._build_card("Private Internet Access (PIA) WireGuard VPN", [
+            self.pile_pia,
+            urwid.Divider("─"),
+            urwid.GridFlow([
+                btn_pia_cfg,
+                btn_pia_stop,
+                btn_pia_boot,
+            ], cell_width=30, h_sep=2, v_sep=1, align="left"),
+        ])
+
         return urwid.Pile([
             urwid.AttrMap(self.txt_status, "status_info"),
             urwid.Divider(" "),
@@ -128,6 +144,8 @@ class NetworkView(urwid.WidgetWrap):
             card_config,
             urwid.Divider(" "),
             card_xr819,
+            urwid.Divider(" "),
+            card_pia,
         ])
 
     def refresh(self) -> None:
@@ -186,6 +204,24 @@ class NetworkView(urwid.WidgetWrap):
         active_dns = " ".join(self.net_ctrl.get_dns_servers())
         if active_dns and not self.edit_global_dns.get_edit_text().strip():
             self.edit_global_dns.set_edit_text(active_dns)
+
+        # 4. PIA WireGuard VPN status
+        pia = self.net_ctrl.get_pia_status()
+        pia_state = ("status_ok", "[CONNECTED]") if pia["active"] else ("status_warn", "[STOPPED]")
+        pia_boot = ("status_ok", "[Autostart: ON]") if pia["enabled"] else ("status_info", "[Autostart: OFF]")
+        pia_cfg = ("status_ok", "[Credentials Saved]") if pia["configured"] else ("status_warn", "[Not Configured]")
+        pia_scripts = ("status_ok", "[Scripts Ready]") if pia["scripts_installed"] else ("status_warn", "[Will Download on Setup]")
+        pf_str = pia["forwarded_port"] if pia["forwarded_port"] else ("Pending / N/A" if pia["active"] else "-")
+
+        self.pile_pia.contents = [
+            (urwid.Columns([
+                (22, urwid.Text([("card_label", "  Tunnel: "), pia_state])),
+                (22, urwid.Text([("card_label", "Boot: "), pia_boot])),
+                (26, urwid.Text([("card_label", "Config: "), pia_cfg])),
+                urwid.Text([("card_label", "PIA: "), pia_scripts]),
+            ]), ("pack", None)),
+            (urwid.Text([("card_label", "  Forwarded Port: "), ("card_value", pf_str)]), ("pack", None)),
+        ]
 
     def _set_dns_preset(self, preset_servers: str) -> None:
         self.edit_global_dns.set_edit_text(preset_servers)
@@ -303,6 +339,114 @@ class NetworkView(urwid.WidgetWrap):
         ])
         dialog = ModalDialog(title="Connect to Wi-Fi", body_widget=pile, width=54, height=12)
         self.on_modal_dialog(dialog)
+
+    def _show_pia_dialog(self) -> None:
+        if not self.on_modal_dialog:
+            return
+
+        edit_user = urwid.Edit(("card_label", "PIA Username (p#######): "), "")
+        edit_pass = urwid.Edit(("card_label", "PIA Password: "), "", mask="*")
+        edit_region = urwid.Edit(("card_label", "Preferred Region (blank = fastest): "), "")
+        edit_dip = urwid.Edit(("card_label", "Dedicated IP Token (optional): "), "")
+        chk_pf = urwid.CheckBox("Enable Port Forwarding (non-US servers)", state=True)
+
+        def _do_pia() -> None:
+            user = edit_user.get_edit_text().strip()
+            pwd = edit_pass.get_edit_text().strip()
+            region = edit_region.get_edit_text().strip()
+            dip = edit_dip.get_edit_text().strip()
+            pf = chk_pf.get_state()
+            self._close_modal()
+            self._set_status("Configuring PIA WireGuard VPN...", ok=True)
+            ok, msg = self.net_ctrl.configure_pia_wireguard(
+                user=user,
+                password=pwd,
+                port_forward=pf,
+                dip_token=dip,
+                region=region,
+            )
+            self._set_status(msg, ok=ok)
+            self.refresh()
+
+        btn_save = CustomButton("Save & Connect", on_press=lambda _: _do_pia())
+        btn_pick = CustomButton("Pick Server...", on_press=lambda _: self._show_pia_server_picker(edit_region, chk_pf, dialog))
+        btn_cancel = CustomButton("Cancel", on_press=lambda _: self._close_modal())
+
+        pile = urwid.Pile([
+            urwid.Text(("card_title", "Private Internet Access (WireGuard)")),
+            urwid.Divider("─"),
+            edit_user,
+            edit_pass,
+            urwid.Columns([
+                edit_region,
+                (18, btn_pick),
+            ]),
+            edit_dip,
+            chk_pf,
+            urwid.Divider(" "),
+            urwid.Columns([
+                (20, btn_save),
+                (14, btn_cancel),
+            ]),
+        ])
+        dialog = ModalDialog(title="Configure PIA WireGuard VPN", body_widget=pile, width=68, height=16)
+        self.on_modal_dialog(dialog)
+
+    def _show_pia_server_picker(
+        self,
+        edit_region: urwid.Edit,
+        chk_pf: urwid.CheckBox,
+        parent_dialog: ModalDialog,
+    ) -> None:
+        if not self.on_modal_dialog:
+            return
+        regions = self.net_ctrl.get_pia_regions()
+        items: List[urwid.Widget] = []
+
+        def _select(reg_id: str, pf_ok: Optional[bool]) -> None:
+            edit_region.set_edit_text(reg_id)
+            if pf_ok is not None:
+                chk_pf.set_state(pf_ok)
+            self._close_modal()
+            self.on_modal_dialog(parent_dialog)
+
+        items.append(CustomButton("Auto (Fastest Latency) [PF]", on_press=lambda _: _select("", True)))
+        for r in regions:
+            pf_tag = " [PF]" if r["port_forward"] else ""
+            label = f"{r['name']} ({r['id']}){pf_tag}"
+            items.append(
+                CustomButton(
+                    label,
+                    on_press=lambda _, rid=r["id"], pf=r["port_forward"]: _select(rid, pf),
+                )
+            )
+
+        if not regions:
+            items.append(urwid.Text(("status_warn", "Could not fetch PIA region list (check internet/DNS).")))
+
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(items))
+        btn_back = CustomButton("Back", on_press=lambda _: _select(edit_region.get_edit_text(), None))
+        pile = urwid.Pile([
+            urwid.Text(("card_title", "Select PIA WireGuard Server ([PF] = Port Forwarding)")),
+            urwid.Divider("─"),
+            urwid.BoxAdapter(listbox, height=14),
+            urwid.Divider("─"),
+            btn_back,
+        ])
+        picker = ModalDialog(title="PIA Server Selection", body_widget=pile, width=66, height=22)
+        self._close_modal()
+        self.on_modal_dialog(picker)
+
+    def _stop_pia(self) -> None:
+        ok, msg = self.net_ctrl.stop_pia_vpn()
+        self._set_status(msg, ok=ok)
+        self.refresh()
+
+    def _toggle_pia_autostart(self) -> None:
+        pia = self.net_ctrl.get_pia_status()
+        ok, msg = self.net_ctrl.set_pia_autostart(not pia["enabled"])
+        self._set_status(msg, ok=ok)
+        self.refresh()
 
     def _close_modal(self) -> None:
         if self.on_close_modal:
