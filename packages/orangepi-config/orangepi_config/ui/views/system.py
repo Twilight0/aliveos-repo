@@ -6,6 +6,7 @@ and external storage management (mount, unmount, format).
 from __future__ import annotations
 
 import os
+import socket
 import subprocess
 from typing import Any, Callable, Dict, List, Optional
 import urwid
@@ -36,8 +37,8 @@ class SystemView(urwid.WidgetWrap):
         self.txt_status = urwid.Text(("status_info", "Select a maintenance task, power control, or manage external storage."))
         self.pile_storage = urwid.Pile([])
 
-        # System Hostname
-        self.edit_hostname = urwid.Edit(("card_label", "New Hostname: "), "")
+        # System Hostname (pre-populated with current stored hostname)
+        self.edit_hostname = urwid.Edit(("card_label", "Hostname: "), self._get_current_hostname())
 
         # Window & Web Tab Title Customization
         self.edit_window_title = urwid.Edit(("card_label", "Window Title: "), get_window_title())
@@ -329,6 +330,18 @@ class SystemView(urwid.WidgetWrap):
         if self.on_run_command:
             self.on_run_command("Clean Package Cache", ["pacman", "-Sc", "--noconfirm"])
 
+    @staticmethod
+    def _get_current_hostname() -> str:
+        try:
+            if os.path.isfile("/etc/hostname"):
+                with open("/etc/hostname", "r") as f:
+                    name = f.read().strip()
+                    if name:
+                        return name
+        except Exception:
+            pass
+        return socket.gethostname()
+
     def _apply_hostname(self) -> None:
         new_host = self.edit_hostname.get_edit_text().strip()
         if not new_host:
@@ -338,7 +351,7 @@ class SystemView(urwid.WidgetWrap):
             res = subprocess.run(["hostnamectl", "set-hostname", new_host], capture_output=True, text=True)
             if res.returncode == 0:
                 self.txt_status.set_text(("status_ok", f"Hostname successfully changed to '{new_host}'."))
-                self.edit_hostname.set_edit_text("")
+                self.edit_hostname.set_edit_text(self._get_current_hostname())
             else:
                 self.txt_status.set_text(("status_alert", f"Failed: {res.stderr.strip()}"))
         except Exception as e:

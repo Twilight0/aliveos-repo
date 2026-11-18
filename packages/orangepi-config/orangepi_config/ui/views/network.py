@@ -36,7 +36,7 @@ class NetworkView(urwid.WidgetWrap):
         self.edit_dns = urwid.Edit(("card_label", "DNS Override for Interface (optional): "), "")
 
         # Dedicated DNS controls
-        self.edit_global_dns = urwid.Edit(("card_label", "Active DNS Servers (space separated): "), "1.1.1.1 8.8.8.8")
+        self.edit_global_dns = urwid.Edit(("card_label", "Active DNS Servers (or 'auto'): "), "")
 
         layout = self._build_layout()
         fill = urwid.Filler(layout, valign="top")
@@ -59,6 +59,7 @@ class NetworkView(urwid.WidgetWrap):
 
         # Card 2: Dedicated DNS Configuration
         btn_apply_dns = CustomButton("Apply DNS", on_press=lambda _: self._apply_custom_dns())
+        btn_dns_auto = CustomButton("Auto (DHCP / Gateway)", on_press=lambda _: self._set_dns_preset("auto"))
         btn_dns_cf = CustomButton("Cloudflare (1.1.1.1)", on_press=lambda _: self._set_dns_preset("1.1.1.1 1.0.0.1"))
         btn_dns_google = CustomButton("Google (8.8.8.8)", on_press=lambda _: self._set_dns_preset("8.8.8.8 8.8.4.4"))
         btn_dns_quad9 = CustomButton("Quad9 (9.9.9.9)", on_press=lambda _: self._set_dns_preset("9.9.9.9 149.112.112.112"))
@@ -74,6 +75,7 @@ class NetworkView(urwid.WidgetWrap):
             urwid.Divider(" "),
             urwid.Text(("card_label", "Quick Presets:")),
             urwid.GridFlow([
+                btn_dns_auto,
                 btn_dns_cf,
                 btn_dns_google,
                 btn_dns_quad9,
@@ -200,10 +202,9 @@ class NetworkView(urwid.WidgetWrap):
 
         self.pile_xr819.contents = [(r, ("pack", None)) for r in xr_rows]
 
-        # 3. Active DNS servers
+        # 3. Active DNS servers (always show stored/active values)
         active_dns = " ".join(self.net_ctrl.get_dns_servers())
-        if active_dns and not self.edit_global_dns.get_edit_text().strip():
-            self.edit_global_dns.set_edit_text(active_dns)
+        self.edit_global_dns.set_edit_text(active_dns if active_dns else "auto")
 
         # 4. PIA WireGuard VPN status
         pia = self.net_ctrl.get_pia_status()

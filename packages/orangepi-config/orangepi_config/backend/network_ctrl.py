@@ -335,7 +335,20 @@ class NetworkController:
 
     @staticmethod
     def get_dns_servers() -> List[str]:
-        """Returns list of active DNS servers."""
+        """Returns list of active or configured DNS servers."""
+        # Prefer explicit custom override if configured
+        custom_conf = "/etc/systemd/resolved.conf.d/00-custom-dns.conf"
+        if os.path.isfile(custom_conf):
+            try:
+                with open(custom_conf, "r") as f:
+                    for line in f:
+                        if line.strip().startswith("DNS="):
+                            vals = line.strip().split("=", 1)[1].split()
+                            if vals:
+                                return vals
+            except Exception:
+                pass
+
         dns: List[str] = []
         try:
             r = subprocess.run(["resolvectl", "dns"], capture_output=True, text=True)
@@ -365,12 +378,42 @@ class NetworkController:
     def set_dns_servers(dns_servers: str, iface: Optional[str] = None) -> Tuple[bool, str]:
         """
         Configures DNS servers persistently in systemd-resolved and networkd.
-        Accepts space-separated IP addresses (e.g. '1.1.1.1 8.8.8.8').
+        Pass 'auto', 'dhcp', or 'gateway' to restore DHCP/gateway DNS.
         """
-        servers = dns_servers.strip().split()
-        if not servers:
-            return False, "DNS server address cannot be empty."
+        raw = dns_servers.strip()
+        if not raw:
+            return False, "DNS server address cannot be empty (use 'auto' for DHCP/Gateway)."
 
+        resolved_conf = "/etc/systemd/resolved.conf.d/00-custom-dns.conf"
+        net_dir = "/etc/systemd/network"
+
+        if raw.lower() in {"auto", "dhcp", "gateway"}:
+            try:
+                if os.path.exists(resolved_conf):
+                    os.remove(resolved_conf)
+                if os.path.isdir(net_dir):
+                    for fn in os.listdir(net_dir):
+                        if fn.endswith(".network"):
+                            fp = os.path.join(net_dir, fn)
+                            with open(fp, "r") as f:
+                                lines = f.readlines()
+                            new_lines = []
+                            for line in lines:
+                                if line.startswith("DNS="):
+                                    continue
+                                if line.strip() == "UseDNS=no":
+                                    new_lines.append("UseDNS=yes\n")
+                                else:
+                                    new_lines.append(line)
+                            with open(fp, "w") as f:
+                                f.writelines(new_lines)
+                subprocess.run(["systemctl", "restart", "systemd-networkd", "systemd-resolved"], capture_output=True)
+                subprocess.run(["resolvectl", "flush-caches"], capture_output=True)
+                return True, "DNS restored to automatic (DHCP / Gateway)."
+            except Exception as e:
+                return False, f"Failed to restore automatic DNS: {e}"
+
+        servers = raw.split()
         import ipaddress
         for s in servers:
             try:
@@ -383,11 +426,10 @@ class NetworkController:
             # 1. Configure systemd-resolved drop-in
             resolved_conf_dir = "/etc/systemd/resolved.conf.d"
             os.makedirs(resolved_conf_dir, exist_ok=True)
-            with open(os.path.join(resolved_conf_dir, "00-custom-dns.conf"), "w") as f:
-                f.write(f"[Resolve]\nDNS={dns_str}\nFallbackDNS=1.1.1.1 8.8.8.8\n")
+            with open(resolved_conf, "w") as f:
+                f.write(f"[Resolve]\nDNS={dns_str}\n")
 
             # 2. Update networkd interface configs if present
-            net_dir = "/etc/systemd/network"
             if os.path.isdir(net_dir):
                 for fn in os.listdir(net_dir):
                     if fn.endswith(".network"):
@@ -401,6 +443,8 @@ class NetworkController:
                                 if line.startswith("DNS="):
                                     new_lines.append(f"DNS={dns_str}\n")
                                     has_dns = True
+                                elif line.strip() == "UseDNS=yes":
+                                    new_lines.append("UseDNS=no\n")
                                 else:
                                     new_lines.append(line)
                             if not has_dns:
