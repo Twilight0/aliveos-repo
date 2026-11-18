@@ -1,0 +1,26 @@
+diff --git a/internal/handlers/dashboard/apikeys_metadata_validate.go b/internal/handlers/dashboard/apikeys_metadata_validate.go
+index f42402b..0edd8dc 100644
+--- a/internal/handlers/dashboard/apikeys_metadata_validate.go
++++ b/internal/handlers/dashboard/apikeys_metadata_validate.go
+@@ -103,7 +103,7 @@ func metadataPriceCents(value any) error {
+ 		return errValue("must be a whole number of cents")
+ 	}
+ 	if cents < 0 || cents > maxMetadataPriceCents {
+-		return errValue(fmt.Sprintf("must be between 0 and %d", maxMetadataPriceCents))
++		return errValue(fmt.Sprintf("must be between 0 and %d", int64(maxMetadataPriceCents)))
+ 	}
+ 	return nil
+ }
+diff --git a/internal/handlers/oauth/minimax_code.go b/internal/handlers/oauth/minimax_code.go
+index b1a0005..d36b78f 100644
+--- a/internal/handlers/oauth/minimax_code.go
++++ b/internal/handlers/oauth/minimax_code.go
+@@ -134,7 +134,7 @@ func miniMaxCodeDeadline(data map[string]any, now time.Time) int {
+ 	if !ok {
+ 		return miniMaxCodeSignInSeconds
+ 	}
+-	if raw < 1e12 {
++	if int64(raw) < 1e12 {
+ 		return raw
+ 	}
+ 	remaining := time.UnixMilli(int64(raw)).Sub(now)

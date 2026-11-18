@@ -1,0 +1,17 @@
+[Unit]
+Description=9router-go AI API Proxy Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=DATA_DIR=/var/lib/9router
+EnvironmentFile=-/etc/default/9router-go
+EnvironmentFile=-/var/lib/9router/.env
+ExecStart=/usr/bin/9router-go
+Restart=on-failure
+RestartSec=5
+MemoryMax=128M
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+# Configuration for 9router-go systemd service
+# Copy your local ~/.9router directory to /var/lib/9router for 1:1 migration.
+DATA_DIR=/var/lib/9router
+# PORT=20130
+# RTK_ENABLED=true

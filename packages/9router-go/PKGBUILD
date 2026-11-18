@@ -1,0 +1,66 @@
+# Maintainer: Twilight0 <https://github.com/Twilight0>
+pkgname=9router-go
+pkgver=1.9.17.exp.5
+pkgrel=1
+pkgdesc="Lightweight Go AI API proxy gateway and token saver (drop-in 9Router replacement)"
+arch=('x86_64' 'armv7h')
+url="https://github.com/luqman-v1/9router-go"
+license=('MIT')
+makedepends=('git' 'go')
+options=('!strip' '!debug')
+backup=('etc/default/9router-go')
+source=("git+https://github.com/luqman-v1/9router-go.git"
+        "32bit-arm-int-overflow.patch"
+        "9router-go.service"
+        "9router-go.default")
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP')
+
+prepare() {
+  cd "${srcdir}/9router-go"
+  patch -Np1 -i "${srcdir}/32bit-arm-int-overflow.patch"
+}
+
+build() {
+  cd "${srcdir}/9router-go"
+
+  local _bun="${BUN:-$(command -v bun || true)}"
+  if [[ -z "${_bun}" && -x "$HOME/.npm-global/bin/bun" ]]; then
+    _bun="$HOME/.npm-global/bin/bun"
+  fi
+  if [[ -z "${_bun}" ]]; then
+    echo "error: bun is required to build web SPA assets" >&2
+    return 1
+  fi
+
+  if [[ ! -f web/dist/index.html ]]; then
+    "${_bun}" web/scripts/web-build.ts
+  fi
+
+  export CGO_ENABLED=0
+  if [[ "${CARCH}" == "armv7h" ]]; then
+    export GOOS=linux
+    export GOARCH=arm
+    export GOARM=7
+  elif [[ "${CARCH}" == "x86_64" ]]; then
+    export GOOS=linux
+    export GOARCH=amd64
+    export GOAMD64=v1
+  fi
+
+  local _ver
+  _ver="$(cat VERSION)"
+  go build -trimpath -ldflags="-s -w -X 9router/proxy/internal/updater.CurrentVersion=${_ver}" \
+    -o 9router-go ./cmd/9router-go/
+}
+
+package() {
+  cd "${srcdir}/9router-go"
+  install -Dm755 9router-go "${pkgdir}/usr/bin/9router-go"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 "${srcdir}/9router-go.service" "${pkgdir}/usr/lib/systemd/system/9router-go.service"
+  install -Dm644 "${srcdir}/9router-go.default" "${pkgdir}/etc/default/9router-go"
+  install -dm750 "${pkgdir}/var/lib/9router"
+}
