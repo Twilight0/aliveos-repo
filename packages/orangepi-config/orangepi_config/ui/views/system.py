@@ -10,6 +10,7 @@ import subprocess
 from typing import Any, Callable, Dict, List, Optional
 import urwid
 
+from orangepi_config.backend.service_mgr import ServiceManager
 from orangepi_config.backend.storage_ctrl import StorageController
 from orangepi_config.config import DEFAULT_WINDOW_TITLE, get_window_title, set_window_title
 from orangepi_config.ui.widgets import CustomButton, ModalDialog
@@ -31,6 +32,7 @@ class SystemView(urwid.WidgetWrap):
         self.on_close_modal = on_close_modal
 
         self.storage_ctrl = StorageController()
+        self.service_mgr = ServiceManager()
         self.txt_status = urwid.Text(("status_info", "Select a maintenance task, power control, or manage external storage."))
         self.pile_storage = urwid.Pile([])
 
@@ -104,7 +106,17 @@ class SystemView(urwid.WidgetWrap):
             ]),
         ])
 
-        # Card 5: Power Management
+        # Card 5: Systemd Units & Services
+        card_services = self._build_card("Systemd Units & Services", [
+            urwid.Text(("card_label", "Inspect status, enable/disable at boot, and start/stop/restart systemd units:")),
+            urwid.Divider(" "),
+            urwid.GridFlow([
+                CustomButton("Manage Services (.service)", on_press=lambda _: self._show_systemd_units_dialog("service")),
+                CustomButton("Manage All Units", on_press=lambda _: self._show_systemd_units_dialog("all")),
+            ], cell_width=32, h_sep=2, v_sep=1, align="left"),
+        ])
+
+        # Card 6: Power Management
         card_power = self._build_card("Power & Reboot", [
             urwid.Text(("card_label", "Safely reboot or shutdown the Orange Pi Zero:")),
             urwid.Divider(" "),
@@ -118,6 +130,8 @@ class SystemView(urwid.WidgetWrap):
             card_status,
             urwid.Divider(" "),
             card_storage,
+            urwid.Divider(" "),
+            card_services,
             urwid.Divider(" "),
             card_pacman,
             urwid.Divider(" "),
@@ -368,3 +382,110 @@ class SystemView(urwid.WidgetWrap):
                 "Are you sure you want to shut down and power off the Orange Pi Zero now?",
                 lambda: subprocess.run(["poweroff"]),
             )
+
+    def _show_systemd_units_dialog(self, unit_type: str = "service", filter_text: str = "") -> None:
+        if not self.on_modal_dialog:
+            return
+
+        edit_filter = urwid.Edit(("card_label", "Filter: "), filter_text)
+        units = self.service_mgr.list_units(unit_type=unit_type, filter_text=filter_text)
+
+        rows: List[urwid.Widget] = []
+        for u in units:
+            act = u["active"]
+            sub = u["sub"]
+            ena = u["enable_state"]
+            act_tag = f"[{act}/{sub}]"
+            label = f"{u['unit']:<38} {act_tag:<18} ({ena})"
+            rows.append(
+                CustomButton(
+                    label,
+                    on_press=lambda _, info=u: self._show_unit_control_dialog(info, unit_type, edit_filter.get_edit_text()),
+                )
+            )
+
+        if not rows:
+            rows.append(urwid.Text(("status_warn", "No matching systemd units found.")))
+
+        listbox = urwid.ListBox(urwid.SimpleFocusListWalker(rows))
+        btn_apply = CustomButton(
+            "Filter",
+            on_press=lambda _: (
+                self._close_modal(),
+                self._show_systemd_units_dialog(unit_type, edit_filter.get_edit_text()),
+            ),
+        )
+        btn_refresh = CustomButton(
+            "Refresh",
+            on_press=lambda _: (
+                self._close_modal(),
+                self._show_systemd_units_dialog(unit_type, edit_filter.get_edit_text()),
+            ),
+        )
+        btn_close = CustomButton("Close", on_press=lambda _: self._close_modal())
+
+        title_label = "Systemd Services" if unit_type == "service" else "All Systemd Units"
+        pile = urwid.Pile([
+            urwid.Text(("card_title", f"{title_label} ({len(units)} shown) — Select a unit to control")),
+            urwid.Divider("─"),
+            urwid.Columns([
+                edit_filter,
+                (12, btn_apply),
+                (13, btn_refresh),
+            ]),
+            urwid.Divider("─"),
+            urwid.BoxAdapter(listbox, height=15),
+            urwid.Divider("─"),
+            btn_close,
+        ])
+        dialog = ModalDialog(title=title_label, body_widget=pile, width=78, height=23)
+        self.on_modal_dialog(dialog)
+
+    def _show_unit_control_dialog(self, unit_info: Dict[str, str], unit_type: str, filter_text: str) -> None:
+        if not self.on_modal_dialog:
+            return
+
+        unit_name = unit_info["unit"]
+        status_out = self.service_mgr.get_unit_status(unit_name)
+        status_lines = status_out.splitlines()[:10]
+        status_widget = urwid.Text(("status_info", "\n".join(status_lines) if status_lines else "No status output."))
+
+        def _act(action: str) -> None:
+            ok, msg = self.service_mgr.control_unit(unit_name, action)
+            self.txt_status.set_text(("status_ok" if ok else "status_alert", msg))
+            self._close_modal()
+            # Re-open control dialog with updated status
+            refreshed = self.service_mgr.list_units(unit_type=unit_type, filter_text=unit_name)
+            next_info = next((u for u in refreshed if u["unit"] == unit_name), unit_info)
+            self._show_unit_control_dialog(next_info, unit_type, filter_text)
+
+        def _go_back() -> None:
+            self._close_modal()
+            self._show_systemd_units_dialog(unit_type, filter_text)
+
+        act_attr = "status_ok" if unit_info["active"] == "active" else ("status_alert" if unit_info["active"] == "failed" else "status_warn")
+        ena_attr = "status_ok" if unit_info["enable_state"] == "enabled" else "status_info"
+
+        pile = urwid.Pile([
+            urwid.Text([("card_title", f"Unit: {unit_name}")]),
+            urwid.Text([
+                ("card_label", "State: "),
+                (act_attr, f"{unit_info['active']}/{unit_info['sub']}"),
+                ("card_label", "   Boot: "),
+                (ena_attr, unit_info["enable_state"]),
+            ]),
+            urwid.Divider("─"),
+            status_widget,
+            urwid.Divider("─"),
+            urwid.GridFlow([
+                CustomButton("Start", on_press=lambda _: _act("start")),
+                CustomButton("Stop", on_press=lambda _: _act("stop")),
+                CustomButton("Restart", on_press=lambda _: _act("restart")),
+                CustomButton("Enable", on_press=lambda _: _act("enable")),
+                CustomButton("Disable", on_press=lambda _: _act("disable")),
+                CustomButton("Back to List", on_press=lambda _: _go_back()),
+            ], cell_width=18, h_sep=2, v_sep=1, align="left"),
+        ])
+        dialog = ModalDialog(title=f"Control {unit_name}", body_widget=pile, width=76, height=22)
+        self._close_modal()
+        self.on_modal_dialog(dialog)
