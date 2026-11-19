@@ -1,0 +1,35 @@
+<domain type='qemu'>
+  <name>orangepi-zero</name>
+  <memory unit='MiB'>1024</memory>
+  <currentMemory unit='MiB'>1024</currentMemory>
+  <vcpu placement='static'>4</vcpu>
+  <os>
+    <type arch='armv7l' machine='orangepi-pc'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <cpu mode='custom' match='exact' check='none'>
+    <model fallback='forbid'>cortex-a7</model>
+  </cpu>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <emulator>/usr/bin/qemu-system-arm</emulator>
+    <disk type='block' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source dev='/dev/sdd'/>
+      <target dev='sda' bus='sd'/>
+    </disk>
+    <interface type='network'>
+      <source network='default'/>
+    </interface>
+    <serial type='pty'>
+      <target port='0'/>
+    </serial>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+    <audio id='1' type='none'/>
+  </devices>
+</domain>

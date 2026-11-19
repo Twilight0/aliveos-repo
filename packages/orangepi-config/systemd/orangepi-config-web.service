@@ -8,8 +8,9 @@ User=root
 WorkingDirectory=/root
 Environment=TERM=xterm-256color
 Environment=TTYD_CREDENTIALS=admin:admin
+Environment=TTYD_PORT=46363
 EnvironmentFile=-/etc/default/orangepi-config
-ExecStart=/usr/bin/ttyd -W -p 46363 -c ${TTYD_CREDENTIALS} -t fontSize=15 -t theme={"background":"#000000"} /usr/bin/orangepi-config
+ExecStart=/usr/bin/ttyd -W -p ${TTYD_PORT} -c ${TTYD_CREDENTIALS} -t fontSize=15 -t theme={"background":"#000000"} /usr/bin/orangepi-config
 Restart=always
 RestartSec=3
 

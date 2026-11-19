@@ -7,11 +7,14 @@ from __future__ import annotations
 import os
 import shlex
 import sys
-from typing import Dict
+from typing import Dict, Tuple
 
 SYSTEM_CONFIG_PATH = "/etc/default/orangepi-config"
 USER_CONFIG_PATH = os.path.expanduser("~/.config/orangepi-config/config")
 DEFAULT_WINDOW_TITLE = "Orange Pi Zero — orangepi-config"
+DEFAULT_WEB_USERNAME = "admin"
+DEFAULT_WEB_PASSWORD = "admin"
+DEFAULT_WEB_PORT = 46363
 
 
 def _get_readable_config_path() -> str:
@@ -108,6 +111,47 @@ def set_window_title(title: str) -> str:
     """Persists the custom window/web-tab title and returns the config file path."""
     clean_title = title.strip() or DEFAULT_WINDOW_TITLE
     return save_config_key("WINDOW_TITLE", clean_title)
+
+
+def get_web_settings() -> Tuple[str, str, int]:
+    """Returns configured (username, password, port) for the ttyd web interface."""
+    cfg = load_config()
+    raw_creds = cfg.get("TTYD_CREDENTIALS") or os.environ.get("TTYD_CREDENTIALS", "")
+    if ":" in raw_creds:
+        user, _, pw = raw_creds.partition(":")
+        user = user.strip() or DEFAULT_WEB_USERNAME
+        pw = pw if pw else DEFAULT_WEB_PASSWORD
+    else:
+        user, pw = DEFAULT_WEB_USERNAME, DEFAULT_WEB_PASSWORD
+
+    raw_port = cfg.get("TTYD_PORT") or os.environ.get("TTYD_PORT", "")
+    try:
+        port = int(raw_port)
+        if not (1 <= port <= 65535):
+            port = DEFAULT_WEB_PORT
+    except (TypeError, ValueError):
+        port = DEFAULT_WEB_PORT
+
+    return user, pw, port
+
+
+def set_web_settings(username: str, password: str, port: int) -> str:
+    """Validates and persists ttyd web interface credentials and port, returning config path."""
+    clean_user = username.strip()
+    if not clean_user or ":" in clean_user or any(c.isspace() for c in clean_user):
+        raise ValueError("Username must be non-empty without spaces or ':'.")
+    if not password or "\n" in password or "\r" in password or "\x00" in password:
+        raise ValueError("Password must be non-empty without control characters.")
+    if not (1 <= int(port) <= 65535):
+        raise ValueError("Port must be between 1 and 65535.")
+
+    save_config_key("TTYD_CREDENTIALS", f"{clean_user}:{password}")
+    path = save_config_key("TTYD_PORT", str(int(port)))
+    try:
+        os.chmod(path, 0o600)
+    except OSError:
+        pass
+    return path
 
 
 def emit_terminal_title(title: str) -> None:

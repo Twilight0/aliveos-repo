@@ -13,7 +13,13 @@ import urwid
 
 from orangepi_config.backend.service_mgr import ServiceManager
 from orangepi_config.backend.storage_ctrl import StorageController
-from orangepi_config.config import DEFAULT_WINDOW_TITLE, get_window_title, set_window_title
+from orangepi_config.config import (
+    DEFAULT_WINDOW_TITLE,
+    get_web_settings,
+    get_window_title,
+    set_web_settings,
+    set_window_title,
+)
 from orangepi_config.ui.widgets import CustomButton, ModalDialog
 
 
@@ -42,6 +48,12 @@ class SystemView(urwid.WidgetWrap):
 
         # Window & Web Tab Title Customization
         self.edit_window_title = urwid.Edit(("card_label", "Window Title: "), get_window_title())
+
+        # Web Interface (ttyd) Credentials & Port
+        web_user, web_pass, web_port = get_web_settings()
+        self.edit_web_user = urwid.Edit(("card_label", "Username: "), web_user)
+        self.edit_web_pass = urwid.Edit(("card_label", "Password: "), web_pass, mask="*")
+        self.edit_web_port = urwid.Edit(("card_label", "Port: "), str(web_port))
 
         layout = self._build_layout()
         fill = urwid.Filler(layout, valign="top")
@@ -107,6 +119,21 @@ class SystemView(urwid.WidgetWrap):
             ]),
         ])
 
+        # Card 4b: Web Interface Login & Port
+        card_web = self._build_card("Web Interface Login & Port (ttyd)", [
+            urwid.Text(("card_label", "Configure orangepi-config-web.service credentials and listening port:")),
+            urwid.Divider(" "),
+            urwid.Columns([
+                (24, self.edit_web_user),
+                (2, urwid.Text("")),
+                (26, self.edit_web_pass),
+                (2, urwid.Text("")),
+                (14, self.edit_web_port),
+                (2, urwid.Text("")),
+                (25, CustomButton("Apply & Restart Web UI", on_press=lambda _: self._apply_web_settings())),
+            ]),
+        ])
+
         # Card 5: Systemd Units & Services
         card_services = self._build_card("Systemd Units & Services", [
             urwid.Text(("card_label", "Inspect status, enable/disable at boot, and start/stop/restart systemd units:")),
@@ -139,6 +166,8 @@ class SystemView(urwid.WidgetWrap):
             card_config,
             urwid.Divider(" "),
             card_title,
+            urwid.Divider(" "),
+            card_web,
             urwid.Divider(" "),
             card_power,
         ])
@@ -379,6 +408,53 @@ class SystemView(urwid.WidgetWrap):
             self.txt_status.set_text(("status_ok", f"Window title reset to default (saved to {saved_path})."))
         except Exception as e:
             self.txt_status.set_text(("status_alert", f"Failed to reset window title: {e}"))
+
+    def _apply_web_settings(self) -> None:
+        user = self.edit_web_user.get_edit_text().strip()
+        pw = self.edit_web_pass.get_edit_text()
+        raw_port = self.edit_web_port.get_edit_text().strip()
+
+        try:
+            port = int(raw_port)
+        except ValueError:
+            self.txt_status.set_text(("status_alert", "Error: Web UI port must be a number (1-65535)."))
+            return
+
+        def _do_apply() -> None:
+            try:
+                saved_path = set_web_settings(user, pw, port)
+            except ValueError as e:
+                self.txt_status.set_text(("status_alert", f"Error: {e}"))
+                return
+            except Exception as e:
+                self.txt_status.set_text(("status_alert", f"Failed to save Web UI settings: {e}"))
+                return
+
+            ok, msg = self.service_mgr.control_unit("orangepi-config-web.service", "restart")
+            if ok:
+                self.txt_status.set_text(("status_ok", f"Web UI updated ({user} @ port {port}, saved to {saved_path}) and restarted."))
+            else:
+                self.txt_status.set_text(("status_warn", f"Saved to {saved_path}, but service restart reported: {msg}"))
+
+        # Validate early before prompting confirmation
+        if not user or ":" in user or any(c.isspace() for c in user):
+            self.txt_status.set_text(("status_alert", "Error: Username must be non-empty without spaces or ':'."))
+            return
+        if not pw or "\n" in pw or "\r" in pw or "\x00" in pw:
+            self.txt_status.set_text(("status_alert", "Error: Password cannot be empty."))
+            return
+        if not (1 <= port <= 65535):
+            self.txt_status.set_text(("status_alert", "Error: Web UI port must be between 1 and 65535."))
+            return
+
+        if self.on_confirm_dialog:
+            self.on_confirm_dialog(
+                "Restart Web Interface",
+                f"Save Web UI login ('{user}') on port {port} and restart orangepi-config-web.service? Active browser sessions will disconnect.",
+                _do_apply,
+            )
+        else:
+            _do_apply()
 
     def _prompt_reboot(self) -> None:
         if self.on_confirm_dialog:
