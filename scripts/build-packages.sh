@@ -64,6 +64,7 @@ PACKAGES=(
   "upstream|https://github.com/Twilight0/polkit-aliveos.git|polkit-aliveos|"
   "local|chuwi-hibox-firmware|"
   "aur|yt-tui|"
+  "aur|radio-tui|"
 )
 
 echo "=== AliveOS Package Repository Builder ==="
