@@ -690,3 +690,152 @@ class NetworkController:
                 return sorted(regions, key=lambda x: x["name"])
         except Exception:
             return []
+
+    @staticmethod
+    def get_ddns_status() -> Dict[str, Any]:
+        """Returns No-IP DDNS updater status from /etc/noip.env and systemd timer."""
+        info: Dict[str, Any] = {
+            "configured": False,
+            "hostname": "",
+            "username": "",
+            "timer_active": False,
+            "timer_enabled": False,
+            "last_ip": "",
+        }
+        env_path = "/etc/noip.env"
+        if os.path.exists(env_path):
+            try:
+                vals: Dict[str, str] = {}
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            vals[k.strip()] = v.strip().strip('"').strip("'")
+                info["hostname"] = vals.get("NOIP_HOST", "")
+                info["username"] = vals.get("NOIP_USER", "")
+                info["configured"] = bool(
+                    info["hostname"] and info["username"] and vals.get("NOIP_PASS", "")
+                )
+            except Exception:
+                pass
+        try:
+            r1 = subprocess.run(["systemctl", "is-active", "noip-ddns.timer"], capture_output=True, text=True)
+            info["timer_active"] = r1.stdout.strip() == "active"
+            r2 = subprocess.run(["systemctl", "is-enabled", "noip-ddns.timer"], capture_output=True, text=True)
+            info["timer_enabled"] = r2.stdout.strip() == "enabled"
+        except Exception:
+            pass
+        if os.path.exists("/run/noip-last-ip"):
+            try:
+                with open("/run/noip-last-ip", "r", encoding="utf-8") as f:
+                    info["last_ip"] = f.read().strip()
+            except Exception:
+                pass
+        return info
+
+    @staticmethod
+    def configure_noip_ddns(
+        hostname: str,
+        username: str,
+        password: str,
+        enable_timer: bool = True,
+    ) -> Tuple[bool, str]:
+        """Writes /etc/noip.env, updater script, and systemd units, then triggers an update."""
+        hostname = hostname.strip()
+        username = username.strip()
+        if not hostname or not username or not password:
+            return False, "Hostname, username, and password are required."
+        try:
+            with open("/etc/noip.env", "w", encoding="utf-8") as f:
+                f.write(f"NOIP_HOST={hostname}\nNOIP_USER={username}\nNOIP_PASS={password}\n")
+            os.chmod("/etc/noip.env", 0o600)
+
+            script = """#!/bin/sh
+set -eu
+[ -r /etc/noip.env ] || { echo "Missing /etc/noip.env" >&2; exit 1; }
+. /etc/noip.env
+[ -n "${NOIP_USER:-}" ] && [ -n "${NOIP_PASS:-}" ] && [ -n "${NOIP_HOST:-}" ] || {
+  echo "NOIP_USER, NOIP_PASS, and NOIP_HOST must be set in /etc/noip.env" >&2
+  exit 1
+}
+IP=$(curl -fsS -m 10 https://api.ipify.org)
+CACHE="/run/noip-last-ip"
+if [ -f "$CACHE" ] && [ "$(cat "$CACHE")" = "$IP" ]; then
+  exit 0
+fi
+RESP=$(curl -fsS -m 15 -u "${NOIP_USER}:${NOIP_PASS}" \\
+  -A "AliveOS-DDNS/1.0 twilight@aliveos.org" \\
+  "https://dynupdate.no-ip.com/nic/update?hostname=${NOIP_HOST}&myip=${IP}")
+echo "No-IP update ($NOIP_HOST -> $IP): $RESP"
+case "$RESP" in
+  good*|nochg*) echo "$IP" > "$CACHE" ;;
+  *) exit 1 ;;
+esac
+"""
+            with open("/usr/local/bin/noip-ddns-update", "w", encoding="utf-8") as f:
+                f.write(script)
+            os.chmod("/usr/local/bin/noip-ddns-update", 0o755)
+
+            svc = """[Unit]
+Description=No-IP DDNS updater
+After=network-online.target pia-vpn.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/noip-ddns-update
+"""
+            with open("/etc/systemd/system/noip-ddns.service", "w", encoding="utf-8") as f:
+                f.write(svc)
+
+            tmr = """[Unit]
+Description=Run No-IP DDNS updater every 10 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=10min
+Unit=noip-ddns.service
+
+[Install]
+WantedBy=timers.target
+"""
+            with open("/etc/systemd/system/noip-ddns.timer", "w", encoding="utf-8") as f:
+                f.write(tmr)
+
+            subprocess.run(["systemctl", "daemon-reload"], capture_output=True)
+            if enable_timer:
+                subprocess.run(["systemctl", "enable", "--now", "noip-ddns.timer"], capture_output=True)
+            if os.path.exists("/run/noip-last-ip"):
+                os.unlink("/run/noip-last-ip")
+            res = subprocess.run(["/usr/local/bin/noip-ddns-update"], capture_output=True, text=True)
+            if res.returncode == 0:
+                return True, res.stdout.strip() or f"DDNS updated for {hostname}."
+            return False, (res.stderr or res.stdout).strip() or "DDNS update failed."
+        except Exception as e:
+            return False, f"Failed to configure DDNS: {e}"
+
+    @staticmethod
+    def run_ddns_update() -> Tuple[bool, str]:
+        """Forces an immediate No-IP DDNS update."""
+        try:
+            if os.path.exists("/run/noip-last-ip"):
+                os.unlink("/run/noip-last-ip")
+            res = subprocess.run(["/usr/local/bin/noip-ddns-update"], capture_output=True, text=True)
+            if res.returncode == 0:
+                return True, res.stdout.strip() or "DDNS updated."
+            return False, (res.stderr or res.stdout).strip() or "DDNS update failed."
+        except Exception as e:
+            return False, f"DDNS update failed: {e}"
+
+    @staticmethod
+    def set_ddns_autostart(enabled: bool) -> Tuple[bool, str]:
+        """Enables or disables noip-ddns.timer."""
+        action = "enable" if enabled else "disable"
+        flag = "--now"
+        try:
+            res = subprocess.run(["systemctl", action, flag, "noip-ddns.timer"], capture_output=True, text=True)
+            if res.returncode == 0:
+                return True, f"DDNS timer {action}d."
+            return False, res.stderr.strip() or f"Failed to {action} noip-ddns.timer."
+        except Exception as e:
+            return False, f"Failed to {action} noip-ddns.timer: {e}"

@@ -28,6 +28,7 @@ class NetworkView(urwid.WidgetWrap):
         self.pile_ifaces = urwid.Pile([])
         self.pile_xr819 = urwid.Pile([])
         self.pile_pia = urwid.Pile([])
+        self.pile_ddns = urwid.Pile([])
 
         # Static IP inputs
         self.edit_iface = urwid.Edit(("card_label", "Interface (e.g., eth0, wlan0): "), "eth0")
@@ -136,6 +137,21 @@ class NetworkView(urwid.WidgetWrap):
             ], cell_width=30, h_sep=2, v_sep=1, align="left"),
         ])
 
+        # Card 6: Dynamic DNS (No-IP)
+        btn_ddns_cfg = CustomButton("Configure No-IP DDNS", on_press=lambda _: self._show_ddns_dialog())
+        btn_ddns_run = CustomButton("Update DDNS Now", on_press=lambda _: self._run_ddns_now())
+        btn_ddns_boot = CustomButton("Toggle DDNS Timer", on_press=lambda _: self._toggle_ddns_autostart())
+
+        card_ddns = self._build_card("Dynamic DNS (No-IP Updater)", [
+            self.pile_ddns,
+            urwid.Divider("─"),
+            urwid.GridFlow([
+                btn_ddns_cfg,
+                btn_ddns_run,
+                btn_ddns_boot,
+            ], cell_width=28, h_sep=2, v_sep=1, align="left"),
+        ])
+
         return urwid.Pile([
             urwid.AttrMap(self.txt_status, "status_info"),
             urwid.Divider(" "),
@@ -148,6 +164,8 @@ class NetworkView(urwid.WidgetWrap):
             card_xr819,
             urwid.Divider(" "),
             card_pia,
+            urwid.Divider(" "),
+            card_ddns,
         ])
 
     def refresh(self) -> None:
@@ -222,6 +240,22 @@ class NetworkView(urwid.WidgetWrap):
                 urwid.Text([("card_label", "PIA: "), pia_scripts]),
             ]), ("pack", None)),
             (urwid.Text([("card_label", "  Forwarded Port: "), ("card_value", pf_str)]), ("pack", None)),
+        ]
+
+        # 5. No-IP DDNS status
+        ddns = self.net_ctrl.get_ddns_status()
+        ddns_tmr = ("status_ok", "[TIMER ON]") if ddns["timer_active"] else ("status_warn", "[TIMER OFF]")
+        ddns_cfg = ("status_ok", "[Configured]") if ddns["configured"] else ("status_warn", "[Not Configured]")
+        ddns_host = ddns["hostname"] or "-"
+        ddns_ip = ddns["last_ip"] or "-"
+
+        self.pile_ddns.contents = [
+            (urwid.Columns([
+                (22, urwid.Text([("card_label", "  Timer: "), ddns_tmr])),
+                (22, urwid.Text([("card_label", "Config: "), ddns_cfg])),
+                urwid.Text([("card_label", "Last IP: "), ("card_value", ddns_ip)]),
+            ]), ("pack", None)),
+            (urwid.Text([("card_label", "  Hostname: "), ("card_value", ddns_host)]), ("pack", None)),
         ]
 
     def _set_dns_preset(self, preset_servers: str) -> None:
@@ -446,6 +480,51 @@ class NetworkView(urwid.WidgetWrap):
     def _toggle_pia_autostart(self) -> None:
         pia = self.net_ctrl.get_pia_status()
         ok, msg = self.net_ctrl.set_pia_autostart(not pia["enabled"])
+        self._set_status(msg, ok=ok)
+        self.refresh()
+
+    def _show_ddns_dialog(self) -> None:
+        if not self.on_modal_dialog:
+            return
+        cur = self.net_ctrl.get_ddns_status()
+        edit_host = urwid.Edit(("card_label", "Hostname (e.g. myhost.ddns.net): "), cur["hostname"])
+        edit_user = urwid.Edit(("card_label", "No-IP Username / DDNS Key: "), cur["username"])
+        edit_pass = urwid.Edit(("card_label", "No-IP Password / Key Secret: "), "", mask="*")
+        chk_timer = urwid.CheckBox("Enable 10-min systemd timer", state=True)
+
+        def _do_save() -> None:
+            ok, msg = self.net_ctrl.configure_noip_ddns(
+                edit_host.get_edit_text(),
+                edit_user.get_edit_text(),
+                edit_pass.get_edit_text(),
+                enable_timer=chk_timer.get_state(),
+            )
+            self._close_modal()
+            self._set_status(msg, ok=ok)
+            self.refresh()
+
+        btn_save = CustomButton("Save & Update", on_press=lambda _: _do_save())
+        btn_cancel = CustomButton("Cancel", on_press=lambda _: self._close_modal())
+        pile = urwid.Pile([
+            edit_host,
+            edit_user,
+            edit_pass,
+            urwid.Divider(" "),
+            chk_timer,
+            urwid.Divider("─"),
+            urwid.Columns([(20, btn_save), (14, btn_cancel)], dividechars=2),
+        ])
+        dialog = ModalDialog(title="Configure No-IP DDNS Updater", body_widget=pile, width=64, height=16)
+        self.on_modal_dialog(dialog)
+
+    def _run_ddns_now(self) -> None:
+        ok, msg = self.net_ctrl.run_ddns_update()
+        self._set_status(msg, ok=ok)
+        self.refresh()
+
+    def _toggle_ddns_autostart(self) -> None:
+        ddns = self.net_ctrl.get_ddns_status()
+        ok, msg = self.net_ctrl.set_ddns_autostart(not ddns["timer_enabled"])
         self._set_status(msg, ok=ok)
         self.refresh()
 
