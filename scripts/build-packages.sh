@@ -12,7 +12,7 @@ BUILD_DIR="$REPO_DIR/build"
 OUTPUT_DIR="$REPO_DIR/x86_64"
 
 # Define packages to build in precise dependency order
-# Format: "local|NAME" or "aur|AUR_NAME|TARGET_NAME" or "upstream|REPO_URL|TARGET_NAME|TAG"
+# Format: "local|NAME|" or "aur|AUR_NAME|TARGET_NAME" or "upstream|REPO_URL|TARGET_NAME|TAG" or "release|OWNER/REPO|TARGET_NAME|TAG"
 # Using | as delimiter to avoid conflicts with https:// URLs
 PACKAGES=(
   "aur|linux-xanmod-lts-linux-bin-x64v2|"
@@ -20,6 +20,7 @@ PACKAGES=(
   "local|nouveau-xanmod-lts-x64v2|"
   "aur|nouveau-dkms|"
   "local|nouveau-utils|"
+  "release|Twilight0/mesa-aliveos|mesa-aliveos|"
   "local|dell-xps-brightness-xanmod-lts-x64v2|"
   "aur|dell-xps-brightness-dkms|"
   "local|nvidia-390xx-utils|"
@@ -59,6 +60,7 @@ PACKAGES=(
   "aur|mcp-kodi|"
   "aur|blender-3.6-lts-bin|blender-3.6-lts"
   "aur|blender-4.5-lts-bin|blender-4.5-lts"
+  "aur|ffmpeg7.1|"
   "upstream|https://github.com/httptoolkit/httptoolkit-desktop.git|httptoolkit|"
   "upstream|https://github.com/Twilight0/xconnect.git|xconnect|"
   "upstream|https://github.com/Twilight0/polkit-aliveos.git|polkit-aliveos|"
@@ -341,6 +343,111 @@ for item in "${PACKAGES[@]}"; do
       done
     fi
     
+    cd "$REPO_DIR"
+  elif [ "$type" == "release" ]; then
+    # release|OWNER/REPO|TARGET_NAME|TAG
+    IFS='|' read -r _ gh_repo pkg_name tag <<< "$item"
+
+    if [ -z "$pkg_name" ]; then
+      pkg_name="${gh_repo##*/}"
+    fi
+
+    echo ""
+    echo "----------------------------------------"
+    echo "Fetching prebuilt release package: $gh_repo ($pkg_name)"
+    echo "----------------------------------------"
+
+    rm -rf "$BUILD_DIR/$pkg_name"
+    mkdir -p "$BUILD_DIR/$pkg_name"
+    cd "$BUILD_DIR/$pkg_name"
+
+    if [ -z "$tag" ] || [ "$tag" == "latest" ]; then
+      release_api="https://api.github.com/repos/${gh_repo}/releases/latest"
+    else
+      release_api="https://api.github.com/repos/${gh_repo}/releases/tags/${tag}"
+    fi
+
+    curl_headers=(-H "Accept: application/vnd.github+json")
+    if [ -n "${GH_TOKEN:-}" ]; then
+      curl_headers+=(-H "Authorization: Bearer ${GH_TOKEN}")
+    fi
+
+    max_attempts=5
+    attempt=1
+    while [ "$attempt" -le "$max_attempts" ]; do
+      echo "Querying GitHub release API (attempt $attempt/$max_attempts): $release_api"
+      if curl -fsSL "${curl_headers[@]}" "$release_api" -o release.json; then
+        break
+      fi
+      if [ "$attempt" -eq "$max_attempts" ]; then
+        echo "ERROR: Failed to fetch release metadata from $release_api after $max_attempts attempts" >&2
+        exit 1
+      fi
+      echo "Release metadata fetch failed, retrying in $((attempt * 10)) seconds..."
+      sleep $((attempt * 10))
+      attempt=$((attempt + 1))
+    done
+
+    mapfile -t release_assets < <(python3 - <<'PYEOF'
+import json, sys
+
+with open("release.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+pkgs = []
+sha_url = ""
+for asset in data.get("assets", []):
+    name = asset.get("name", "")
+    url = asset.get("browser_download_url", "")
+    if not url:
+        continue
+    if name == "SHA256SUMS.txt":
+        sha_url = url
+    elif name.endswith(".pkg.tar.zst") and "-debug-" not in name:
+        pkgs.append((name, url))
+
+if not pkgs:
+    print("ERROR: No non-debug .pkg.tar.zst assets found in GitHub release", file=sys.stderr)
+    sys.exit(1)
+
+if sha_url:
+    print(f"SHA256SUMS.txt\t{sha_url}")
+for name, url in pkgs:
+    print(f"{name}\t{url}")
+PYEOF
+    )
+
+    has_sha=0
+    pkg_files=()
+    for line in "${release_assets[@]}"; do
+      IFS=$'\t' read -r asset_name asset_url <<< "$line"
+      echo "Downloading asset: $asset_name"
+      curl --retry 3 --retry-delay 2 -fsSL "$asset_url" -o "$asset_name"
+      if [ "$asset_name" == "SHA256SUMS.txt" ]; then
+        has_sha=1
+      else
+        pkg_files+=("$asset_name")
+      fi
+    done
+
+    if [ "${#pkg_files[@]}" -eq 0 ]; then
+      echo "ERROR: No .pkg.tar.zst packages downloaded for $gh_repo" >&2
+      exit 1
+    fi
+
+    if [ "$has_sha" -eq 1 ]; then
+      echo "Verifying SHA256 checksums..."
+      sha256sum -c --ignore-missing SHA256SUMS.txt
+    fi
+
+    for f in "${pkg_files[@]}"; do
+      echo "Validating archive: $f"
+      pacman -Qp "$f" >/dev/null
+    done
+
+    echo "Copying prebuilt packages to $OUTPUT_DIR..."
+    cp "${pkg_files[@]}" "$OUTPUT_DIR/"
+
     cd "$REPO_DIR"
   else
     if [ -z "$target_name" ]; then
