@@ -162,6 +162,32 @@ scan_pkgbuild() {
   fi
 }
 
+# Import any validpgpkeys declared in PKGBUILD into the builder's GPG keyring
+import_validpgpkeys() {
+  local keys
+  keys=$(makepkg --printsrcinfo 2>/dev/null | awk -F' = ' '/^\tvalidpgpkeys = /{print $2}')
+  [ -z "$keys" ] && return 0
+
+  local key keyfile ks
+  for key in $keys; do
+    if gpg --list-keys "$key" >/dev/null 2>&1; then
+      continue
+    fi
+    keyfile="keys/pgp/${key}.asc"
+    if [ -f "$keyfile" ]; then
+      echo "Importing local PGP key: $keyfile"
+      gpg --batch --import "$keyfile" && continue
+    fi
+    echo "Importing PGP key $key from keyserver..."
+    for ks in hkps://keyserver.ubuntu.com hkps://keys.openpgp.org hkps://pgp.mit.edu; do
+      if gpg --batch --keyserver "$ks" --recv-keys "$key" 2>/dev/null; then
+        echo "  Imported $key from $ks"
+        break
+      fi
+    done
+  done
+}
+
 # Build all packages sequentially
 for item in "${PACKAGES[@]}"; do
   IFS='|' read -r type pkg_name target_name <<< "$item"
@@ -227,6 +253,7 @@ for item in "${PACKAGES[@]}"; do
     fi
 
     # Run makepkg
+    import_validpgpkeys
     makepkg --syncdeps --noconfirm --nocheck --clean
     
     echo "Copying built packages to $OUTPUT_DIR..."
@@ -319,6 +346,7 @@ for item in "${PACKAGES[@]}"; do
     fi
 
     # Run makepkg
+    import_validpgpkeys
     makepkg --syncdeps --noconfirm --nocheck --clean
 
     # Copy built packages to output directory
@@ -516,6 +544,7 @@ PYEOF
     fi
 
     # Run makepkg
+    import_validpgpkeys
     makepkg --syncdeps --noconfirm --nocheck --clean
 
     # Copy built packages to output directory
