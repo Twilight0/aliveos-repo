@@ -123,6 +123,17 @@ jobs:
             done
           done
 
+      - name: Import FFmpeg GPG key for builder
+        run: |
+          FFMPEG_KEY="DD1EC9E8DE085C629B3E1846B18E8928B3948D64" # Michael Niedermayer <michael@niedermayer.cc>
+          if ! curl -fsSL https://ffmpeg.org/ffmpeg-devel.asc | sudo -u builder gpg --import -; then
+            for keyserver in hkps://keyserver.ubuntu.com hkp://keyserver.ubuntu.com:80 keys.openpgp.org pgp.mit.edu; do
+              echo "Trying keyserver for builder FFmpeg key: $keyserver"
+              sudo -u builder gpg --keyserver "$keyserver" --recv-keys "$FFMPEG_KEY" && break
+              sleep 2
+            done
+          fi
+
       - name: Build Packages & Generate Repository Database
         run: |
           sudo -u builder bash scripts/build-packages.sh
