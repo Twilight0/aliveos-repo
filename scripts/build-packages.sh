@@ -531,6 +531,14 @@ PYEOF
       echo "Rewrote Blender download URL to mirror.clarkson.edu in $pkg_name PKGBUILD"
     fi
 
+    # linux-xanmod-lts-linux-bin-x64v2 ships CONFIG_NTSYNC=m (ntsync.ko) but omits NTSYNC-MODULE from provides
+    if [[ "$pkg_name" == "linux-xanmod-lts-linux-bin-x64v2" ]]; then
+      if ! grep -q "NTSYNC-MODULE" PKGBUILD; then
+        sed -i 's/NTFS3-MODULE)/NTFS3-MODULE\n            NTSYNC-MODULE)/' PKGBUILD
+        echo "Added NTSYNC-MODULE to provides in $pkg_name PKGBUILD"
+      fi
+    fi
+
     # Security scan before building
     if ! scan_pkgbuild "PKGBUILD" "$pkg_name"; then
       echo ""
