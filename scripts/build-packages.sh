@@ -21,6 +21,7 @@ PACKAGES=(
   "aur|nouveau-dkms|"
   "local|nouveau-utils|"
   "release|Twilight0/mesa-aliveos|mesa-aliveos|"
+  "release|Twilight0/vulkan-nouveau-aliveos|vulkan-nouveau-aliveos|"
   "local|dell-xps-brightness-xanmod-lts-x64v2|"
   "aur|dell-xps-brightness-dkms|"
   "local|nvidia-390xx-utils|"
