@@ -96,6 +96,7 @@ jobs:
           sudo -u builder git config --global http.postBuffer 524288000
           sudo -u builder git config --global http.lowSpeedLimit 0
           sudo -u builder git config --global http.lowSpeedTime 999999
+          sed -i 's/--retry 3 --retry-delay 3/--retry 5 --retry-delay 5 --retry-all-errors/g' /etc/makepkg.conf
 
       - name: Import CachyOS GPG keys
         run: |
