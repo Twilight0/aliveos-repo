@@ -602,41 +602,30 @@ PYEOF
 done
 
 echo ""
-echo "=== Generating Pacman Repository Database ==="
+echo "=== Sanitizing epoch colons in filenames for GitHub Releases ==="
 cd "$OUTPUT_DIR"
+for f in *:*pkg.tar.zst; do
+  [ -f "$f" ] || continue
+  newname="${f//:/\.}"
+  if [ "$f" != "$newname" ]; then
+    echo "Renaming: $f -> $newname"
+    mv "$f" "$newname"
+  fi
+done
 
+echo ""
+echo "=== Generating Pacman Repository Database ==="
 # Remove old database files if they exist (repo-add will regenerate them)
 rm -f aliveos-repo.db*
 rm -f aliveos-repo.files*
 
-# Run repo-add to create database
+# Run repo-add to create database (%VERSION% keeps epoch from .PKGINFO,
+# while %FILENAME% matches the GitHub Releases sanitized asset name)
 repo-add aliveos-repo.db.tar.gz *.pkg.tar.zst
 
 # Create symlinks to match standard pacman repos
 ln -sf aliveos-repo.db.tar.gz aliveos-repo.db
 ln -sf aliveos-repo.files.tar.gz aliveos-repo.files
-
-# Fix epoch versions in filenames: replace dots with colons for repo-add compatibility
-# makepkg generates filenames like "pkg-1.25.0.1-4.pkg.tar.zst" but repo-add expects "pkg-1:25.0.1-4.pkg.tar.zst"
-echo ""
-echo "=== Fixing epoch versions in filenames ==="
-cd "$OUTPUT_DIR"
-for f in *-1.*-*-x86_64.pkg.tar.zst *-1.*-*-any.pkg.tar.zst; do
-  [ -f "$f" ] || continue
-  # Check if this is an epoch version (first number after last dash before version has a dot pattern)
-  if [[ "$f" =~ ^(.+)-([0-9]+)\.([0-9]+\.[0-9]+\.[0-9]+)-([0-9]+)-(x86_64|any)\.pkg\.tar\.zst$ ]]; then
-    pkgname="${BASH_REMATCH[1]}"
-    epoch="${BASH_REMATCH[2]}"
-    pkgver="${BASH_REMATCH[3]}"
-    pkgrel="${BASH_REMATCH[4]}"
-    arch="${BASH_REMATCH[5]}"
-    newname="${pkgname}-${epoch}:${pkgver}-${pkgrel}-${arch}.pkg.tar.zst"
-    if [ "$f" != "$newname" ]; then
-      echo "Renaming: $f -> $newname"
-      mv "$f" "$newname"
-    fi
-  fi
-done
 
 echo "=== Build Complete ==="
 echo "Output files in $OUTPUT_DIR:"
