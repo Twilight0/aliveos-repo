@@ -36,6 +36,7 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 28. **`orangepi-config`** - Urwid TUI configuration and diagnostics utility for Orange Pi Zero (Allwinner H2+/H3).
 29. **`xradio-dkms-git`** - DKMS source driver for the Allwinner XRadio XR819 wireless chip.
 30. **`xradio-linux-armv7`** - Prebuilt binary XRadio XR819 wireless module (`xradio_wlan.ko`) for official Arch Linux ARM `linux-armv7`.
+31. **`radio-tui`** - Lightweight curses internet radio player with SomaFM and Radio Browser feeds, favorites, filtering and live volume control.
 
 ---
 
