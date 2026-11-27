@@ -13,7 +13,7 @@ It is automatically compiled and updated via **GitHub Actions** and hosted using
 5. **`dell-xps-brightness-dkms`** - DKMS source package for Dell XPS L702X EC hardware brightness driver.
 6. **`dell-xps-brightness-xanmod-lts-x64v2`** - **Prebuilt** binary Dell XPS L702X EC hardware brightness driver for `linux-xanmod-lts-linux-bin-x64v2`.
 7. **`graphite-gtk-theme-git`** - Graphite GTK theme (includes the black compact variant).
-8. **`grub-silent-ldfix`** - Suppressed boot output version of GRUB with linker bugfix.
+8. **`grub-silent`** - Suppressed boot output version of GRUB.
 9. **`httptoolkit`** - HTTP(S) interception, debugging, and mock proxy desktop application.
 10. **`linux-xanmod-lts-linux-bin-x64v2`** & **`linux-xanmod-lts-linux-headers-bin-x64v2`** - Prebuilt LTS Linux kernel and headers with XanMod performance patches (x86-64-v2 baseline).
 11. **`mcp-kodi`** - MCP server that lets an AI assistant control Kodi over its JSON-RPC API (22 tools: transport, volume, library search, queue, history, audio/subtitle switching, notifications).

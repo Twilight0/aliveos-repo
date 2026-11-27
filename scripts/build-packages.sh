@@ -48,7 +48,7 @@ PACKAGES=(
   "aur|piper-voices-common|"
   "aur|piper-voices-el-gr|"
   "upstream|https://github.com/Twilight0/aliveos-assets.git|aliveos-assets|"
-  "aur|grub-silent-ldfix|"
+  "aur|grub-silent|"
   "local|valuate|"
   "aur|muse-code-bin|"
   "aur|agentty-bin|"
